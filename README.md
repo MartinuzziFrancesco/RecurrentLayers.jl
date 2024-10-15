@@ -56,7 +56,7 @@ X = rand(Float32, input_size, sequence_length)
 Y = rand(1:output_size)
 
 # loss function
-loss_fn1(x, y) = Flux.mse(model(x), y)
+loss_fn(x, y) = Flux.mse(model(x), y)
 
 # optimizer
 opt = Adam()
@@ -65,13 +65,13 @@ opt = Adam()
 for epoch in 1:epochs
     # gradients
     gs = gradient(Flux.params(model)) do
-        loss = loss_fn1(X, Y)
+        loss = loss_fn(X, Y)
         return loss
     end
     # update parameters
     Flux.update!(opt, Flux.params(model), gs)
     # loss at epoch
-    current_loss = loss_fn1(X, Y)
+    current_loss = loss_fn(X, Y)
     println("Epoch $epoch, Loss: $(current_loss)")
 end
 ```

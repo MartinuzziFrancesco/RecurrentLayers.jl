@@ -1,10 +1,6 @@
-using RecurrentLayers
+using SafeTestsets
 using Test
-using Aqua
 
-@testset "RecurrentLayers.jl" begin
-    @testset "Code quality (Aqua.jl)" begin
-        Aqua.test_all(RecurrentLayers; ambiguities = false, deps_compat = false)
-    end
-    # Write your tests here.
+@safetestset "Quality Assurance" begin
+    include("qa.jl")
 end

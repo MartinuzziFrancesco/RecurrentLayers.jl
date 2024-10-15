@@ -8,5 +8,6 @@ export MGUCell, LiGRUCell
 export MGU, LiGRU
 
 include("mgu_cell.jl")
+include("ligru_cell.jl")
 
 end #module
