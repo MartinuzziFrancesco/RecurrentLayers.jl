@@ -1,4 +1,4 @@
-struct LiGrUCell{I, H, V, S, F1, F2}
+struct LiGRUCell{I, H, V, S, F1, F2}
     Wf::I
     Wh::H
     b::V
@@ -7,7 +7,7 @@ struct LiGrUCell{I, H, V, S, F1, F2}
     gate_activation_fn::F2
 end
 
-function LiGrUCell((in, out)::Pair;
+function LiGRUCell((in, out)::Pair;
     init=glorot_uniform,
     initb=zeros32,
     init_state=zeros32,
@@ -18,10 +18,12 @@ function LiGrUCell((in, out)::Pair;
     Wh = init(out * 2, out)
     b = initb(out * 2)
     state0 = init_state(out, 1)
-    return LiGrUCell(Wf, Wh, b, state0, activation_fn, gate_activation_fn)
+    return LiGRUCell(Wf, Wh, b, state0, activation_fn, gate_activation_fn)
 end
 
-function (ligru::LiGrUCell{I,H,V,<:AbstractMatrix{T},F1, F2})(hidden, inp::AbstractVecOrMat) where {I,H,V,T,F1,F2}
+LiGRUCell(in, out; kwargs...) = LiGRUCell(in => out; kwargs...)
+
+function (ligru::LiGRUCell{I,H,V,<:AbstractMatrix{T},F1, F2})(hidden, inp::AbstractVecOrMat) where {I,H,V,T,F1,F2}
     _size_check(ligru, inp, 1 => size(ligru.Wf,2))
     Wf, Wh, bias, o = ligru.Wf, ligru.Wh, ligru.b, size(hidden, 1)
     inp_t = _match_eltype(ligru, T, inp)
@@ -33,7 +35,15 @@ function (ligru::LiGrUCell{I,H,V,<:AbstractMatrix{T},F1, F2})(hidden, inp::Abstr
     return new_h, reshape_cell_output(new_h, inp)
 end
 
-Flux.@layer LiGrUCell
+Flux.@layer LiGRUCell
 
-Base.show(io::IO, ligru::LiGrUCell) =
-    print(io, "LiGrUCell(", size(ligru.Wf, 2), " => ", size(ligru.Wf, 1) ÷ 2, ")")
+Base.show(io::IO, ligru::LiGRUCell) =
+    print(io, "LiGRUCell(", size(ligru.Wf, 2), " => ", size(ligru.Wf, 1) ÷ 2, ")")
+
+function LiGRU(args...; kwargs...)
+    return Flux.Recur(LiGRUCell(args...; kwargs...))
+end    
+
+function Flux.Recur(ligru::LiGRUCell)
+    return Flux.Recur(ligru, ligru.state0)
+end

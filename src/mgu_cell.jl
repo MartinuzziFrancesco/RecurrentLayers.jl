@@ -22,6 +22,8 @@ function MGUCell((in, out)::Pair;
     return MGUCell(Wf, Wh, b, state0, activation_fn, gate_activation_fn)
 end
 
+MGUCell(in, out; kwargs...) = MGUCell(in => out; kwargs...)
+
 function (mgu::MGUCell{I,H,V,<:AbstractMatrix{T},F1, F2})(hidden, inp::AbstractVecOrMat) where {I,H,V,T,F1,F2}
     _size_check(mgu, inp, 1 => size(mgu.Wf,2))
     Wf, Wh, bias, o = mgu.Wf, mgu.Wh, mgu.b, size(hidden, 1)
@@ -38,3 +40,11 @@ Flux.@layer MGUCell
 
 Base.show(io::IO, l::MGUCell) =
     print(io, "MGUCell(", size(l.Wf, 2), " => ", size(l.Wf, 1) ÷ 2, ")")
+
+function MGU(args...; kwargs...)
+    return Flux.Recur(MGUCell(args...; kwargs...))
+end    
+
+function Flux.Recur(mgu::MGUCell)
+    return Flux.Recur(mgu, mgu.state0)
+end

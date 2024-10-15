@@ -32,7 +32,7 @@ using Pkg
 Pkg.add(url="https://github.com/MartinuzziFrancesco/RecurrentLayers.jl")
 ```
 
-## Getting started (to test!)
+## Getting started
 
 The workflow is identical to any recurrent Flux layer:
 
@@ -40,26 +40,38 @@ The workflow is identical to any recurrent Flux layer:
 using Flux
 using RecurrentLayers
 
-# Define the model
+input_size = 2
+hidden_size = 5
+output_size = 3
+sequence_length = 100
+epochs = 10
+
 model = Chain(
-    Recur(MGU(input_size, hidden_size)),
-    Dense(hidden_size, output_size),
-    softmax
+    MGU(input_size, hidden_size),
+    Dense(hidden_size, output_size)
 )
 
-# Dummy data
-x = rand(Float32, input_size, sequence_length, batch_size)
-y = rand(1:output_size, batch_size)
+# dummy data
+X = rand(Float32, input_size, sequence_length)
+Y = rand(1:output_size)
 
-# Define loss and optimizer
-loss_fn = Flux.crossentropy
-opt = ADAM()
+# loss function
+loss_fn1(x, y) = Flux.mse(model(x), y)
 
-# Training loop
-for epoch in 1:10
-    Flux.train!(loss_fn, params(model)) do
-        y_pred = model(x)
-        loss = loss_fn(y_pred, y)
+# optimizer
+opt = Adam()
+
+# training 
+for epoch in 1:epochs
+    # gradients
+    gs = gradient(Flux.params(model)) do
+        loss = loss_fn1(X, Y)
+        return loss
     end
+    # update parameters
+    Flux.update!(opt, Flux.params(model), gs)
+    # loss at epoch
+    current_loss = loss_fn1(X, Y)
+    println("Epoch $epoch, Loss: $(current_loss)")
 end
 ```

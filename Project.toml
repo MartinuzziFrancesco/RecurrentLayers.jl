@@ -3,6 +3,9 @@ uuid = "78449bcf-6750-4b78-9e82-63d4a1ccdf8c"
 authors = ["Francesco Martinuzzi"]
 version = "0.1.0"
 
+[deps]
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+
 [compat]
 julia = "1.10"
 
