@@ -32,6 +32,9 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     return new_state
 end
 
+Base.show(io::IO, mgu::MGUCell) =
+    print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
+
 
 struct MGU{M}
     cell::M
@@ -58,6 +61,3 @@ function (mgu::MGU)(inp, state)
     end
     return stack(new_state, dims=2)
 end
-
-Base.show(io::IO, mgu::MGUCell) =
-    print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
