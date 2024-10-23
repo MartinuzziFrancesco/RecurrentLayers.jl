@@ -17,6 +17,7 @@ end
 function (indrnn::IndRNNCell)(x::AbstractVecOrMat)
     state = zeros_like(x, size(indrnn.u, 1))
     return indrnn(x, state)
+end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))

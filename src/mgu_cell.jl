@@ -2,7 +2,7 @@
 struct MGUCell{I, H, V}
     Wi::I
     Wh::H
-    b::V
+    bias::V
 end
 
 function MGUCell((in, out)::Pair;
@@ -20,7 +20,7 @@ MGUCell(in, out; kwargs...) = MGUCell(in => out; kwargs...)
 
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     _size_check(mgu, inp, 1 => size(mgu.Wi,2))
-    Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.b
+    Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
     #split
     gxs = chunk(Wi * inp, 2, dims=1)
     bs = chunk(b, 2, dims=1)

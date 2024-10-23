@@ -1,7 +1,7 @@
 struct LiGRUCell{I, H, V}
     Wi::I
     Wh::H
-    b::V
+    bias::V
 end
 
 function LiGRUCell((in, out)::Pair;
