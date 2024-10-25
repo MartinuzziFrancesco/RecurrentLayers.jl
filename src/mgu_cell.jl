@@ -1,50 +1,68 @@
-# Define the MGU cell in Flux.jl
-struct MGUCell{I, H, V, S, F1, F2}
-    Wf::I
+#https://arxiv.org/pdf/1603.09420
+struct MGUCell{I, H, V}
+    Wi::I
     Wh::H
-    b::V
-    state0::S
-    activation_fn::F1
-    gate_activation_fn::F2
+    bias::V
 end
 
 function MGUCell((in, out)::Pair;
-    init=glorot_uniform,
-    initb=zeros32,
-    init_state=zeros32,
-    activation_fn=tanh_fast,
-    gate_activation_fn=sigmoid_fast)
+    init = glorot_uniform,
+    bias = true)
 
-    Wf = init(out * 2, in)
+    Wi = init(out * 2, in)
     Wh = init(out * 2, out)
-    b = initb(out * 2)
-    state0 = init_state(out, 1)
-    return MGUCell(Wf, Wh, b, state0, activation_fn, gate_activation_fn)
+    b = create_bias(Wi, bias, size(Wi, 1))
+
+    return MGUCell(Wi, Wh, b)
 end
 
 MGUCell(in, out; kwargs...) = MGUCell(in => out; kwargs...)
 
-function (mgu::MGUCell{I,H,V,<:AbstractMatrix{T},F1, F2})(hidden, inp::AbstractVecOrMat) where {I,H,V,T,F1,F2}
-    _size_check(mgu, inp, 1 => size(mgu.Wf,2))
-    Wf, Wh, bias, o = mgu.Wf, mgu.Wh, mgu.b, size(hidden, 1)
-    inp_t = _match_eltype(mgu, T, inp)
-    gxs, ghs, bs = multigate(Wf*inp_t, o, Val(2)), multigate(Wh*(hidden), o, Val(2)), multigate(bias, o, Val(2))
-    forget_gate = @. mgu.gate_activation_fn(gxs[1] + ghs[1] + bs[1])
-
-    candidate_hidden = @. tanh_fast(gxs[2] + forget_gate * (ghs[2]*hidden) + bs[2])
-    new_h = forget_gate .* hidden .+ (1 .- forget_gate) .* candidate_hidden
-    return new_h, reshape_cell_output(new_h, inp)
+function (mgu::MGUCell)(inp::AbstractVecOrMat)
+    state = zeros_like(inp, size(mgu.Wh, 2))
+    return mgu(inp, state)
 end
 
-Flux.@layer MGUCell
+function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
+    _size_check(mgu, inp, 1 => size(mgu.Wi,2))
+    Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
+    #split
+    gxs = chunk(Wi * inp, 2, dims=1)
+    bs = chunk(b, 2, dims=1)
+    ghs = chunk(Wh, 2, dims=1)
 
-Base.show(io::IO, l::MGUCell) =
-    print(io, "MGUCell(", size(l.Wf, 2), " => ", size(l.Wf, 1) ÷ 2, ")")
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state .+ bs[1])
+    candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state) .+ bs[2])
+    new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
+    return new_state
+end
 
-function MGU(args...; kwargs...)
-    return Flux.Recur(MGUCell(args...; kwargs...))
-end    
+Base.show(io::IO, mgu::MGUCell) =
+    print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
 
-function Flux.Recur(mgu::MGUCell)
-    return Flux.Recur(mgu, mgu.state0)
+
+struct MGU{M}
+    cell::M
+end
+  
+Flux.@layer :expand MGU
+
+function MGU((in, out)::Pair; init = glorot_uniform, bias = true)
+    cell = MGUCell(in => out; init, bias)
+    return MGU(cell)
+end
+  
+function (mgu::MGU)(inp)
+    state = zeros_like(inp, size(mgu.cell.Wh, 2))
+    return mgu(inp, state)
+end
+  
+function (mgu::MGU)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    new_state = []
+    for inp_t in eachslice(inp, dims=2)
+        state = mgu.cell(inp_t, state)
+        new_state = vcat(new_state, [state])
+    end
+    return stack(new_state, dims=2)
 end
