@@ -39,7 +39,7 @@ function (ran::RANCell)(inp::AbstractVecOrMat, (state, c_state))
 end
 
 Base.show(io::IO, ran::RANCell) =
-    print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1)÷2, ")")
+    print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1)÷3, ")")
 
 
 struct RAN{M}
@@ -70,5 +70,4 @@ function (ran::RAN)(inp, (state, c_state))
     end
     return stack(new_state, dims=2), stack(new_cstate, dims=2)
 end
-
 

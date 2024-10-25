@@ -1,4 +1,4 @@
-# Define the MGU cell in Flux.jl
+#https://arxiv.org/pdf/1603.09420
 struct MGUCell{I, H, V}
     Wi::I
     Wh::H
@@ -18,6 +18,11 @@ end
 
 MGUCell(in, out; kwargs...) = MGUCell(in => out; kwargs...)
 
+function (mgu::MGUCell)(inp::AbstractVecOrMat)
+    state = zeros_like(inp, size(mgu.Wh, 2))
+    return mgu(inp, state)
+end
+
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     _size_check(mgu, inp, 1 => size(mgu.Wi,2))
     Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
@@ -26,9 +31,9 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     bs = chunk(b, 2, dims=1)
     ghs = chunk(Wh, 2, dims=1)
 
-    forget_gate = @. sigmoid_fast(gxs[1] + ghs[1]*state + bs[1])
-    candidate_state = @. tanh_fast(gxs[2] + ghs[2]*(forget_gate*state) + bs[2])
-    new_state = @. forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state .+ bs[1])
+    candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state) .+ bs[2])
+    new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
     return new_state
 end
 

@@ -1,3 +1,4 @@
+#https://arxiv.org/pdf/1803.10225
 struct LiGRUCell{I, H, V}
     Wi::I
     Wh::H

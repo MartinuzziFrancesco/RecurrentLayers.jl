@@ -1,3 +1,4 @@
+#https://arxiv.org/pdf/1803.04831
 struct IndRNNCell{F,I,H,V}
     σ::F
     Wi::I
