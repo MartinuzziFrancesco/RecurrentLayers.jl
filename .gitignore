@@ -1,0 +1,17 @@
+*.jl.cov
+*.jl.*.cov
+
+*.jl.mem
+
+deps/deps.jl
+deps/build.log
+deps/downloads/
+deps/usr/
+deps/src/
+
+docs/build/
+docs/site/
+docs/node_modules
+docs/package-lock.json
+.vscode
+Manifest.toml

@@ -21,8 +21,9 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 Currently available layers and work in progress in the short term:
  - [x] Minimal gated unit (MGU) [arxiv](https://arxiv.org/abs/1603.09420)
  - [x] Light gated recurrent unit (LiGRU) [arxiv](https://arxiv.org/abs/1803.10225)
- - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory [arxiv](https://arxiv.org/abs/2410.01201)
- - [ ] Independently recurrent neural networks (IndRNN) [arxiv](https://arxiv.org/abs/1803.04831)
+ - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory (minLSTM) [arxiv](https://arxiv.org/abs/2410.01201)
+ - [x] Independently recurrent neural networks (IndRNN) [arxiv](https://arxiv.org/abs/1803.04831)
+ - [x] Recurrent addictive networks (RAN) [arxiv](https://arxiv.org/abs/1705.07393)
 
 ## Installation
 
