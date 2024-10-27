@@ -5,11 +5,62 @@ struct RANCell{I,H,V}
     bias::V
 end
 
-function RANCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
+
+"""
+    RANCell(in => out; init = glorot_uniform, bias = true)
+
+The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
+is a recurrent cell layer which provides additional memory through the
+use of gates.
+
+The forward pass consists of:
+```math
+\tilde{c}_t = W_{cx} x_t \\
+i_t = \sigma\left(W_{ih} h_{t-1} + W_{ix} x_t + b_i\right) \\
+f_t = \sigma\left(W_{fh} h_{t-1} + W_{fx} x_t + b_f\right) \\
+c_t = i_t \circ \tilde{c}_t + f_t \circ c_{t-1} \\
+h_t = tanh(c_t)
+```
+and returns both h_t anf c_t.
+
+See [`RAN`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `in => out`: Specifies the input and output dimensions of the layer.
+- `init`: Initialization function for the weight matrices, default is `glorot_uniform`.
+- `bias`: Indicates if a bias term is included; the default is `true`.
+
+# Forward
+
+    rancell(x, [h, c])
+
+The forward pass takes the following arguments:
+
+- `x`: Input to the cell, which can be a vector of size `in` or a matrix of size `in x batch_size`.
+- `h`: The hidden state vector of the cell, sized `out`, or a matrix of size `out x batch_size`.
+- `c`: The candidate state, sized `out`, or a matrix of size `out x batch_size`.
+If not provided, both `h` and `c` default to vectors of zeros.
+
+# Examples
+
+```julia
+rancell = RANCell(3 => 5)
+inp = rand(Float32, 3)
+#initializing the hidden states, if we want to provide them
+state = rand(Float32, 5)
+c_state = rand(Float32, 5)
+
+#result with default initialization of internal states
+result = rancell(inp)
+#result with internal states provided
+result_state = rancell(inp, (state, c_state))
+```
+"""
+function RANCell((in, out)::Pair; init = glorot_uniform, bias = true)
     Wi = init(3 * out, in)
     Wh = init(2 * out, out)
     b = create_bias(Wi, bias, size(Wh, 1))
-
     return RANCell(Wi, Wh, b)
 end
 
