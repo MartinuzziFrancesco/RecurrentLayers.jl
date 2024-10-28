@@ -1,23 +1,23 @@
 #https://arxiv.org/pdf/1607.03474
 #https://github.com/jzilly/RecurrentHighwayNetworks/blob/master/rhn.py#L138C1-L180C60
 
-struct RHNCellLayer{I,V}
+struct RHNCellUnit{I,V}
     weight::I
     bias::V
 end
 
-function RHNCellLayer((in, out)::Pair; init = glorot_uniform, bias = true)
+function RHNCellUnit((in, out)::Pair; init = glorot_uniform, bias = true)
     weight = init(3 * out, in)
     b = create_bias(weight, bias, size(weight, 1))
-    return RHNCellLayer(weight, b)
+    return RHNCellUnit(weight, b)
 end
 
-function (rhn::RHNCellLayer)(inp::AbstractVecOrMat)
+function (rhn::RHNCellUnit)(inp::AbstractVecOrMat)
     state = zeros_like(inp, size(rhn.weight, 2))
     return rhn(inp, state)
 end
 
-function (rhn::RHNCellLayer)(inp::AbstractVecOrMat, state)
+function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state)
     _size_check(rhn, inp, 1 => size(rhn.weight, 2))
     weight, bias = rhn.weight, rhn.bias
 
@@ -29,8 +29,8 @@ function (rhn::RHNCellLayer)(inp::AbstractVecOrMat, state)
     return pre_h, pre_t, pre_c
 end
 
-Base.show(io::IO, rhn::RHNCellLayer) =
-    print(io, "RHNCellLayer(", size(rhn.weight, 2), " => ", size(rhn.weight, 1)÷3, ")")
+Base.show(io::IO, rhn::RHNCellUnit) =
+    print(io, "RHNCellUnit(", size(rhn.weight, 2), " => ", size(rhn.weight, 1)÷3, ")")
 
 struct RHNCell{C}
     layers::C
@@ -48,7 +48,7 @@ function RHNCell((in, out), depth=3;
         else
             real_in = out
         end
-        rhn = RHNCellLayer(real_in=>out; cell_kwargs...)
+        rhn = RHNCellUnit(real_in=>out; cell_kwargs...)
         push!(layers, rhn)
     end
     return RHNCell(Chain(layers), couple_carry)
