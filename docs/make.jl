@@ -1,5 +1,6 @@
 using RecurrentLayers
 using Documenter
+include("pages.jl")
 
 DocMeta.setdocmeta!(RecurrentLayers, :DocTestSetup, :(using RecurrentLayers); recursive=true)
 
@@ -12,9 +13,7 @@ makedocs(;
         edit_link="main",
         assets=String[],
     ),
-    pages=[
-        "Home" => "index.md",
-    ],
+    pages=pages,
 )
 
 deploydocs(;

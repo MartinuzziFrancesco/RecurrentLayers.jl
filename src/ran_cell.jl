@@ -92,6 +92,10 @@ end
 
 Flux.@layer :expand RAN
 
+"""
+    RAN(in => out; init = glorot_uniform, bias = true)
+
+"""
 function RAN((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = RANCell(in => out; init, bias)
     return RAN(cell)
