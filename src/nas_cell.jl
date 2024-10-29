@@ -29,6 +29,8 @@ struct NASCell{I,H,V}
     bias::V
 end
 
+Flux.@layer NASCell
+
 function NASCell((in, out)::Pair; init = glorot_uniform, bias = true)
     Wi = init(8 * out, in)
     Wh = init(8 * out, out)
@@ -47,10 +49,8 @@ function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
     Wi, Wh, b = nas.Wi, nas.Wh, nas.bias
 
     #matmul and split
-    inputs = Wi * inp
-    recurrents = Wh * state .+ b
-    im = chunk(inputs, 8; dims=1)
-    mm = chunk(recurrents, 8; dims=1)
+    im = chunk(Wi * inp, 8; dims=1)
+    mm = chunk(Wh * state .+ b, 8; dims=1)
 
     #first layer
     layer1_1 = sigmoid_fast(im[1] .+ mm[1])

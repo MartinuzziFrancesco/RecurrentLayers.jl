@@ -8,11 +8,12 @@ export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS
 
+#TODO add double bias
 include("mgu_cell.jl")
 include("ligru_cell.jl")
 include("indrnn_cell.jl")
 include("ran_cell.jl")
-include("lru_cell.jl")
+include("lightru_cell.jl")
 include("rhn_cell.jl")
 include("nas_cell.jl")
 

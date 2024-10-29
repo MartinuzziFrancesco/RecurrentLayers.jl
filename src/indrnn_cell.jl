@@ -27,8 +27,8 @@ function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     return state
 end
 
-function Base.show(io::IO, m::IndRNNCell)
-    print(io, "IndRNNCell(", size(m.Wi, 2), " => ", size(indrnn.Wi, 1))
+function Base.show(io::IO, indrnn::IndRNNCell)
+    print(io, "IndRNNCell(", size(indrnn.Wi, 2), " => ", size(indrnn.Wi, 1))
     print(io, ", ", indrnn.σ)
     print(io, ")")
 end

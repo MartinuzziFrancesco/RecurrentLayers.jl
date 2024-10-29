@@ -6,6 +6,8 @@ struct SRUCell{I,H,B,V}
     bias::V
 end
 
+Flux.@layer SRUCell
+
 function SRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
     Wi = init(2 * out, in)
     Wh = init(2 * out, out)
@@ -29,13 +31,12 @@ function (sru::SRUCell)(inp::AbstractVecOrMat, (state, c_state))
 
     #split
     gxs = chunk(Wi * inp, 3, dims=1)
-    ghs = chunk(Wh * state, 2, dims=1)
-    bs = chunk(b, 2, dims=1)
+    ghs = chunk(Wh * state .+ b, 2, dims=1)
     vs = chunk(v, 2, dims=1)
 
     #compute
-    input_gate = @. sigmoid_fast(gxs[2] + ghs[1] + bs[1])
-    forget_gate = @. sigmoid_fast(gxs[3] + ghs[2] + bs[2])
+    input_gate = @. sigmoid_fast(gxs[2] + ghs[1])
+    forget_gate = @. sigmoid_fast(gxs[3] + ghs[2])
     candidate_state = @. input_gate * gxs[1] + forget_gate * c_state
     new_state = tanh_fast(candidate_state)
     return new_state, candidate_state

@@ -41,43 +41,102 @@ Pkg.add(url="https://github.com/MartinuzziFrancesco/RecurrentLayers.jl")
 The workflow is identical to any recurrent Flux layer:
 
 ```julia
-using Flux
 using RecurrentLayers
 
-input_size = 2
-hidden_size = 5
-output_size = 3
-sequence_length = 100
-epochs = 10
+using Flux
+using MLUtils: DataLoader
+using Statistics
+using Random
 
+# Parameters
+input_size = 1       # Each element in the sequence is a scalar
+hidden_size = 64     # Size of the hidden state in MGU
+num_classes = 2      # Binary classification
+seq_length = 10      # Length of each sequence
+batch_size = 16      # Batch size
+num_epochs = 50       # Number of epochs for training
+num_samples = 1000   # Number of samples in dataset
+
+# Create dataset
+function create_dataset(seq_length, num_samples)
+    data = randn(input_size, seq_length, num_samples)
+    labels = sum(data, dims=(1,2)) .>= 0
+    labels = Int.(labels)
+    return data, labels
+end
+
+# Generate training data
+train_data, train_labels = create_dataset(seq_length, num_samples)
+train_loader = DataLoader((train_data, train_labels), batchsize=batch_size, shuffle=true)
+
+# Define the model
 model = Chain(
-    MGU(input_size, hidden_size),
-    Dense(hidden_size, output_size)
+    RAN(input_size => hidden_size),
+    x -> x[:, end, :],  # Extract the last hidden state
+    Dense(hidden_size, num_classes)
 )
 
-# dummy data
-X = rand(Float32, input_size, sequence_length)
-Y = rand(1:output_size)
-
-# loss function
-loss_fn(x, y) = Flux.mse(model(x), y)
-
-# optimizer
-opt = Adam()
-
-# training 
-for epoch in 1:epochs
-    # gradients
-    gs = gradient(Flux.params(model)) do
-        loss = loss_fn(X, Y)
-        return loss
-    end
-    # update parameters
-    Flux.update!(opt, Flux.params(model), gs)
-    # loss at epoch
-    current_loss = loss_fn(X, Y)
-    println("Epoch $epoch, Loss: $(current_loss)")
+# Adjust labels to 1-based indexing for Julia
+function adjust_labels(labels)
+    return labels .+ 1
 end
+
+# Define the loss function
+# Define the loss function
+function loss_fn(batch_data, batch_labels)
+    # Adjust labels
+    batch_labels = adjust_labels(batch_labels)
+    # One-hot encode labels and remove any extra singleton dimensions
+    batch_labels_oh = dropdims(Flux.onehotbatch(batch_labels, 1:num_classes), dims=(2, 3))
+    # Forward pass
+    y_pred = model(batch_data)
+    # Compute loss
+    loss = Flux.logitcrossentropy(y_pred, batch_labels_oh)
+    return loss
+end
+
+
+# Define the optimizer
+opt = Adam(0.01)
+
+# Training loop
+for epoch in 1:num_epochs
+    total_loss = 0.0
+    for (batch_data, batch_labels) in train_loader
+        # Compute gradients and update parameters
+        grads = gradient(() -> loss_fn(batch_data, batch_labels), Flux.params(model))
+        Flux.Optimise.update!(opt, Flux.params(model), grads)
+
+        # Accumulate loss
+        total_loss += loss_fn(batch_data, batch_labels)
+    end
+    avg_loss = total_loss / length(train_loader)
+    println("Epoch $epoch/$num_epochs, Loss: $(round(avg_loss, digits=4))")
+end
+
+# Generate test data
+test_data, test_labels = create_dataset(seq_length, 200)
+test_loader = DataLoader((test_data, test_labels), batchsize=batch_size, shuffle=false)
+
+# Evaluation
+correct = 0
+total = 0
+for (batch_data, batch_labels) in test_loader
+    # Adjust labels
+    batch_labels = adjust_labels(batch_labels)
+    # Forward pass
+    y_pred = model(batch_data)
+    # Decode predictions
+    predicted = Flux.onecold(y_pred, 1:num_classes)
+    # Flatten and compare
+    correct += sum(vec(predicted) .== vec(batch_labels))
+    total += length(batch_labels)
+end
+
+accuracy = 100 * correct / total
+println("Test Accuracy: $(round(accuracy, digits=2))%")
+
+
 ```
 ## License
 

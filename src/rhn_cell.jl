@@ -6,6 +6,8 @@ struct RHNCellUnit{I,V}
     bias::V
 end
 
+Flux.@layer RHNCellUnit
+
 function RHNCellUnit((in, out)::Pair; init = glorot_uniform, bias = true)
     weight = init(3 * out, in)
     b = create_bias(weight, bias, size(weight, 1))
@@ -36,6 +38,8 @@ struct RHNCell{C}
     layers::C
     couple_carry::Bool
 end
+
+Flux.@layer RHNCell
 
 function RHNCell((in, out), depth=3;
     couple_carry::Bool = true,

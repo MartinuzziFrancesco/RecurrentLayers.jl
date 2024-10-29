@@ -5,6 +5,8 @@ struct LightRUCell{I,H,V}
     bias::V
 end
 
+Flux.@layer LightRUCell
+
 function LightRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
     Wi = init(2 * out, in)
     Wh = init(out, out)
@@ -43,7 +45,7 @@ struct LightRU{M}
     cell::M
 end
   
-Flux.@layer :expand LRU
+Flux.@layer :expand LightRU
 
 function LightRU((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = LightRUCell(in => out; init, bias)

@@ -5,6 +5,8 @@ struct MGUCell{I, H, V}
     bias::V
 end
 
+Flux.@layer MGUCell
+
 function MGUCell((in, out)::Pair;
     init = glorot_uniform,
     bias = true)
@@ -27,12 +29,11 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     _size_check(mgu, inp, 1 => size(mgu.Wi,2))
     Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
     #split
-    gxs = chunk(Wi * inp, 2, dims=1)
-    bs = chunk(b, 2, dims=1)
+    gxs = chunk(Wi * inp .+ b, 2, dims=1)
     ghs = chunk(Wh, 2, dims=1)
 
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state .+ bs[1])
-    candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state) .+ bs[2])
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state)
+    candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state))
     new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
     return new_state
 end
