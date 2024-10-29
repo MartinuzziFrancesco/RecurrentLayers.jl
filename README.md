@@ -76,12 +76,10 @@ model = Chain(
     Dense(hidden_size, num_classes)
 )
 
-# Adjust labels to 1-based indexing for Julia
 function adjust_labels(labels)
     return labels .+ 1
 end
 
-# Define the loss function
 # Define the loss function
 function loss_fn(batch_data, batch_labels)
     # Adjust labels
