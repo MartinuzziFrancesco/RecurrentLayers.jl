@@ -2,4 +2,9 @@
 
 ```@docs
 RAN
+IndRNN
+LightRU
+LiGRU
+MGU
+NAS
 ```

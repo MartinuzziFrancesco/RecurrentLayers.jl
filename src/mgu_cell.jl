@@ -7,6 +7,9 @@ end
 
 Flux.@layer MGUCell
 
+"""
+    MGUCell((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function MGUCell((in, out)::Pair;
     init = glorot_uniform,
     bias = true)
@@ -48,6 +51,9 @@ end
   
 Flux.@layer :expand MGU
 
+"""
+    MGU((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function MGU((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = MGUCell(in => out; init, bias)
     return MGU(cell)

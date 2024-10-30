@@ -7,6 +7,9 @@ end
 
 Flux.@layer LightRUCell
 
+"""
+    LightRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
+"""
 function LightRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
     Wi = init(2 * out, in)
     Wh = init(out, out)
@@ -47,6 +50,9 @@ end
   
 Flux.@layer :expand LightRU
 
+"""
+    LightRU((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function LightRU((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = LightRUCell(in => out; init, bias)
     return LightRU(cell)

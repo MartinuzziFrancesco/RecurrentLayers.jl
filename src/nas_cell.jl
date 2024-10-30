@@ -31,6 +31,9 @@ end
 
 Flux.@layer NASCell
 
+"""
+    NASCell((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function NASCell((in, out)::Pair; init = glorot_uniform, bias = true)
     Wi = init(8 * out, in)
     Wh = init(8 * out, out)
@@ -90,6 +93,9 @@ end
 
 Flux.@layer :expand NAS
 
+"""
+    NAS((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function NAS((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = NASCell(in => out; init, bias)
     return NAS(cell)

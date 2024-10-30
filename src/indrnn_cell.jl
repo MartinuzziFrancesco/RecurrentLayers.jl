@@ -8,6 +8,9 @@ end
 
 Flux.@layer IndRNNCell
 
+"""
+    IndRNNCell((in, out)::Pair, σ=relu; init = glorot_uniform, bias = true)
+"""
 function IndRNNCell((in, out)::Pair, σ=relu; init = glorot_uniform, bias = true)
     Wi = init(out, in)
     u = init(out)
@@ -38,7 +41,10 @@ struct IndRNN{M}
 end
   
 Flux.@layer :expand IndRNN
-  
+
+"""
+    IndRNN((in, out)::Pair, σ = tanh; bias = true, init = glorot_uniform)
+"""
 function IndRNN((in, out)::Pair, σ = tanh; bias = true, init = glorot_uniform)
     cell = IndRNNCell(in => out, σ; bias=bias, init=init)
     return IndRNN(cell)

@@ -7,6 +7,9 @@ end
 
 Flux.@layer LiGRUCell
 
+"""
+    LiGRUCell((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function LiGRUCell((in, out)::Pair;
     init = glorot_uniform,
     bias = true)
@@ -45,6 +48,9 @@ end
   
 Flux.@layer :expand LiGRU
 
+"""
+    LiGRU((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
 function LiGRU((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = LiGRUCell(in => out; init, bias)
     return LiGRU(cell)
