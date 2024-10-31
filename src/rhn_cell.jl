@@ -98,3 +98,33 @@ function (rhn::RHNCell)(inp, state=nothing)
 
     return current_state
 end
+
+# TODO fix implementation here
+struct RHN{M}
+    cell::M
+end
+  
+Flux.@layer :expand RHN
+
+"""
+    RHN((in, out)::Pair depth=3; kwargs...)
+"""
+function RHN((in, out)::Pair, depth=3; kwargs...)
+    cell = RHNCell(in => out, depth; kwargs...)
+    return RHN(cell)
+end
+  
+function (rhn::RHN)(inp)
+    state = zeros_like(inp, size(rhn.cell.layers[2].weights, 2))
+    return rhn(inp, state)
+end
+  
+function (rhn::RHN)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    new_state = []
+    for inp_t in eachslice(inp, dims=2)
+        state = rhn.cell(inp_t, state)
+        new_state = vcat(new_state, [state])
+    end
+    return stack(new_state, dims=2)
+end

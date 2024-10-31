@@ -41,91 +41,111 @@ using MLUtils: DataLoader
 using Statistics
 using Random
 
-# Parameters
-input_size = 1       # Each element in the sequence is a scalar
-hidden_size = 64     # Size of the hidden state in MGU
-num_classes = 2      # Binary classification
-seq_length = 10      # Length of each sequence
-batch_size = 16      # Batch size
-num_epochs = 50       # Number of epochs for training
-num_samples = 1000   # Number of samples in dataset
-
 # Create dataset
-function create_dataset(seq_length, num_samples)
-    data = randn(input_size, seq_length, num_samples)
-    labels = sum(data, dims=(1,2)) .>= 0
+function create_data(input_size, seq_length::Int, num_samples::Int)
+    data = randn(input_size, seq_length, num_samples) #(input_size, seq_length, num_samples)
+    labels = sum(data, dims=(1, 2)) .>= 0
     labels = Int.(labels)
+    labels = dropdims(labels, dims=(1))
     return data, labels
 end
 
-# Generate training data
-train_data, train_labels = create_dataset(seq_length, num_samples)
-train_loader = DataLoader((train_data, train_labels), batchsize=batch_size, shuffle=true)
+function create_dataset(input_size, seq_length, n_train::Int, n_test::Int, batch_size)
+    train_data, train_labels = create_data(input_size, seq_length, n_train)
+    train_loader = DataLoader((train_data, train_labels), batchsize=batch_size, shuffle=true)
 
-# Define the model
-model = Chain(
-    RAN(input_size => hidden_size),
-    x -> x[:, end, :],  # Extract the last hidden state
-    Dense(hidden_size, num_classes)
-)
-
-function adjust_labels(labels)
-    return labels .+ 1
+    test_data, test_labels = create_data(input_size, seq_length, n_test)
+    test_loader = DataLoader((test_data, test_labels), batchsize=batch_size, shuffle=false)
+    return train_loader, test_loader
 end
 
-# Define the loss function
-function loss_fn(batch_data, batch_labels)
-    # Adjust labels
-    batch_labels = adjust_labels(batch_labels)
-    # One-hot encode labels and remove any extra singleton dimensions
-    batch_labels_oh = dropdims(Flux.onehotbatch(batch_labels, 1:num_classes), dims=(2, 3))
-    # Forward pass
+struct RecurrentModel{H,C,D}
+    h0::H
+    rnn::C
+    dense::D
+end
+
+Flux.@layer RecurrentModel trainable=(rnn, dense)
+
+function RecurrentModel(input_size::Int, hidden_size::Int)
+    return RecurrentModel(
+                 zeros(Float32, hidden_size), 
+                 MGU(input_size => hidden_size),
+                 Dense(hidden_size => 1, sigmoid))
+end
+
+function (model::RecurrentModel)(inp)
+    state = model.rnn(inp, model.h0)
+    state = state[:, end, :]
+    output = model.dense(state)
+    return output
+end
+
+function criterion(model, batch_data, batch_labels)
     y_pred = model(batch_data)
-    # Compute loss
-    loss = Flux.logitcrossentropy(y_pred, batch_labels_oh)
+    loss = Flux.binarycrossentropy(y_pred, batch_labels)
     return loss
 end
 
-
-# Define the optimizer
-opt = Adam(0.01)
-
-# Training loop
-for epoch in 1:num_epochs
+function train_recurrent!(epoch, train_loader, opt, model, criterion)
     total_loss = 0.0
     for (batch_data, batch_labels) in train_loader
         # Compute gradients and update parameters
-        grads = gradient(() -> loss_fn(batch_data, batch_labels), Flux.params(model))
+        grads = gradient(() -> criterion(model, batch_data, batch_labels), Flux.params(model))
         Flux.Optimise.update!(opt, Flux.params(model), grads)
 
         # Accumulate loss
-        total_loss += loss_fn(batch_data, batch_labels)
+        total_loss += criterion(model, batch_data, batch_labels)
     end
     avg_loss = total_loss / length(train_loader)
     println("Epoch $epoch/$num_epochs, Loss: $(round(avg_loss, digits=4))")
 end
 
-# Generate test data
-test_data, test_labels = create_dataset(seq_length, 200)
-test_loader = DataLoader((test_data, test_labels), batchsize=batch_size, shuffle=false)
+function test_recurrent(test_loader, model)
+    # Evaluation
+    correct = 0
+    total = 0
+    for (batch_data, batch_labels) in test_loader
 
-# Evaluation
-correct = 0
-total = 0
-for (batch_data, batch_labels) in test_loader
-    # Adjust labels
-    batch_labels = adjust_labels(batch_labels)
-    # Forward pass
-    y_pred = model(batch_data)
-    # Decode predictions
-    predicted = Flux.onecold(y_pred, 1:num_classes)
-    # Flatten and compare
-    correct += sum(vec(predicted) .== vec(batch_labels))
-    total += length(batch_labels)
+        # Forward pass
+        predicted = model(batch_data)
+
+        # Decode predictions: convert probabilities to class labels (0 or 1)
+        predicted_labels = vec(predicted .>= 0.5)   # Threshold at 0.5 for binary classification
+
+        # Compare predicted labels to actual labels
+        correct += sum(predicted_labels .== vec(batch_labels))
+        total += length(batch_labels)
+    end
+    accuracy = correct / total
+    println("Accuracy: ", accuracy * 100, "%")
 end
 
-accuracy = 100 * correct / total
-println("Test Accuracy: $(round(accuracy, digits=2))%")
+function main(;
+    input_size = 1,       # Each element in the sequence is a scalar
+    hidden_size = 64,    # Size of the hidden state
+    seq_length = 10,      # Length of each sequence
+    batch_size = 16,      # Batch size
+    num_epochs = 50,       # Number of epochs for training
+    n_train = 1000,   # Number of samples in train dataset
+    n_test = 200   # Number of samples in test dataset)
+)
+    model = RecurrentModel(input_size, hidden_size)
+    # Generate test data
+    train_loader, test_loader = create_dataset(input_size, seq_length, n_train, n_test, batch_size)
+    # Define the optimizer
+    opt = Adam(0.001)
+
+    for epoch in 1:num_epochs
+        train_recurrent!(epoch, train_loader, opt, model, criterion)
+    end
+
+    test_recurrent(test_loader, model)
+
+end
+
+main()
+
 
 
 ```
