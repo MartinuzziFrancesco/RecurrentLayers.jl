@@ -58,7 +58,7 @@ function MGU((in, out)::Pair; init = glorot_uniform, bias = true)
     cell = MGUCell(in => out; init, bias)
     return MGU(cell)
 end
-  
+
 function (mgu::MGU)(inp)
     state = zeros_like(inp, size(mgu.cell.Wh, 2))
     return mgu(inp, state)
