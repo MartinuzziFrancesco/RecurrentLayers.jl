@@ -1,5 +1,9 @@
 [deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+Comonicon = "863f3e99-da2a-4334-8734-de3dacbe5542"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 RecurrentLayers = "78449bcf-6750-4b78-9e82-63d4a1ccdf8c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+cuDNN = "02a925ec-e4fe-4b08-9a7e-0d78e3d38ccd"

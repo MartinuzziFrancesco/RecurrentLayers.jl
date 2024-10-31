@@ -6,7 +6,7 @@ import Flux: glorot_uniform
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell
-export MGU, LiGRU, IndRNN, RAN, LightRU, NAS
+export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN
 
 #TODO add double bias
 include("mgu_cell.jl")
