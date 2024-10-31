@@ -7,4 +7,5 @@ LightRU
 LiGRU
 MGU
 NAS
+RHN
 ```
