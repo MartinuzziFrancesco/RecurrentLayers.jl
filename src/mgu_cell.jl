@@ -46,30 +46,42 @@ Base.show(io::IO, mgu::MGUCell) =
 
 
 struct MGU{M}
-    cell::M
+    cells::Vector{M}
+    dropout::Real
 end
-  
+
 Flux.@layer :expand MGU
 
 """
-    MGU((in, out)::Pair; init = glorot_uniform, bias = true)
+    MGU((in_size, out_size)::Pair; n_layers = 1, dropout = 0.0, init = glorot_uniform, bias = true)
 """
-function MGU((in, out)::Pair; init = glorot_uniform, bias = true)
-    cell = MGUCell(in => out; init, bias)
-    return MGU(cell)
+function MGU((in_size, out_size)::Pair;
+    n_layers::Int=1,
+    dropout::Float64=0.0,
+    kwargs...)
+    cells = []
+    for i in 1:n_layers
+        tin_size = i == 1 ? in_size : out_size
+        push!(cells, MGUCell(tin_size => out_size; kwargs...))
+    end
+    return MGU(cells, dropout)
 end
 
-function (mgu::MGU)(inp)
-    state = zeros_like(inp, size(mgu.cell.Wh, 2))
-    return mgu(inp, state)
+# Forward pass without initial state
+function (mgu::MGU)(input)
+    batch_size = size(input, 3)
+    state = [zeros(size(mgu.cells[i].Wh, 2), batch_size) for i in 1:length(mgu.cells)]
+    return mgu(input, state)
 end
-  
-function (mgu::MGU)(inp, state)
+
+function (mgu::MGU)(inp, initial_states)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = mgu.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    num_layers = length(mgu.cells)
+    foldl((acc, idx) -> begin
+        (layer_input, states) = acc
+        cell = mgu.cells[idx]
+        layer_output, new_state = _process_layer(layer_input, states[idx], cell)
+        updated_states = vcat(states[1:idx-1], [new_state], states[idx+1:end])
+        return layer_output, updated_states
+    end, 1:num_layers, init=(inp, initial_states))[1]
 end

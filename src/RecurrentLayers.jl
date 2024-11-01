@@ -17,4 +17,6 @@ include("lightru_cell.jl")
 include("rhn_cell.jl")
 include("nas_cell.jl")
 
+include("utils.jl")
+
 end #module
