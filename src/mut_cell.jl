@@ -82,7 +82,8 @@ function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
     bs = chunk(b, 3, dims=1)
 
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state .+ bs[1])
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state .+ bs[2])
+    # the dimensionlity alos does not work here like the paper describes it
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state .+ bs[2]) 
     candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3] .+ bs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state
@@ -90,3 +91,49 @@ end
 
 Base.show(io::IO, mut::MUT2Cell) =
     print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
+
+
+struct MUT3Cell{I, H, V}
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer MUT3Cell
+
+"""
+    MUT3Cell((in, out)::Pair; init = glorot_uniform, bias = true)
+"""
+function MUT3Cell((in, out)::Pair;
+    init = glorot_uniform,
+    bias = true)
+
+    Wi = init(out * 3, in)
+    Wh = init(out * 3, out)
+    b = create_bias(Wi, bias, 3 * out)
+
+    return MUT3Cell(Wi, Wh, b)
+end
+
+function (mut::MUT3Cell)(inp::AbstractVecOrMat)
+    state = zeros_like(inp, size(mut.Wh, 2))
+    return mut(inp, state)
+end
+
+function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
+    _size_check(mut, inp, 1 => size(mut.Wi,2))
+    Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
+    #split
+    gxs = chunk(Wi * inp, 3, dims=1)
+    ghs = chunk(Wh, 3, dims=1)
+    bs = chunk(b, 3, dims=1)
+
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * tanh_fast(state) .+ bs[1])
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state .+ bs[2])
+    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3] .+ bs[3])
+    new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
+    return new_state
+end
+
+Base.show(io::IO, mut::MUT3Cell) =
+    print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
