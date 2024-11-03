@@ -9,10 +9,14 @@ end
 Flux.@layer RHNCellUnit
 
 """
-    RHNCellUnit((in, out)::Pair; init = glorot_uniform, bias = true)
+    RHNCellUnit((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    bias = true)
 """
-function RHNCellUnit((in, out)::Pair; init = glorot_uniform, bias = true)
-    weight = init(3 * out, in)
+function RHNCellUnit((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    bias = true)
+    weight = kernel_init(3 * out, in)
     b = create_bias(weight, bias, size(weight, 1))
     return RHNCellUnit(weight, b)
 end

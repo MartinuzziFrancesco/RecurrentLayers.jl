@@ -8,11 +8,17 @@ end
 Flux.@layer LightRUCell
 
 """
-    LightRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
+    LightRUCell((in, out)::Pair, σ=tanh;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
-function LightRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
-    Wi = init(2 * out, in)
-    Wh = init(out, out)
+function LightRUCell((in, out)::Pair, σ=tanh;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
+    Wi = kernel_init(2 * out, in)
+    Wh = recurrent_kernel_init(out, out)
     b = create_bias(Wi, bias, size(Wh, 1))
 
     return LightRUCell(Wi, Wh, b)

@@ -8,10 +8,13 @@ end
 
 Flux.@layer SRUCell
 
-function SRUCell((in, out)::Pair, σ=tanh; init = glorot_uniform, bias = true)
-    Wi = init(2 * out, in)
-    Wh = init(2 * out, out)
-    v = init(2 * out)
+function SRUCell((in, out)::Pair, σ=tanh;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
+    Wi = kernel_init(2 * out, in)
+    Wh = recurrent_kernel_init(2 * out, out)
+    v = kernel_init(2 * out)
     b = create_bias(Wi, bias, size(Wh, 1))
 
     return SRUCell(Wi, Wh, v, b)

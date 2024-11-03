@@ -8,14 +8,18 @@ end
 Flux.@layer LiGRUCell
 
 """
-    LiGRUCell((in, out)::Pair; init = glorot_uniform, bias = true)
+    LiGRUCell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
 function LiGRUCell((in, out)::Pair;
-    init = glorot_uniform,
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true)
 
-    Wi = init(out * 2, in)
-    Wh = init(out * 2, out)
+    Wi = kernel_init(out * 2, in)
+    Wh = recurrent_kernel_init(out * 2, out)
     b = create_bias(Wi, bias, size(Wi, 1))
 
     return LiGRUCell(Wi, Wh, b)

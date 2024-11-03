@@ -9,7 +9,10 @@ Flux.@layer RANCell
 
 
 """
-    RANCell(in => out; init = glorot_uniform, bias = true)
+    RANCell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 
 The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
 is a recurrent cell layer which provides additional memory through the
@@ -51,9 +54,12 @@ result = rancell(inp)
 result_state = rancell(inp, (state, c_state))
 ```
 """
-function RANCell((in, out)::Pair; init = glorot_uniform, bias = true)
-    Wi = init(3 * out, in)
-    Wh = init(2 * out, out)
+function RANCell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
+    Wi = kernel_init(3 * out, in)
+    Wh = recurrent_kernel_init(2 * out, out)
     b = create_bias(Wi, bias, size(Wh, 1))
     return RANCell(Wi, Wh, b)
 end

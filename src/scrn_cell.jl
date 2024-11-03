@@ -11,16 +11,21 @@ Flux.@layer SCRNCell
 
 
 """
-    SCRNCell(in => out; init = glorot_uniform, bias = true)
+    function SCRNCell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true,
+    alpha = 0.0)
 """
 function SCRNCell((in, out)::Pair;
-    init = glorot_uniform, 
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true,
     alpha = 0.0)
 
-    Wi = init(2 * out, in)
-    Wh = init(2 * out, out)
-    Wc = init(2 * out, out)
+    Wi = kernel_init(2 * out, in)
+    Wh = recurrent_kernel_init(2 * out, out)
+    Wc = recurrent_kernel_init(2 * out, out)
     b = create_bias(Wi, bias, size(Wh, 1))
     return SCRNCell(Wi, Wh, Wc, b, alpha)
 end

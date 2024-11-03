@@ -8,14 +8,18 @@ end
 Flux.@layer MGUCell
 
 """
-    MGUCell((in, out)::Pair; init = glorot_uniform, bias = true)
+    MGUCell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
 function MGUCell((in, out)::Pair;
-    init = glorot_uniform,
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true)
 
-    Wi = init(out * 2, in)
-    Wh = init(out * 2, out)
+    Wi = kernel_init(out * 2, in)
+    Wh = recurrent_kernel_init(out * 2, out)
     b = create_bias(Wi, bias, size(Wi, 1))
 
     return MGUCell(Wi, Wh, b)

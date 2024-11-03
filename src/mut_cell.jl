@@ -8,14 +8,18 @@ end
 Flux.@layer MUT1Cell
 
 """
-    MUT1Cell((in, out)::Pair; init = glorot_uniform, bias = true)
+    MUT1Cell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
 function MUT1Cell((in, out)::Pair;
-    init = glorot_uniform,
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true)
 
-    Wi = init(out * 3, in)
-    Wh = init(out * 2, out)
+    Wi = kernel_init(out * 3, in)
+    Wh = recurrent_kernel_init(out * 2, out)
     b = create_bias(Wi, bias, 3 * out)
 
     return MUT1Cell(Wi, Wh, b)
@@ -55,14 +59,18 @@ end
 Flux.@layer MUT2Cell
 
 """
-    MUT2Cell((in, out)::Pair; init = glorot_uniform, bias = true)
+    MUT2Cell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
 function MUT2Cell((in, out)::Pair;
-    init = glorot_uniform,
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true)
 
-    Wi = init(out * 3, in)
-    Wh = init(out * 3, out)
+    Wi = kernel_init(out * 3, in)
+    Wh = recurrent_kernel_init(out * 3, out)
     b = create_bias(Wi, bias, 3 * out)
 
     return MUT2Cell(Wi, Wh, b)
@@ -102,14 +110,18 @@ end
 Flux.@layer MUT3Cell
 
 """
-    MUT3Cell((in, out)::Pair; init = glorot_uniform, bias = true)
+    MUT3Cell((in, out)::Pair;
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
+    bias = true)
 """
 function MUT3Cell((in, out)::Pair;
-    init = glorot_uniform,
+    kernel_init = glorot_uniform,
+    recurrent_kernel_init = glorot_uniform,
     bias = true)
 
-    Wi = init(out * 3, in)
-    Wh = init(out * 3, out)
+    Wi = kernel_init(out * 3, in)
+    Wh = recurrent_kernel_init(out * 3, out)
     b = create_bias(Wi, bias, 3 * out)
 
     return MUT3Cell(Wi, Wh, b)
