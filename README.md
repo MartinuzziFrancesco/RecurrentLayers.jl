@@ -19,6 +19,7 @@ Currently available layers and work in progress in the short term:
  - [x] Recurrent highway network (RHN) [arixv](https://arxiv.org/pdf/1607.03474)
  - [x] Light recurrent unit (LightRU) [pub](https://www.mdpi.com/2079-9292/13/16/3204)
  - [x] Neural architecture search unit (NAS) [arxiv](https://arxiv.org/abs/1611.01578)
+ - [x] Evolving recurrent neural networks (MUT1/2/3) [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
  - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory (minLSTM) [arxiv](https://arxiv.org/abs/2410.01201)
 
 ## Installation
