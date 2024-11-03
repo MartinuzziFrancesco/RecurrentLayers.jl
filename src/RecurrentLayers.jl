@@ -5,7 +5,7 @@ import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
-RHNCellUnit, NASCell, MUT1Cell
+RHNCellUnit, NASCell, MUT1Cell, SCRNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN
 
 #TODO add double bias
