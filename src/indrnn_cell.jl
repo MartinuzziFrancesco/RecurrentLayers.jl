@@ -19,7 +19,7 @@ function IndRNNCell((in, out)::Pair, σ=relu;
     recurrent_kernel_init = glorot_uniform,
     bias = true)
     Wi = kernel_init(out, in)
-    u = recrrent_kernel_init(out)
+    u = recurrent_kernel_init(out)
     b = create_bias(Wi, bias, size(Wi, 1))
     return IndRNNCell(σ, Wi, u, b)
 end
