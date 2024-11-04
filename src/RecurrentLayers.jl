@@ -19,4 +19,6 @@ include("nas_cell.jl")
 include("mut_cell.jl")
 include("scrn_cell.jl")
 
+include("utils.jl")
+
 end #module
