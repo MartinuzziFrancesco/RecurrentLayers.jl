@@ -1,8 +1,7 @@
 # RecurrentLayers
 
 <p align="center">
-    <img width="400px" src="assets/logo.png"/>
-    <img width="400px" src="assets/logo.png"/>
+    <img width="400px" src="docs/src/assets/logo.png"/>
 </p>
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/)
