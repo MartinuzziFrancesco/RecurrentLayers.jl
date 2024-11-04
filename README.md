@@ -1,5 +1,10 @@
 # RecurrentLayers
 
+<p align="center">
+    <img width="400px" src="assets/logo.png"/>
+    <img width="400px" src="assets/logo.png"/>
+</p>
+
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/)
 [![Build Status](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml?query=branch%3Amain)
