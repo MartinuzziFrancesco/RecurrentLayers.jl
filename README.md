@@ -1,19 +1,23 @@
-# RecurrentLayers
-
 <p align="center">
     <img width="400px" src="docs/src/assets/logo.png"/>
 </p>
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/)
+<div align="center">
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/)
 [![Build Status](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
-## Overview
+</div>
+
+<div align="center">
+    <h2>RecurrentLayers.jl</h2>
+</div>
+
 RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurrent layers offering by providing implementations of bleeding edge recurrent layers not commonly available in base deep learning libraries. It is designed for a seamless integration with the larger Flux ecosystem, enabling researchers and practitioners to leverage the latest developments in recurrent neural networks.
 
-## Features
+## Features 🚀
 
 Currently available layers and work in progress in the short term:
  - [x] Minimal gated unit (MGU) [arxiv](https://arxiv.org/abs/1603.09420)
@@ -27,7 +31,7 @@ Currently available layers and work in progress in the short term:
  - [x] Structurally constrained recurrent neural network (SCRN) [arxiv](https://arxiv.org/pdf/1412.7753)
  - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory (minLSTM) [arxiv](https://arxiv.org/abs/2410.01201)
 
-## Installation
+## Installation 💻
 
 RecurrentLayers.jl is not yet registered. You can install it directly from the GitHub repository:
 ```julia
@@ -35,7 +39,7 @@ using Pkg
 Pkg.add(url="https://github.com/MartinuzziFrancesco/RecurrentLayers.jl")
 ```
 
-## Getting started
+## Getting started 🛠️
 
 The workflow is identical to any recurrent Flux layer:
 
@@ -155,9 +159,14 @@ main()
 
 
 ```
-## License
+## License 📜
 
 This project is licensed under the MIT License, except for `nas_cell.jl`, which is licensed under the Apache License, Version 2.0.
 
 - `nas_cell.jl` is a reimplementation of the NASCell from TensorFlow and is licensed under the Apache License 2.0. See the file header and `LICENSE-APACHE` for details.
 - All other files are licensed under the MIT License. See `LICENSE-MIT` for details.
+
+
+## Support 🆘
+
+If you have any questions, issues, or feature requests, please open an issue or contact us via email.
