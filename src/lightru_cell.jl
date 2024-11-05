@@ -9,9 +9,9 @@ Flux.@layer LightRUCell
 
 """
     LightRUCell((in, out)::Pair, σ=tanh;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function LightRUCell((in, out)::Pair, σ=tanh;
     kernel_init = glorot_uniform,
@@ -57,10 +57,10 @@ end
 Flux.@layer :expand LightRU
 
 """
-    LightRU((in, out)::Pair; init = glorot_uniform, bias = true)
+    LightRU((in, out)::Pair; kwargs...)
 """
-function LightRU((in, out)::Pair; init = glorot_uniform, bias = true)
-    cell = LightRUCell(in => out; init, bias)
+function LightRU((in, out)::Pair; kwargs...)
+    cell = LightRUCell(in => out; kwargs...)
     return LightRU(cell)
 end
   

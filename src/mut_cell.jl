@@ -9,9 +9,9 @@ Flux.@layer MUT1Cell
 
 """
     MUT1Cell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function MUT1Cell((in, out)::Pair;
     kernel_init = glorot_uniform,
@@ -91,9 +91,9 @@ Flux.@layer MUT2Cell
 
 """
     MUT2Cell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function MUT2Cell((in, out)::Pair;
     kernel_init = glorot_uniform,
@@ -172,9 +172,9 @@ Flux.@layer MUT3Cell
 
 """
     MUT3Cell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function MUT3Cell((in, out)::Pair;
     kernel_init = glorot_uniform,

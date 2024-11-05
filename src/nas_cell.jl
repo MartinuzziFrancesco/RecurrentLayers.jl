@@ -33,9 +33,9 @@ Flux.@layer NASCell
 
 """
     NASCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function NASCell((in, out)::Pair;
     kernel_init = glorot_uniform,
@@ -100,10 +100,10 @@ end
 Flux.@layer :expand NAS
 
 """
-    NAS((in, out)::Pair; init = glorot_uniform, bias = true)
+    NAS((in, out)::Pair; kwargs...)
 """
-function NAS((in, out)::Pair; init = glorot_uniform, bias = true)
-    cell = NASCell(in => out; init, bias)
+function NAS((in, out)::Pair; kwargs...)
+    cell = NASCell(in => out; kwargs...)
     return NAS(cell)
 end
 

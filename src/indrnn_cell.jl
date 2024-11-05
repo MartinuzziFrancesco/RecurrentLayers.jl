@@ -10,9 +10,9 @@ Flux.@layer IndRNNCell
 
 """
     function IndRNNCell((in, out)::Pair, σ=relu;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function IndRNNCell((in, out)::Pair, σ=relu;
     kernel_init = glorot_uniform,
@@ -49,10 +49,10 @@ end
 Flux.@layer :expand IndRNN
 
 """
-    IndRNN((in, out)::Pair, σ = tanh; bias = true, init = glorot_uniform)
+    IndRNN((in, out)::Pair, σ = tanh; kwargs...)
 """
-function IndRNN((in, out)::Pair, σ = tanh; bias = true, init = glorot_uniform)
-    cell = IndRNNCell(in => out, σ; bias=bias, init=init)
+function IndRNN((in, out)::Pair, σ = tanh; kwargs...)
+    cell = IndRNNCell(in => out, σ; kwargs...)
     return IndRNN(cell)
 end
   

@@ -10,8 +10,8 @@ Flux.@layer RHNCellUnit
 
 """
     RHNCellUnit((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        bias = true)
 """
 function RHNCellUnit((in, out)::Pair;
     kernel_init = glorot_uniform,

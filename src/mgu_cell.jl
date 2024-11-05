@@ -9,9 +9,9 @@ Flux.@layer MGUCell
 
 """
     MGUCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function MGUCell((in, out)::Pair;
     kernel_init = glorot_uniform,
@@ -56,10 +56,10 @@ end
 Flux.@layer :expand MGU
 
 """
-    MGU((in, out)::Pair; init = glorot_uniform, bias = true)
+    MGU((in, out)::Pair; kwargs...)
 """
-function MGU((in, out)::Pair; init = glorot_uniform, bias = true)
-    cell = MGUCell(in => out; init, bias)
+function MGU((in, out)::Pair; kwargs...)
+    cell = MGUCell(in => out; kwargs...)
     return MGU(cell)
 end
 

@@ -9,9 +9,9 @@ Flux.@layer LiGRUCell
 
 """
     LiGRUCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init = glorot_uniform,
+        recurrent_kernel_init = glorot_uniform,
+        bias = true)
 """
 function LiGRUCell((in, out)::Pair;
     kernel_init = glorot_uniform,
@@ -53,10 +53,10 @@ end
 Flux.@layer :expand LiGRU
 
 """
-    LiGRU((in, out)::Pair; init = glorot_uniform, bias = true)
+    LiGRU((in, out)::Pair; kwargs...)
 """
-function LiGRU((in, out)::Pair; init = glorot_uniform, bias = true)
-    cell = LiGRUCell(in => out; init, bias)
+function LiGRU((in, out)::Pair; kwargs...)
+    cell = LiGRUCell(in => out; kwargs...)
     return LiGRU(cell)
 end
   
