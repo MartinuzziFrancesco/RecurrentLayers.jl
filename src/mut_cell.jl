@@ -50,6 +50,37 @@ end
 Base.show(io::IO, mut::MUT1Cell) =
     print(io, "MUT1Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
+struct MUT1{M}
+    cell::M
+end
+  
+Flux.@layer :expand MUT1
+
+"""
+    MUT1((in, out)::Pair; kwargs...)
+"""
+function MUT1((in, out)::Pair; kwargs...)
+    cell = MUT1Cell(in => out; kwargs...)
+    return MUT1(cell)
+end
+
+function (mut::MUT1)(inp)
+    state = zeros_like(inp, size(mut.cell.Wh, 2))
+    return mut(inp, state)
+end
+  
+function (mut::MUT1)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    new_state = []
+    for inp_t in eachslice(inp, dims=2)
+        state = mut.cell(inp_t, state)
+        new_state = vcat(new_state, [state])
+    end
+    return stack(new_state, dims=2)
+end
+
+
+
 struct MUT2Cell{I, H, V}
     Wi::I
     Wh::H
@@ -101,6 +132,36 @@ Base.show(io::IO, mut::MUT2Cell) =
     print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
 
+struct MUT2{M}
+    cell::M
+end
+  
+Flux.@layer :expand MUT2
+
+"""
+    MUT1Cell((in, out)::Pair; kwargs...)
+"""
+function MUT2((in, out)::Pair; kwargs...)
+    cell = MUT2Cell(in => out; kwargs...)
+    return MUT2(cell)
+end
+
+function (mut::MUT2)(inp)
+    state = zeros_like(inp, size(mut.cell.Wh, 2))
+    return mut(inp, state)
+end
+  
+function (mut::MUT2)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    new_state = []
+    for inp_t in eachslice(inp, dims=2)
+        state = mut.cell(inp_t, state)
+        new_state = vcat(new_state, [state])
+    end
+    return stack(new_state, dims=2)
+end
+
+
 struct MUT3Cell{I, H, V}
     Wi::I
     Wh::H
@@ -149,3 +210,32 @@ end
 
 Base.show(io::IO, mut::MUT3Cell) =
     print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
+
+struct MUT3{M}
+    cell::M
+end
+  
+Flux.@layer :expand MUT3
+
+"""
+    MUT3((in, out)::Pair; kwargs...)
+"""
+function MUT3((in, out)::Pair; kwargs...)
+    cell = MUT3Cell(in => out; kwargs...)
+    return MUT3(cell)
+end
+
+function (mut::MUT3)(inp)
+    state = zeros_like(inp, size(mut.cell.Wh, 2))
+    return mut(inp, state)
+end
+  
+function (mut::MUT3)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    new_state = []
+    for inp_t in eachslice(inp, dims=2)
+        state = mut.cell(inp_t, state)
+        new_state = vcat(new_state, [state])
+    end
+    return stack(new_state, dims=2)
+end
