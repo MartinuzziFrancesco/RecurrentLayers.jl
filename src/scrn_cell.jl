@@ -11,7 +11,7 @@ Flux.@layer SCRNCell
 
 
 """
-    function SCRNCell((in, out)::Pair;
+    SCRNCell((in, out)::Pair;
         kernel_init = glorot_uniform,
         recurrent_kernel_init = glorot_uniform,
         bias = true,
