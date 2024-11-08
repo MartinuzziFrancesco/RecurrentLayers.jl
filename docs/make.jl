@@ -14,7 +14,6 @@ makedocs(;
         assets = ["assets/favicon.ico"],
         canonical="https://MartinuzziFrancesco.github.io/RecurrentLayers.jl",
         edit_link="main",
-        assets=String[],
     ),
     pages=pages,
 )

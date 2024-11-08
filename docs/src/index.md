@@ -8,7 +8,7 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 
 ## Implemented layers
 
- - Minimal gated unit as  `MGUCell` [arxiv](https://arxiv.org/abs/1603.09420)
+ - Minimal gated unit as `MGUCell` [arxiv](https://arxiv.org/abs/1603.09420)
  - Light gated recurrent unit as `LiGRUCell` [arxiv](https://arxiv.org/abs/1803.10225)
  - Independently recurrent neural networks as `IndRNNCell` [arxiv](https://arxiv.org/abs/1803.04831)
  - Recurrent addictive networks as `RANCell` [arxiv](https://arxiv.org/abs/1705.07393)
