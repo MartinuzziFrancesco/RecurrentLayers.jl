@@ -23,7 +23,6 @@ Flux.@layer IndRNNCell
     - `bias`: include a bias or not. Default is `true`
 
     # Equations
-
     ```math
     \mathbf{h}_{t+1} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t} + \mathbf{b})
     ```
@@ -31,8 +30,6 @@ Flux.@layer IndRNNCell
     # Forward
 
         rnncell(inp, [state])
-
-        
 
 """
 function IndRNNCell((in, out)::Pair, σ=relu;
