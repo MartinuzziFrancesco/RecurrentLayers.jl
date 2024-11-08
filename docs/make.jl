@@ -3,7 +3,7 @@ using Documenter
 include("pages.jl")
 
 DocMeta.setdocmeta!(RecurrentLayers, :DocTestSetup, :(using RecurrentLayers); recursive=true)
-mathengine = MathJax3()
+mathengine = Documenter.MathJax()
 
 makedocs(;
     modules=[RecurrentLayers],

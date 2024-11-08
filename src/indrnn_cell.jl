@@ -14,22 +14,22 @@ Flux.@layer IndRNNCell
         recurrent_kernel_init = glorot_uniform,
         bias = true)
 
-    # Arguments
+# Arguments
 
-    - `in => out`: input and inner dimension of the layer
-    - `σ`: activation function. Default is `tanh`
-    - `kernel_init`: initializer for the input to hidden weights
-    - `recurrent_kernel_init`: initializer for the hidden to hidden weights
-    - `bias`: include a bias or not. Default is `true`
+- `in => out`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 
-    # Equations
-    ```math
-    \mathbf{h}_{t+1} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t} + \mathbf{b})
-    ```
+# Equations
+```math
+\mathbf{h}_{t+1} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t} + \mathbf{b})
+```
 
-    # Forward
+# Forward
 
-        rnncell(inp, [state])
+    rnncell(inp, [state])
 
 """
 function IndRNNCell((in, out)::Pair, σ=relu;
