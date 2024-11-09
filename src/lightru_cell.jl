@@ -7,11 +7,34 @@ end
 
 Flux.@layer LightRUCell
 
-"""
+@doc raw"""
     LightRUCell((in, out)::Pair, σ=tanh;
         kernel_init = glorot_uniform,
         recurrent_kernel_init = glorot_uniform,
         bias = true)
+
+[Light recurrent unit](https://www.mdpi.com/2079-9292/13/16/3204).
+
+# Arguments
+
+- `in => out`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+\tilde{h}_t &= \tanh(W_h x_t), \\
+f_t         &= \delta(U_f h_{t-1} + W_f x_t + b_f), \\
+h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function LightRUCell((in, out)::Pair, σ=tanh;
     kernel_init = glorot_uniform,

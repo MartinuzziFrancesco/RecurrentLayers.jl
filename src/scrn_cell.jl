@@ -10,17 +10,41 @@ end
 Flux.@layer SCRNCell
 
 
-"""
+@doc raw"""
     SCRNCell((in, out)::Pair;
         kernel_init = glorot_uniform,
         recurrent_kernel_init = glorot_uniform,
         bias = true,
         alpha = 0.0)
+
+[Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
+
+# Arguments
+
+- `in => out`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+- `alpha`: structural contraint. Default is 0.0
+
+# Equations
+```math
+\begin{aligned}
+s_t &= (1 - \alpha) W_s x_t + \alpha s_{t-1}, \\
+h_t &= \sigma(W_h s_t + U_h h_{t-1} + b_h), \\
+y_t &= f(U_y h_t + W_y s_t)
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state, c_state])
 """
 function SCRNCell((in, out)::Pair;
     kernel_init = glorot_uniform,
     recurrent_kernel_init = glorot_uniform,
-    bias = true,
+    bias::Bool = true,
     alpha = 0.0)
 
     Wi = kernel_init(2 * out, in)

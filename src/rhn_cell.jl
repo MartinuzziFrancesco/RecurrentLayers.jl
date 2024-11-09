@@ -48,11 +48,41 @@ end
 
 Flux.@layer RHNCell
 
+@doc raw"""
+    RHNCell((in, out), depth=3;
+        couple_carry::Bool = true,
+        cell_kwargs...)
+
+[Recurrent highway network](https://arxiv.org/pdf/1607.03474).
+
+# Arguments
+
+- `in => out`: input and inner dimension of the layer
+- `depth`: depth of the recurrence. Default is 3
+- `couple_carry`: couples the carry gate and the transform gate. Default `true`
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]} \odot c_{\ell}^{[t]}, \\
+\text{where} \\
+h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}} s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
+t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}} s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
+c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell-1}^{[t]} + b_{c_{\ell}})
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
+
 """
-    RHNCell((in, out), depth=3; couple_carry::Bool = true, cell_kwargs...)
-"""
-function RHNCell((in, out), depth=3;
-    couple_carry::Bool = true,
+function RHNCell((in, out), depth::Int = 3;
+    couple_carry::Bool = true, #sec 5, setup
     cell_kwargs...)
 
     layers = []

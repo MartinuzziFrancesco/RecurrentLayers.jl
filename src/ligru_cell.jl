@@ -7,11 +7,36 @@ end
 
 Flux.@layer LiGRUCell
 
-"""
+@doc raw"""
     LiGRUCell((in, out)::Pair;
         kernel_init = glorot_uniform,
         recurrent_kernel_init = glorot_uniform,
         bias = true)
+
+[Light gated recurrent unit](https://arxiv.org/pdf/1803.10225).
+The implementation does not include the batch normalization as
+described in the original paper.
+
+# Arguments
+
+- `in => out`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
+\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
+h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function LiGRUCell((in, out)::Pair;
     kernel_init = glorot_uniform,

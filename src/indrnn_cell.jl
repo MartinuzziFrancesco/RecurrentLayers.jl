@@ -14,6 +14,9 @@ Flux.@layer IndRNNCell
         recurrent_kernel_init = glorot_uniform,
         bias = true)
 
+
+[Independently recurrent cell](https://arxiv.org/pdf/1803.04831).
+
 # Arguments
 
 - `in => out`: input and inner dimension of the layer
@@ -24,7 +27,7 @@ Flux.@layer IndRNNCell
 
 # Equations
 ```math
-\mathbf{h}_{t+1} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t} + \mathbf{b})
+\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} + \mathbf{b})
 ```
 
 # Forward

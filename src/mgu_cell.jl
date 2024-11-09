@@ -7,11 +7,34 @@ end
 
 Flux.@layer MGUCell
 
-"""
+@doc raw"""
     MGUCell((in, out)::Pair;
         kernel_init = glorot_uniform,
         recurrent_kernel_init = glorot_uniform,
         bias = true)
+
+[Minimal gated unit](https://arxiv.org/pdf/1603.09420).
+
+# Arguments
+
+- `in => out`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `kernel_init`: initializer for the input to hidden weights
+- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+f_t         &= \sigma(U_f h_{t-1} + W_f x_t + b_f), \\
+\tilde{h}_t &= \tanh(U_h (f_t \odot h_{t-1}) + W_h x_t + b_h), \\
+h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function MGUCell((in, out)::Pair;
     kernel_init = glorot_uniform,
