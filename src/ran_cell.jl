@@ -24,7 +24,7 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -66,7 +66,7 @@ result = rancell(inp)
 result_state = rancell(inp, (state, c_state))
 ```
 """
-function RANCell((in, out)::Pair;
+function RANCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
     bias = true)

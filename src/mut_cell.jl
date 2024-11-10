@@ -34,14 +34,13 @@ function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp, 3, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3, dims=1)
     ghs = chunk(Wh, 2, dims=1)
-    bs = chunk(b, 3, dims=1)
 
-    forget_gate = sigmoid_fast.(gxs[1] .+ bs[1])
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[1]*state .+ bs[2])
+    forget_gate = sigmoid_fast.(gxs[1])
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[1]*state)
     candidate_state = tanh_fast.(
-        ghs[2] * (reset_gate .* state) .+ tanh_fast(gxs[3]) .+ bs[3]
+        ghs[2] * (reset_gate .* state) .+ tanh_fast(gxs[3])
     ) #in the paper is tanh(x_t) but dimensionally it cannot work
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state
@@ -116,14 +115,13 @@ function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp, 3, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3, dims=1)
     ghs = chunk(Wh, 3, dims=1)
-    bs = chunk(b, 3, dims=1)
 
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state .+ bs[1])
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
     # the dimensionlity alos does not work here like the paper describes it
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state .+ bs[2]) 
-    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3] .+ bs[3])
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state) 
+    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state
 end
@@ -197,13 +195,12 @@ function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp, 3, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3, dims=1)
     ghs = chunk(Wh, 3, dims=1)
-    bs = chunk(b, 3, dims=1)
 
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * tanh_fast(state) .+ bs[1])
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state .+ bs[2])
-    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3] .+ bs[3])
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * tanh_fast(state))
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state)
+    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state
 end
