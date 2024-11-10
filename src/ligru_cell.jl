@@ -8,21 +8,21 @@ end
 Flux.@layer LiGRUCell
 
 @doc raw"""
-    LiGRUCell((in, out)::Pair;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    LiGRUCell((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true)
 
 [Light gated recurrent unit](https://arxiv.org/pdf/1803.10225).
 The implementation does not include the batch normalization as
 described in the original paper.
+See [`LiGRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
@@ -38,19 +38,17 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 
     rnncell(inp, [state])
 """
-function LiGRUCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+function LiGRUCell((input_size, hidden_size)::Pair;
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias = true)
 
-    Wi = kernel_init(out * 2, in)
-    Wh = recurrent_kernel_init(out * 2, out)
+    Wi = init_kernel(hidden_size * 2, input_size)
+    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
 
     return LiGRUCell(Wi, Wh, b)
 end
-
-LiGRUCell(in, out; kwargs...) = LiGRUCell(in => out; kwargs...)
 
 function (ligru::LiGRUCell)(inp::AbstractVecOrMat)
     state = zeros_like(inp, size(ligru.Wh, 2))
@@ -78,10 +76,22 @@ end
 Flux.@layer :expand LiGRU
 
 """
-    LiGRU((in, out)::Pair; kwargs...)
+    LiGRU((input_size => hidden_size)::Pair; kwargs...)
+
+[Light gated recurrent network](https://arxiv.org/pdf/1803.10225).
+The implementation does not include the batch normalization as
+described in the original paper.
+See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
-function LiGRU((in, out)::Pair; kwargs...)
-    cell = LiGRUCell(in => out; kwargs...)
+function LiGRU((input_size, hidden_size)::Pair; kwargs...)
+    cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU(cell)
 end
   

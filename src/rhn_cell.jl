@@ -9,14 +9,14 @@ end
 Flux.@layer RHNCellUnit
 
 """
-    RHNCellUnit((in, out)::Pair;
-        kernel_init = glorot_uniform,
+    RHNCellUnit((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
         bias = true)
 """
-function RHNCellUnit((in, out)::Pair;
-    kernel_init = glorot_uniform,
+function RHNCellUnit((input_size, hidden_size)::Pair;
+    init_kernel = glorot_uniform,
     bias = true)
-    weight = kernel_init(3 * out, in)
+    weight = init_kernel(3 * hidden_size, input_size)
     b = create_bias(weight, bias, size(weight, 1))
     return RHNCellUnit(weight, b)
 end
@@ -49,20 +49,20 @@ end
 Flux.@layer RHNCell
 
 @doc raw"""
-    RHNCell((in, out), depth=3;
+    RHNCell((input_size => hidden_size), depth=3;
         couple_carry::Bool = true,
         cell_kwargs...)
 
 [Recurrent highway network](https://arxiv.org/pdf/1607.03474).
+See [`RHNCellUnit`](@ref) for a the unit component of this layer.
+See [`RHN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer
 - `depth`: depth of the recurrence. Default is 3
 - `couple_carry`: couples the carry gate and the transform gate. Default `true`
-- `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `init_kernel`: initializer for the input to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
@@ -81,18 +81,18 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell
     rnncell(inp, [state])
 
 """
-function RHNCell((in, out), depth::Int = 3;
+function RHNCell((input_size, hidden_size), depth::Int = 3;
     couple_carry::Bool = true, #sec 5, setup
     cell_kwargs...)
 
     layers = []
     for layer in 1:depth
         if layer == 1
-            real_in = in + out
+            real_in = input_size + hidden_size
         else
-            real_in = out
+            real_in = hidden_size
         end
-        rhn = RHNCellUnit(real_in=>out; cell_kwargs...)
+        rhn = RHNCellUnit(real_in => hidden_size; cell_kwargs...)
         push!(layers, rhn)
     end
     return RHNCell(Chain(layers), couple_carry)
@@ -141,10 +141,22 @@ end
 Flux.@layer :expand RHN
 
 """
-    RHN((in, out)::Pair depth=3; kwargs...)
+    RHN((input_size => hidden_size)::Pair depth=3; kwargs...)
+
+[Recurrent highway network](https://arxiv.org/pdf/1607.03474).
+See [`RHNCellUnit`](@ref) for a the unit component of this layer.
+See [`RHNCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `depth`: depth of the recurrence. Default is 3
+- `couple_carry`: couples the carry gate and the transform gate. Default `true`
+- `init_kernel`: initializer for the input to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
-function RHN((in, out)::Pair, depth=3; kwargs...)
-    cell = RHNCell(in => out, depth; kwargs...)
+function RHN((input_size, hidden_size)::Pair, depth=3; kwargs...)
+    cell = RHNCell(input_size => hidden_size, depth; kwargs...)
     return RHN(cell)
 end
   

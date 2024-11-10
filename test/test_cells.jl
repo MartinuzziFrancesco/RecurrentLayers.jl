@@ -1,0 +1,40 @@
+using RecurrentLayers
+using Flux
+using Test
+
+#cells returning a single hidden state
+single_cells = [MGUCell, LiGRUCell, IndRNNCell,
+    LightRUCell, MUT1Cell, MUT2Cell,
+    MUT3Cell]
+#cells returning hidden state as a tuple
+double_cells = [RANCell, NASCell]
+#cells with a little more complexity to them
+different_cells = [SCRNCell, RHNCell]
+
+@testset "Signle return cell: cell = $cell" for cell in single_cells
+    rnncell = cell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
+
+    rnncell = cell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 2
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
+end
+
+@testset "cell = $cell" for cell in double_cells
+    rnncell = cell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = cell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 2
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+end

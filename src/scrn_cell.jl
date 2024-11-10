@@ -11,20 +11,20 @@ Flux.@layer SCRNCell
 
 
 @doc raw"""
-    SCRNCell((in, out)::Pair;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    SCRNCell((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true,
         alpha = 0.0)
 
 [Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
+See [`SCRN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `alpha`: structural contraint. Default is 0.0
 
@@ -41,20 +41,18 @@ y_t &= f(U_y h_t + W_y s_t)
 
     rnncell(inp, [state, c_state])
 """
-function SCRNCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+function SCRNCell((input_size, hidden_size)::Pair;
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias::Bool = true,
     alpha = 0.0)
 
-    Wi = kernel_init(2 * out, in)
-    Wh = recurrent_kernel_init(2 * out, out)
-    Wc = recurrent_kernel_init(2 * out, out)
+    Wi = init_kernel(2 * hidden_size, input_size)
+    Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    Wc = init_recurrent_kernel(2 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
     return SCRNCell(Wi, Wh, Wc, b, alpha)
 end
-
-SCRNCell(in, out; kwargs...) = SCRNCell(in => out; kwargs...)
 
 function (scrn::SCRNCell)(inp::AbstractVecOrMat)
     state = zeros_like(inp, size(scrn.Wh, 2))
@@ -89,10 +87,25 @@ end
 Flux.@layer :expand SCRN
 
 """
-    SCRN((in, out)::Pair; kwargs...)
+    SCRN((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
+        bias = true,
+        alpha = 0.0)
+
+[Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
+See [`SCRNCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+- `alpha`: structural contraint. Default is 0.0
 """
-function SCRN((in, out)::Pair; kwargs...)
-    cell = SCRNCell(in => out; kwargs...)
+function SCRN((input_size, hidden_size)::Pair; kwargs...)
+    cell = SCRNCell(input_size => hidden_size; kwargs...)
     return SCRN(cell)
 end
 
