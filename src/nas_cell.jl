@@ -32,17 +32,17 @@ end
 Flux.@layer NASCell
 
 """
-    NASCell((in, out)::Pair;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    NASCell((input_size => hidden_size);
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true)
 """
-function NASCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+function NASCell((input_size, hidden_size)::Pair;
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias = true)
-    Wi = kernel_init(8 * out, in)
-    Wh = recurrent_kernel_init(8 * out, out)
+    Wi = init_kernel(8 * hidden_size, input_size)
+    Wh = init_recurrent_kernel(8 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
     return NASCell(Wi, Wh, b)
 end
@@ -100,10 +100,10 @@ end
 Flux.@layer :expand NAS
 
 """
-    NAS((in, out)::Pair; kwargs...)
+    NAS((input_size => hidden_size)::Pair; kwargs...)
 """
-function NAS((in, out)::Pair; kwargs...)
-    cell = NASCell(in => out; kwargs...)
+function NAS((input_size, hidden_size)::Pair; kwargs...)
+    cell = NASCell(input_size => hidden_size; kwargs...)
     return NAS(cell)
 end
 
