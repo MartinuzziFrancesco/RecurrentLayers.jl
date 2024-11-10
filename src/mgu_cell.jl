@@ -8,19 +8,19 @@ end
 Flux.@layer MGUCell
 
 @doc raw"""
-    MGUCell((in, out)::Pair;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    MGUCell((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true)
 
 [Minimal gated unit](https://arxiv.org/pdf/1603.09420).
+See [`MGU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
@@ -36,19 +36,17 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 
     rnncell(inp, [state])
 """
-function MGUCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+function MGUCell((input_size, hidden_size)::Pair;
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias = true)
 
-    Wi = kernel_init(out * 2, in)
-    Wh = recurrent_kernel_init(out * 2, out)
+    Wi = init_kernel(hidden_size * 2, input_size)
+    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
 
     return MGUCell(Wi, Wh, b)
 end
-
-MGUCell(in, out; kwargs...) = MGUCell(in => out; kwargs...)
 
 function (mgu::MGUCell)(inp::AbstractVecOrMat)
     state = zeros_like(inp, size(mgu.Wh, 2))
@@ -79,10 +77,20 @@ end
 Flux.@layer :expand MGU
 
 """
-    MGU((in, out)::Pair; kwargs...)
+    MGU((input_size => hidden_size)::Pair; kwargs...)
+
+[Minimal gated unit network](https://arxiv.org/pdf/1603.09420).
+See [`MGUCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
-function MGU((in, out)::Pair; kwargs...)
-    cell = MGUCell(in => out; kwargs...)
+function MGU((input_size, hidden_size)::Pair; kwargs...)
+    cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU(cell)
 end
 

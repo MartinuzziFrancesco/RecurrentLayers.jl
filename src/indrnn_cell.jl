@@ -9,20 +9,21 @@ end
 Flux.@layer IndRNNCell
 
 @doc raw"""
-    IndRNNCell((in => out)::Pair, σ=relu;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    IndRNNCell((input_size => hidden_size)::Pair, σ=relu;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true)
 
 
 [Independently recurrent cell](https://arxiv.org/pdf/1803.04831).
+See [`IndRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `in => out`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer
 - `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
@@ -35,12 +36,12 @@ Flux.@layer IndRNNCell
     rnncell(inp, [state])
 
 """
-function IndRNNCell((in, out)::Pair, σ=relu;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias = true)
-    Wi = kernel_init(out, in)
-    u = recurrent_kernel_init(out)
+    Wi = init_kernel(hidden_size, input_size)
+    u = init_recurrent_kernel(hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
     return IndRNNCell(σ, Wi, u, b)
 end
@@ -70,10 +71,22 @@ end
 Flux.@layer :expand IndRNN
 
 """
-    IndRNN((in, out)::Pair, σ = tanh; kwargs...)
+    IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
+        kwargs...)
+
+[Independently recurrent network](https://arxiv.org/pdf/1803.04831).
+See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `σ`: activation function. Default is `tanh`
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
-function IndRNN((in, out)::Pair, σ = tanh; kwargs...)
-    cell = IndRNNCell(in => out, σ; kwargs...)
+function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
+    cell = IndRNNCell(input_size, hidden_size, σ; kwargs...)
     return IndRNN(cell)
 end
   

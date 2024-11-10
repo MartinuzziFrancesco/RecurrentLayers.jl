@@ -9,9 +9,9 @@ Flux.@layer RANCell
 
 
 @doc raw"""
-    RANCell((in, out)::Pair;
-        kernel_init = glorot_uniform,
-        recurrent_kernel_init = glorot_uniform,
+    RANCell((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
         bias = true)
 
 The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
@@ -25,9 +25,8 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `in => out`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
-- `kernel_init`: initializer for the input to hidden weights
-- `recurrent_kernel_init`: initializer for the hidden to hidden weights
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
@@ -68,16 +67,14 @@ result_state = rancell(inp, (state, c_state))
 ```
 """
 function RANCell((in, out)::Pair;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
+    init_kernel = glorot_uniform,
+    init_recurrent_kernel = glorot_uniform,
     bias = true)
-    Wi = kernel_init(3 * out, in)
-    Wh = recurrent_kernel_init(2 * out, out)
+    Wi = init_kernel(3 * hidden_size, input_size)
+    Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
     return RANCell(Wi, Wh, b)
 end
-
-RANCell(in, out; kwargs...) = RANCell(in => out; kwargs...)
 
 function (ran::RANCell)(inp::AbstractVecOrMat)
     state = zeros_like(inp, size(ran.Wh, 2))
@@ -112,11 +109,26 @@ end
 Flux.@layer :expand RAN
 
 """
-    RAN(in => out; kwargs...)
+    RAN(input_size => hidden_size; kwargs...)
+
+The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
+is a recurrent cell layer which provides additional memory through the
+use of gates.
+
+and returns both h_t anf c_t.
+
+See [`RANCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 
 """
-function RAN((in, out)::Pair; kwargs...)
-    cell = RANCell(in => out; kwargs...)
+function RAN((input_size, hidden_size)::Pair; kwargs...)
+    cell = RANCell(input_size => hidden_size; kwargs...)
     return RAN(cell)
 end
 
