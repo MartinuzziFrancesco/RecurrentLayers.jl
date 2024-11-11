@@ -36,7 +36,12 @@ Currently available layers and work in progress in the short term:
 RecurrentLayers.jl is not yet registered. You can install it directly from the GitHub repository:
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/MartinuzziFrancesco/RecurrentLayers.jl")
+Pkg.add("RecurrentLayers")
+```
+
+```julia_repl
+julia> ]
+pkg> add SpectralIndices
 ```
 
 ## Getting started 🛠️
