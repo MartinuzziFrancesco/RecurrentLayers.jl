@@ -7,7 +7,7 @@ single_cells = [MGUCell, LiGRUCell, IndRNNCell,
     LightRUCell, MUT1Cell, MUT2Cell,
     MUT3Cell]
 #cells returning hidden state as a tuple
-double_cells = [RANCell, NASCell]
+double_cells = [RANCell, NASCell, PeepholeLSTMCell]
 #cells with a little more complexity to them
 different_cells = [SCRNCell, RHNCell]
 
@@ -25,7 +25,7 @@ different_cells = [SCRNCell, RHNCell]
     @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
 end
 
-@testset "cell = $cell" for cell in double_cells
+@testset "Double return cell: $cell = " for cell in double_cells
     rnncell = cell(3 => 5)
     @test length(Flux.trainables(rnncell)) == 3
 
