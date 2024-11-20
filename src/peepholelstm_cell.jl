@@ -90,9 +90,10 @@ end
 
 Flux.@layer :expand PeepholeLSTM
 
-"""
+@doc raw"""
     PeepholeLSTM((input_size => hidden_size)::Pair; kwargs...)
 
+[Peephole long short term memory network](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf).
 See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -102,6 +103,17 @@ See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
+# Equations
+
+```math
+\begin{align}
+f_t &= \sigma_g(W_f x_t + U_f c_{t-1} + b_f), \\
+i_t &= \sigma_g(W_i x_t + U_i c_{t-1} + b_i), \\
+o_t &= \sigma_g(W_o x_t + U_o c_{t-1} + b_o), \\
+c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
+h_t &= o_t \odot \sigma_h(c_t).
+\end{align}
+```
 """
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTM(input_size => hidden_size; kwargs...)
