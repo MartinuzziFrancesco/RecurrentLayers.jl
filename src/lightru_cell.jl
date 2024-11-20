@@ -27,7 +27,7 @@ See [`LightRU`](@ref) for a layer that processes entire sequences.
 ```math
 \begin{aligned}
 \tilde{h}_t &= \tanh(W_h x_t), \\
-f_t         &= \delta(U_f h_{t-1} + W_f x_t + b_f), \\
+f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
 h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 \end{aligned}
 ```

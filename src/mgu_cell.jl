@@ -26,8 +26,8 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 # Equations
 ```math
 \begin{aligned}
-f_t         &= \sigma(U_f h_{t-1} + W_f x_t + b_f), \\
-\tilde{h}_t &= \tanh(U_h (f_t \odot h_{t-1}) + W_h x_t + b_h), \\
+f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
+\tilde{h}_t &= \tanh(W_h x_t + U_h (f_t \odot h_{t-1}) + b_h), \\
 h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 \end{aligned}
 ```

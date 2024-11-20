@@ -5,7 +5,7 @@ struct PeepholeLSTMCell{I, H, V}
     bias::V
 end
   
-@layer PeepholeLSTMCell
+Flux.@layer PeepholeLSTMCell
 
 @doc raw"""
     PeepholeLSTMCell((input_size => hidden_size)::Pair;
@@ -13,10 +13,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-The `PeepholeLSTMCell` introduced in 
-[this paper](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf), 
-is a recurrent cell layer.
-
+[Peephole long short term memory cell](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf).
 See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -28,6 +25,15 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Equations
 
+```math
+\begin{align}
+f_t &= \sigma_g(W_f x_t + U_f c_{t-1} + b_f), \\
+i_t &= \sigma_g(W_i x_t + U_i c_{t-1} + b_i), \\
+o_t &= \sigma_g(W_o x_t + U_o c_{t-1} + b_o), \\
+c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
+h_t &= o_t \odot \sigma_h(c_t).
+\end{align}
+```
 
 # Forward
 
@@ -82,7 +88,7 @@ struct PeepholeLSTM{M}
     cell::M
 end
 
-Flux.@layer :expand PeepholeLSTMv
+Flux.@layer :expand PeepholeLSTM
 
 """
     PeepholeLSTM((input_size => hidden_size)::Pair; kwargs...)
