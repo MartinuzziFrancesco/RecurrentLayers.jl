@@ -12,4 +12,5 @@ MUT1
 MUT2
 MUT3
 SCRN
+PeepholeLSTM
 ```
