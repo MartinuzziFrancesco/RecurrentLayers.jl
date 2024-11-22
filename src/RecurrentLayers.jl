@@ -5,9 +5,9 @@ import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
-RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell
+RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-SCRN
+SCRN, PeepholeLSTM
 
 
 #TODO add double bias
@@ -20,5 +20,6 @@ include("rhn_cell.jl")
 include("nas_cell.jl")
 include("mut_cell.jl")
 include("scrn_cell.jl")
+include("peepholelstm_cell.jl")
 
 end #module

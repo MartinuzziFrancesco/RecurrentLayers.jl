@@ -33,8 +33,8 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
 ```math
 \begin{aligned}
 \tilde{c}_t &= W_c x_t, \\
-i_t         &= \sigma(U_i h_{t-1} + W_i x_t + b_i), \\
-f_t         &= \sigma(U_f h_{t-1} + W_f x_t + b_f), \\
+i_t         &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \\
+f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
 c_t         &= i_t \odot \tilde{c}_t + f_t \odot c_{t-1}, \\
 h_t         &= g(c_t)
 \end{aligned}
