@@ -21,4 +21,5 @@ makedocs(;
 deploydocs(;
     repo="github.com/MartinuzziFrancesco/RecurrentLayers.jl",
     devbranch="main",
+    push_preview=true,
 )
