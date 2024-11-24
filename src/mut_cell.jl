@@ -7,11 +7,35 @@ end
 
 Flux.@layer MUT1Cell
 
-"""
+@doc raw"""
     MUT1Cell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
+
+[Mutated unit 1 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT1`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+z &= \sigma(W_z x_t + b_z), \\
+r &= \sigma(W_r x_t + U_r h_t + b_r), \\
+h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
+&\quad + h_t \odot (1 - z).
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function MUT1Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -57,6 +81,16 @@ Flux.@layer :expand MUT1
 
 """
     MUT1((input_size => hidden_size); kwargs...)
+
+[Mutated unit 1 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
 function MUT1((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
@@ -88,11 +122,35 @@ end
 
 Flux.@layer MUT2Cell
 
-"""
+@doc raw"""
     MUT2Cell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
+
+[Mutated unit 2 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT2`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+z &= \sigma(W_z x_t + U_z h_t + b_z), \\
+r &= \sigma(x_t + U_r h_t + b_r), \\
+h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
+&\quad + h_t \odot (1 - z).
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function MUT2Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -138,6 +196,16 @@ Flux.@layer :expand MUT2
 
 """
     MUT2Cell((input_size => hidden_size); kwargs...)
+
+[Mutated unit 2 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
 function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
@@ -168,11 +236,35 @@ end
 
 Flux.@layer MUT3Cell
 
-"""
+@doc raw"""
     MUT3Cell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
+
+[Mutated unit 3 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT3`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+z &= \sigma(W_z x_t + U_z \tanh(h_t) + b_z), \\
+r &= \sigma(W_r x_t + U_r h_t + b_r), \\
+h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
+&\quad + h_t \odot (1 - z).
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function MUT3Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -216,6 +308,16 @@ Flux.@layer :expand MUT3
 
 """
     MUT3((input_size => hidden_size); kwargs...)
+
+[Mutated unit 3 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)

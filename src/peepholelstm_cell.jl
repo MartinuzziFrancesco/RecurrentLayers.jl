@@ -26,13 +26,13 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 # Equations
 
 ```math
-\begin{align}
+\begin{aligned}
 f_t &= \sigma_g(W_f x_t + U_f c_{t-1} + b_f), \\
 i_t &= \sigma_g(W_i x_t + U_i c_{t-1} + b_i), \\
 o_t &= \sigma_g(W_o x_t + U_o c_{t-1} + b_o), \\
 c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
 h_t &= o_t \odot \sigma_h(c_t).
-\end{align}
+\end{aligned}
 ```
 
 # Forward

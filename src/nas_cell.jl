@@ -31,11 +31,54 @@ end
 
 Flux.@layer NASCell
 
-"""
+@doc raw"""
     NASCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
+
+[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+See [`NAS`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+\text{First Layer Outputs:} & \\
+o_1 &= \sigma(W_i^{(1)} x_t + W_h^{(1)} h_{t-1} + b^{(1)}), \\
+o_2 &= \text{ReLU}(W_i^{(2)} x_t + W_h^{(2)} h_{t-1} + b^{(2)}), \\
+o_3 &= \sigma(W_i^{(3)} x_t + W_h^{(3)} h_{t-1} + b^{(3)}), \\
+o_4 &= \text{ReLU}(W_i^{(4)} x_t \cdot W_h^{(4)} h_{t-1}), \\
+o_5 &= \tanh(W_i^{(5)} x_t + W_h^{(5)} h_{t-1} + b^{(5)}), \\
+o_6 &= \sigma(W_i^{(6)} x_t + W_h^{(6)} h_{t-1} + b^{(6)}), \\
+o_7 &= \tanh(W_i^{(7)} x_t + W_h^{(7)} h_{t-1} + b^{(7)}), \\
+o_8 &= \sigma(W_i^{(8)} x_t + W_h^{(8)} h_{t-1} + b^{(8)}). \\
+
+\text{Second Layer Computations:} & \\
+l_1 &= \tanh(o_1 \cdot o_2) \\
+l_2 &= \tanh(o_3 + o_4) \\
+l_3 &= \tanh(o_5 \cdot o_6) \\
+l_4 &= \sigma(o_7 + o_8) \\
+
+\text{Inject Cell State:} & \\
+l_1 &= \tanh(l_1 + c_{\text{state}}) \\
+
+\text{Final Layer Computations:} & \\
+c_{\text{new}} &= l_1 \cdot l_2 \\
+l_5 &= \tanh(l_3 + l_4) \\
+h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
+\end{aligned}
+```
+
+# Forward
+
+    rnncell(inp, [state])
 """
 function NASCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -101,6 +144,17 @@ Flux.@layer :expand NAS
 
 """
     NAS((input_size => hidden_size)::Pair; kwargs...)
+
+
+[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+See [`NASCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
 """
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
