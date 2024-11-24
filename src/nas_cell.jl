@@ -58,7 +58,7 @@ o_4 &= \text{ReLU}(W_i^{(4)} x_t \cdot W_h^{(4)} h_{t-1}), \\
 o_5 &= \tanh(W_i^{(5)} x_t + W_h^{(5)} h_{t-1} + b^{(5)}), \\
 o_6 &= \sigma(W_i^{(6)} x_t + W_h^{(6)} h_{t-1} + b^{(6)}), \\
 o_7 &= \tanh(W_i^{(7)} x_t + W_h^{(7)} h_{t-1} + b^{(7)}), \\
-o_8 &= \sigma(W_i^{(8)} x_t + W_h^{(8)} h_{t-1} + b^{(8)}).
+o_8 &= \sigma(W_i^{(8)} x_t + W_h^{(8)} h_{t-1} + b^{(8)}). \\
 
 \text{Second Layer Computations:} & \\
 l_1 &= \tanh(o_1 \cdot o_2) \\
