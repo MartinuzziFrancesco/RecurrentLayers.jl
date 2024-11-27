@@ -108,7 +108,7 @@ end
 
 Flux.@layer :expand RAN
 
-"""
+@doc raw"""
     RAN(input_size => hidden_size; kwargs...)
 
 The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
@@ -126,6 +126,16 @@ See [`RANCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 
+# Equations
+```math
+\begin{aligned}
+\tilde{c}_t &= W_c x_t, \\
+i_t         &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \\
+f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
+c_t         &= i_t \odot \tilde{c}_t + f_t \odot c_{t-1}, \\
+h_t         &= g(c_t)
+\end{aligned}
+```
 """
 function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)

@@ -86,7 +86,7 @@ end
   
 Flux.@layer :expand SCRN
 
-"""
+@doc raw"""
     SCRN((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
@@ -103,6 +103,15 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `alpha`: structural contraint. Default is 0.0
+
+# Equations
+```math
+\begin{aligned}
+s_t &= (1 - \alpha) W_s x_t + \alpha s_{t-1}, \\
+h_t &= \sigma(W_h s_t + U_h h_{t-1} + b_h), \\
+y_t &= f(U_y h_t + W_y s_t)
+\end{aligned}
+```
 """
 function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)

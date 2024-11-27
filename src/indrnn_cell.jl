@@ -70,7 +70,7 @@ end
   
 Flux.@layer :expand IndRNN
 
-"""
+@doc raw"""
     IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
         kwargs...)
 
@@ -84,6 +84,11 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} + \mathbf{b})
+```
 """
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
     cell = IndRNNCell(input_size, hidden_size, σ; kwargs...)
