@@ -75,7 +75,7 @@ end
   
 Flux.@layer :expand LiGRU
 
-"""
+@doc raw"""
     LiGRU((input_size => hidden_size)::Pair; kwargs...)
 
 [Light gated recurrent network](https://arxiv.org/pdf/1803.10225).
@@ -89,6 +89,15 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
+\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
+h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+\end{aligned}
+```
 """
 function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)

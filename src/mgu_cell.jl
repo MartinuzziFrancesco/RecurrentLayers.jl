@@ -76,7 +76,7 @@ end
   
 Flux.@layer :expand MGU
 
-"""
+@doc raw"""
     MGU((input_size => hidden_size)::Pair; kwargs...)
 
 [Minimal gated unit network](https://arxiv.org/pdf/1603.09420).
@@ -88,6 +88,15 @@ See [`MGUCell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
+\tilde{h}_t &= \tanh(W_h x_t + U_h (f_t \odot h_{t-1}) + b_h), \\
+h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
+\end{aligned}
+```
 """
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
