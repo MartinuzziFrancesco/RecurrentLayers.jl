@@ -31,7 +31,7 @@ function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state)
     weight, bias = rhn.weight, rhn.bias
 
     #compute
-    pre_nonlin = weight * inp + bias
+    pre_nonlin = weight * inp .+ bias
 
     #split
     pre_h, pre_t, pre_c = chunk(pre_nonlin, 3, dims = 1)
