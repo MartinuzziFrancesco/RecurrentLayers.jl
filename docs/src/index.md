@@ -18,10 +18,11 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
  - Evolving recurrent neural networks as `MUT1Cell`, `MUT2Cell`, `MUT3Cell` [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
  - Structurally constrained recurrent neural network as `SCRNCell` [arxiv](https://arxiv.org/pdf/1412.7753)
  - Peephole long short term memory as `PeepholeLSTMCell` [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
+ - `FastRNNCell` and `FastGRNNCell` [arxiv](https://arxiv.org/pdf/1901.02358)
 
 ## Contributing
 
-Contributions are always welcome! We look for specifically:
+Contributions are always welcome! We specifically look for :
  - Recurrent cells you would like to see implemented 
  - Benchmarks
  - Any bugs and mistakes of course!

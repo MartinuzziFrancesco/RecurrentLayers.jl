@@ -14,4 +14,5 @@ MUT2Cell
 MUT3Cell
 SCRNCell
 PeepholeLSTMCell
+FastRNNCell
 ```
