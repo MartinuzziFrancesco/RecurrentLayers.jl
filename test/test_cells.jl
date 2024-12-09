@@ -5,7 +5,7 @@ using Test
 #cells returning a single hidden state
 single_cells = [MGUCell, LiGRUCell, IndRNNCell,
     LightRUCell, MUT1Cell, MUT2Cell,
-    MUT3Cell]
+    MUT3Cell, FastRNNCell]
 #cells returning hidden state as a tuple
 double_cells = [RANCell, NASCell, PeepholeLSTMCell]
 #cells with a little more complexity to them
