@@ -6,9 +6,9 @@ import Flux: glorot_uniform
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-FastRNNCell
+FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-SCRN, PeepholeLSTM, FastRNN
+SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
 
 #TODO add double bias
