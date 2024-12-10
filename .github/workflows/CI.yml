@@ -52,7 +52,6 @@ jobs:
           Pkg.add("Coverage");
           using Coverage;
           results = process_folder();
-          results = Coverage.adjust(results; base_dir="src");
           LCOV.writefile("lcov.info", results);'
 
       - run: cat lcov.info
