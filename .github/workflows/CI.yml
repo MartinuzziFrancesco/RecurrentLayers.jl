@@ -51,7 +51,7 @@ jobs:
           Pkg.activate(".");
           Pkg.add("Coverage");
           using Coverage;
-          results = process_folder(filter=r"src/.*\.jl$");
+          results = process_folder();
           results = Coverage.adjust(results; base_dir="src");
           LCOV.writefile("lcov.info", results);'
 
