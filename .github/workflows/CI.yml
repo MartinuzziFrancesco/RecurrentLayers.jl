@@ -49,9 +49,9 @@ jobs:
         run: julia --project=. -e '
           using Pkg;
           Pkg.activate(".");
-          Pkg.add("Coverage");
           using Coverage;
-          results = process_folder(); 
+          results = process_folder(filter=r"src/.*\.jl$");
+          results = Coverage.adjust(results; base_dir="src");
           LCOV.writefile("lcov.info", results);'
 
       - run: cat lcov.info

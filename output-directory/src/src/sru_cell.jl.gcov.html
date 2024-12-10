@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - src/src/sru_cell.jl</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/src</a> - sru_cell.jl<span style="font-size: 80%;"> (source / <a href="sru_cell.jl.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2024-12-10 15:23:23</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : #https://arxiv.org/pdf/1709.02755</span>
+<span id="L2"><span class="lineNum">       2</span>              : struct SRUCell{I,H,B,V}</span>
+<span id="L3"><span class="lineNum">       3</span>              :     Wi::I</span>
+<span id="L4"><span class="lineNum">       4</span>              :     Wh::H</span>
+<span id="L5"><span class="lineNum">       5</span>              :     v::B</span>
+<span id="L6"><span class="lineNum">       6</span>              :     bias::V</span>
+<span id="L7"><span class="lineNum">       7</span>              : end</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : Flux.@layer SRUCell</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC tlaBgUNC">           0 : function SRUCell((in, out)::Pair, σ=tanh;</span></span>
+<span id="L12"><span class="lineNum">      12</span>              :     kernel_init = glorot_uniform,</span>
+<span id="L13"><span class="lineNum">      13</span>              :     recurrent_kernel_init = glorot_uniform,</span>
+<span id="L14"><span class="lineNum">      14</span>              :     bias = true)</span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :     Wi = kernel_init(2 * out, in)</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :     Wh = recurrent_kernel_init(2 * out, out)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :     v = kernel_init(2 * out)</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :     b = create_bias(Wi, bias, size(Wh, 1))</span></span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :     return SRUCell(Wi, Wh, v, b)</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : end</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 : SRUCell(in, out; kwargs...) = SRUCell(in =&gt; out; kwargs...)</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 : function (sru::SRUCell)(inp::AbstractVecOrMat)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :     state = zeros_like(inp, size(sru.Wh, 2))</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :     c_state = zeros_like(state)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :     return sru(inp, (state, c_state))</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : end</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 : function (sru::SRUCell)(inp::AbstractVecOrMat, (state, c_state))</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :     _size_check(sru, inp, 1 =&gt; size(sru.Wi,2))</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :     Wi, Wh, v, b = sru.Wi, sru.Wh, sru.v, sru.bias</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              :     #split</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :     gxs = chunk(Wi * inp, 3, dims=1)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :     ghs = chunk(Wh * state .+ b, 2, dims=1)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :     vs = chunk(v, 2, dims=1)</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              :     #compute</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :     input_gate = @. sigmoid_fast(gxs[2] + ghs[1])</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :     forget_gate = @. sigmoid_fast(gxs[3] + ghs[2])</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :     candidate_state = @. input_gate * gxs[1] + forget_gate * c_state</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :     new_state = tanh_fast(candidate_state)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :     return new_state, candidate_state</span></span>
+<span id="L46"><span class="lineNum">      46</span>              : end</span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : Base.show(io::IO, sru::SRUCell) =</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :     print(io, &quot;SRUCell(&quot;, size(sru.Wi, 2), &quot; =&gt; &quot;, size(sru.Wi, 1)÷2, &quot;)&quot;)</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
