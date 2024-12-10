@@ -30,6 +30,7 @@ Currently available layers and work in progress in the short term:
  - [x] Evolving recurrent neural networks (MUT1/2/3) [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
  - [x] Structurally constrained recurrent neural network (SCRN) [arxiv](https://arxiv.org/pdf/1412.7753)
  - [x] Peephole long short term memory (PeepholeLSTM) [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
+ - [x] FastRNN and FastGRNN [arxiv](https://arxiv.org/pdf/1901.02358)
  - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory (minLSTM) [arxiv](https://arxiv.org/abs/2410.01201)
 
 ## Installation 💻

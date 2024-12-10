@@ -6,10 +6,12 @@ using Test
 single_cells = [MGUCell, LiGRUCell, IndRNNCell,
     LightRUCell, MUT1Cell, MUT2Cell,
     MUT3Cell]
+
 #cells returning hidden state as a tuple
 double_cells = [RANCell, NASCell, PeepholeLSTMCell]
+
 #cells with a little more complexity to them
-different_cells = [SCRNCell, RHNCell]
+different_cells = [SCRNCell, RHNCell, FastRNNCell, FastGRNNCell]
 
 @testset "Single return cell: cell = $cell" for cell in single_cells
     rnncell = cell(3 => 5)
