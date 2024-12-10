@@ -14,4 +14,5 @@ MUT3
 SCRN
 PeepholeLSTM
 FastRNN
+FastGRNN
 ```
