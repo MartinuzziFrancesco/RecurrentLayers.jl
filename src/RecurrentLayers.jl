@@ -22,5 +22,6 @@ include("nas_cell.jl")
 include("mut_cell.jl")
 include("scrn_cell.jl")
 include("peepholelstm_cell.jl")
+include("fastrnn_cell.jl")
 
 end #module
