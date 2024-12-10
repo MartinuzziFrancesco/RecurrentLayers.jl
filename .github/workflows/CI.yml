@@ -38,14 +38,25 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
-        with:
-          coverage: true
-      - uses: julia-actions/julia-processcoverage@v1
+      - name: Run tests with coverage
+        run: julia --project=. -e 'using Pkg; Pkg.test(coverage=true)'
+      - name: Process coverage manually
+        run: julia --project=. -e '
+          using Pkg; 
+          Pkg.add("Coverage") # Ensure Coverage.jl is available
+          using Coverage;
+          results = process_folder(); 
+          LCOV.writefile("lcov.info", results)'
+
+      - run: cat lcov.info
       - uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: lcov.info
+            - uses: codecov/codecov-action@v5
+              with:
+                token: ${{ secrets.CODECOV_TOKEN }}
+                files: lcov.info
   docs:
     name: Documentation
     runs-on: ubuntu-latest
