@@ -38,15 +38,21 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@v1
+
       - name: Run tests with coverage
-        run: julia --project=. -e 'using Pkg; Pkg.test(coverage=true)'
+        run: julia --project=. -e '
+          using Pkg;
+          Pkg.activate(".");
+          Pkg.test(coverage=true);' 
+
       - name: Process coverage manually
         run: julia --project=. -e '
-          using Pkg; 
-          Pkg.add("Coverage") # Ensure Coverage.jl is available
+          using Pkg;
+          Pkg.activate(".");
+          Pkg.add("Coverage");
           using Coverage;
           results = process_folder(); 
-          LCOV.writefile("lcov.info", results)'
+          LCOV.writefile("lcov.info", results);'
 
       - run: cat lcov.info
       - uses: codecov/codecov-action@v5
