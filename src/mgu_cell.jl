@@ -7,6 +7,8 @@ end
 
 Flux.@layer MGUCell
 
+initialstates(mgu::MGUCell) = zeros_like(mgu.Wh, size(mgu.Wh, 2))
+
 @doc raw"""
     MGUCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -49,7 +51,7 @@ function MGUCell((input_size, hidden_size)::Pair;
 end
 
 function (mgu::MGUCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mgu.Wh, 2))
+    state = initialstates(mgu)
     return mgu(inp, state)
 end
 
@@ -75,6 +77,8 @@ struct MGU{M}
 end
   
 Flux.@layer :expand MGU
+
+initialstates(mgu::MGU) = initialstates(mgu.cell)
 
 @doc raw"""
     MGU((input_size => hidden_size)::Pair; kwargs...)
@@ -104,7 +108,7 @@ function MGU((input_size, hidden_size)::Pair; kwargs...)
 end
 
 function (mgu::MGU)(inp)
-    state = zeros_like(inp, size(mgu.cell.Wh, 2))
+    state = initialstates(mgu)
     return mgu(inp, state)
 end
   

@@ -7,6 +7,8 @@ end
 
 Flux.@layer MUT1Cell
 
+initialstates(mut::MUT1Cell) = zeros_like(mut.Wh, size(mut.Wh, 2))
+
 @doc raw"""
     MUT1Cell((input_size => hidden_size);
         init_kernel = glorot_uniform,
@@ -50,7 +52,7 @@ function MUT1Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT1Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
+    state = initialstates(mut)
     return mut(inp, state)
 end
 
@@ -78,6 +80,8 @@ struct MUT1{M}
 end
   
 Flux.@layer :expand MUT1
+
+initialstates(mut::MUT1) = initialstates(mut.cell)
 
 @doc raw"""
     MUT1((input_size => hidden_size); kwargs...)
@@ -108,7 +112,7 @@ function MUT1((input_size, hidden_size)::Pair; kwargs...)
 end
 
 function (mut::MUT1)(inp)
-    state = zeros_like(inp, size(mut.cell.Wh, 2))
+    state = initialstates(mut)
     return mut(inp, state)
 end
   
@@ -131,6 +135,8 @@ struct MUT2Cell{I, H, V}
 end
 
 Flux.@layer MUT2Cell
+
+initialstates(mut::MUT2Cell) = zeros_like(mut.Wh, size(mut.Wh, 2))
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size);
@@ -175,7 +181,7 @@ function MUT2Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT2Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
+    state = initialstates(mut)
     return mut(inp, state)
 end
 
@@ -203,6 +209,8 @@ struct MUT2{M}
 end
   
 Flux.@layer :expand MUT2
+
+initialstates(mut::MUT2) = initialstates(mut.cell)
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size); kwargs...)
@@ -233,7 +241,7 @@ function MUT2((input_size, hidden_size)::Pair; kwargs...)
 end
 
 function (mut::MUT2)(inp)
-    state = zeros_like(inp, size(mut.cell.Wh, 2))
+    state = initialstates(mut)
     return mut(inp, state)
 end
   
@@ -255,6 +263,8 @@ struct MUT3Cell{I, H, V}
 end
 
 Flux.@layer MUT3Cell
+
+initialstates(mut::MUT3Cell) = zeros_like(mut.Wh, size(mut.Wh, 2))
 
 @doc raw"""
     MUT3Cell((input_size => hidden_size);
@@ -299,7 +309,7 @@ function MUT3Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT3Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
+    state = initialstates(mut)
     return mut(inp, state)
 end
 
@@ -325,6 +335,8 @@ struct MUT3{M}
 end
   
 Flux.@layer :expand MUT3
+
+initialstates(mut::MUT3) = initialstates(mut.cell)
 
 @doc raw"""
     MUT3((input_size => hidden_size); kwargs...)

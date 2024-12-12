@@ -8,6 +8,8 @@ end
 
 Flux.@layer IndRNNCell
 
+initialstates(indrnn::FastRNNCell) = zeros_like(indrnn.Wi, size(indrnn.Wi, 2))
+
 @doc raw"""
     IndRNNCell((input_size => hidden_size)::Pair, σ=relu;
         init_kernel = glorot_uniform,
@@ -46,9 +48,9 @@ function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
     return IndRNNCell(σ, Wi, u, b)
 end
 
-function (indrnn::IndRNNCell)(x::AbstractVecOrMat)
-    state = zeros_like(x, size(indrnn.u, 1))
-    return indrnn(x, state)
+function (indrnn::IndRNNCell)(inp::AbstractVecOrMat)
+    state = initialstates(indrnn)
+    return indrnn(inp, state)
 end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
@@ -69,6 +71,8 @@ struct IndRNN{M}
 end
   
 Flux.@layer :expand IndRNN
+
+initialstates(indrnn::IndRNN) = initialstates(indrnn.cell)
 
 @doc raw"""
     IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
@@ -96,7 +100,7 @@ function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
 end
   
 function (indrnn::IndRNN)(inp)
-    state = zeros_like(inp, size(indrnn.cell.u, 1))
+    state = initialstates(indrnn)
     return indrnn(inp, state)
 end
   

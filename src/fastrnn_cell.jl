@@ -10,6 +10,8 @@ end
 
 Flux.@layer FastRNNCell
 
+initialstates(fastrnn::FastRNNCell) = zeros_like(fastrnn.Wh, size(fastrnn.Wh, 2))
+
 @doc raw"""
     FastRNNCell((input_size => hidden_size), [activation];
         init_kernel = glorot_uniform,
@@ -54,7 +56,7 @@ function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
 end
 
 function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(fastrnn.Wh, 2))
+    state = initialstates(fastrnn)
     return fastrnn(inp, state)
 end
 
@@ -82,6 +84,8 @@ struct FastRNN{M}
 end
   
 Flux.@layer :expand FastRNN
+
+initialstates(fastrnn::FastRNN) = initialstates(fastrnn.cell)
 
 @doc raw"""
     FastRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -116,7 +120,7 @@ function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
 end
 
 function (fastrnn::FastRNN)(inp)
-    state = zeros_like(inp, size(fastrnn.cell.Wh, 2))
+    state = initialstates(fastrnn)
     return fastrnn(inp, state)
 end
   
@@ -141,6 +145,8 @@ struct FastGRNNCell{I, H, V, A, B, F}
 end
 
 Flux.@layer FastGRNNCell
+
+initialstates(fastgrnn::FastGRNN) = zeros_like(fastgrnn.Wh, size(fastgrnn.Wh, 2))
 
 @doc raw"""
     FastGRNNCell((input_size => hidden_size), [activation];
@@ -187,7 +193,7 @@ function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
 end
 
 function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(fastgrnn.Wh, 2))
+    state = initialstates(fastgrnn)
     return fastgrnn(inp, state)
 end
 
@@ -219,6 +225,8 @@ struct FastGRNN{M}
 end
   
 Flux.@layer :expand FastGRNN
+
+initialstates(fastgrnn::FastGRNN) = initialstates(fastgrnn.cell)
 
 @doc raw"""
     FastGRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -254,7 +262,7 @@ function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
 end
 
 function (fastgrnn::FastGRNN)(inp)
-    state = zeros_like(inp, size(fastgrnn.cell.Wh, 2))
+    state = initialstates(fastgrnn)
     return fastgrnn(inp, state)
 end
   

@@ -7,6 +7,8 @@ end
 
 Flux.@layer LiGRUCell
 
+initialstates(ligru::LiGRUCell) = zeros_like(ligru.Wh, size(ligru.Wh, 2))
+
 @doc raw"""
     LiGRUCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -51,7 +53,7 @@ function LiGRUCell((input_size, hidden_size)::Pair;
 end
 
 function (ligru::LiGRUCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(ligru.Wh, 2))
+    state = initialstates(ligru)
     return ligru(inp, state)
 end
 
@@ -74,6 +76,8 @@ struct LiGRU{M}
 end
   
 Flux.@layer :expand LiGRU
+
+initialstates(ligru::LiGRU) = initialstates(ligru.cell)
 
 @doc raw"""
     LiGRU((input_size => hidden_size)::Pair; kwargs...)
@@ -105,7 +109,7 @@ function LiGRU((input_size, hidden_size)::Pair; kwargs...)
 end
   
 function (ligru::LiGRU)(inp)
-    state = zeros_like(inp, size(ligru.cell.Wh, 2))
+    state = initialstates(ligru)
     return ligru(inp, state)
 end
   
