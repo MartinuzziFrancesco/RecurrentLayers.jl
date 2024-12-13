@@ -135,15 +135,8 @@ function RAN((input_size, hidden_size)::Pair; kwargs...)
     return RAN(cell)
 end
 
-function (ran::RAN)(inp, (state, c_state))
+function (ran::RAN)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    new_cstate = []
-    for inp_t in eachslice(inp, dims=2)
-        state, c_state = ran.cell(inp_t, (state, c_state))
-        new_state = vcat(new_state, [state])
-        new_cstate = vcat(new_cstate, [c_state])
-    end
-    return stack(new_state, dims=2), stack(new_cstate, dims=2)
+    return scan(ran.cell, inp, state)
 end
 

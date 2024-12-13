@@ -114,14 +114,7 @@ function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     return PeepholeLSTM(cell)
 end
 
-function (lstm::PeepholeLSTM)(inp, (state, c_state))
+function (lstm::PeepholeLSTM)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    new_cstate = []
-    for inp_t in eachslice(inp, dims=2)
-        state, c_state = nas.cell(inp_t, (state, c_state))
-        new_state = vcat(new_state, [state])
-        new_cstate = vcat(new_cstate, [c_state])
-    end
-    return stack(new_state, dims=2), stack(new_cstate, dims=2)
+    return scan(lstm.cell, inp, state)
 end

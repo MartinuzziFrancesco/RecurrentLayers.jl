@@ -104,12 +104,7 @@ end
 
 function (mut::MUT1)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = mut.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(mut.cell, inp, state)
 end
 
 
@@ -218,12 +213,7 @@ end
   
 function (mut::MUT2)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = mut.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(mut.cell, inp, state)
 end
 
 
@@ -330,10 +320,5 @@ end
   
 function (mut::MUT3)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = mut.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(mut.cell, inp, state)
 end
