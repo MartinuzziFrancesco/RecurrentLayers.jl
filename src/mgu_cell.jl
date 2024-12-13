@@ -100,10 +100,5 @@ end
   
 function (mgu::MGU)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = mgu.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(mgu.cell, inp, state)
 end

@@ -112,12 +112,7 @@ end
   
 function (fastrnn::FastRNN)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = fastrnn.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(fastrnn.cell, inp, state)
 end
 
 
@@ -173,7 +168,7 @@ function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     zeta = randn(Float32)
     nu = randn(Float32)
 
-    return FastGRNNCell(Wi, Wh, b, alpha, beta, activation)
+    return FastGRNNCell(Wi, Wh, b, zeta, nu, activation)
 end
 
 function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
@@ -182,7 +177,7 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
 
     # get variables
     Wi, Wh, b = fastgrnn.Wi, fastgrnn.Wh, fastgrnn.bias
-    alpha, beta = fastgrnn.alpha, fastgrnn.beta
+    zeta, nu = fastgrnn.zeta, fastgrnn.nu
     bh, bz = chunk(b, 2)
     partial_gate = Wi * inp .+ Wh * state
 
@@ -240,10 +235,5 @@ end
   
 function (fastgrnn::FastGRNN)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = fastgrnn.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(fastgrnn.call, inp, state)
 end
