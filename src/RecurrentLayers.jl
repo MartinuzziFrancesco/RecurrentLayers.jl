@@ -5,6 +5,35 @@ import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
 import Flux: initialstates
 
+abstract type AbstractRecurrentCell end
+abstract type AbstractDoubleRecurrentCell <: AbstractRecurrentCell end
+
+function initialstates(rcell::AbstractRecurrentCell)
+    return zeros_like(rcell.Wh, size(rcell.Wh, 2))
+end
+
+function initialstates(rcell::AbstractDoubleRecurrentCell)
+    state = zeros_like(rcell.Wh, size(rcell.Wh, 2))
+    second_state = zeros_like(rcell.Wh, size(rcell.Wh, 2))
+    return state, second_state
+end
+
+function (rcell::AbstractRecurrentCell)(inp)
+    state = initialstates(rcell)
+    return rcell(inp, state)
+end
+
+abstract type AbstractRecurrentLayer end
+
+function initialstates(rlayer::AbstractRecurrentLayer)
+    return initialstates(rlayer.cell)
+end
+
+function (rlayer::AbstractRecurrentLayer)(inp)
+    state = initialstates(rlayer)
+    return rcell(inp, state)
+end
+
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
 FastRNNCell, FastGRNNCell

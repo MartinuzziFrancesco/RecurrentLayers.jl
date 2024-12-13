@@ -23,7 +23,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-struct NASCell{I,H,V}
+struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -90,12 +90,6 @@ function NASCell((input_size, hidden_size)::Pair;
     return NASCell(Wi, Wh, b)
 end
 
-function (nas::NASCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(nas.Wh, 2))
-    c_state = zeros_like(state)
-    return nas(inp, (state, c_state))
-end
-
 function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(nas, inp, 1 => size(nas.Wi,2))
     Wi, Wh, b = nas.Wi, nas.Wh, nas.bias
@@ -136,7 +130,7 @@ Base.show(io::IO, nas::NASCell) =
     print(io, "NASCell(", size(nas.Wi, 2), " => ", size(nas.Wi, 1)÷8, ")")
 
 
-struct NAS{M}
+struct NAS{M} <: AbstractRecurrentLayer
     cell::M
 end
 
@@ -188,12 +182,6 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
     return NAS(cell)
-end
-
-function (nas::NAS)(inp)
-    state = zeros_like(inp, size(nas.cell.Wh, 2))
-    c_state = zeros_like(state)
-    return nas(inp, (state, c_state))
 end
 
 function (nas::NAS)(inp, (state, c_state))

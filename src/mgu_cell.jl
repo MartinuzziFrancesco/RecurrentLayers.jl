@@ -1,13 +1,11 @@
 #https://arxiv.org/pdf/1603.09420
-struct MGUCell{I, H, V}
+struct MGUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
 end
 
 Flux.@layer MGUCell
-
-initialstates(mgu::MGUCell) = zeros_like(mgu.Wh, size(mgu.Wh, 2))
 
 @doc raw"""
     MGUCell((input_size => hidden_size)::Pair;
@@ -50,11 +48,6 @@ function MGUCell((input_size, hidden_size)::Pair;
     return MGUCell(Wi, Wh, b)
 end
 
-function (mgu::MGUCell)(inp::AbstractVecOrMat)
-    state = initialstates(mgu)
-    return mgu(inp, state)
-end
-
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     _size_check(mgu, inp, 1 => size(mgu.Wi,2))
     Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
@@ -72,13 +65,11 @@ Base.show(io::IO, mgu::MGUCell) =
     print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
 
 
-struct MGU{M}
+struct MGU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :expand MGU
-
-initialstates(mgu::MGU) = initialstates(mgu.cell)
 
 @doc raw"""
     MGU((input_size => hidden_size)::Pair; kwargs...)
@@ -105,11 +96,6 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU(cell)
-end
-
-function (mgu::MGU)(inp)
-    state = initialstates(mgu)
-    return mgu(inp, state)
 end
   
 function (mgu::MGU)(inp, state)

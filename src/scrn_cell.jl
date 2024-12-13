@@ -1,5 +1,5 @@
 #https://arxiv.org/pdf/1412.7753
-struct SCRNCell{I,H,C,V,A}
+struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     Wc::C
@@ -80,7 +80,7 @@ Base.show(io::IO, scrn::SCRNCell) =
     print(io, "SCRNCell(", size(scrn.Wi, 2), " => ", size(scrn.Wi, 1)÷3, ")")
 
 
-struct SCRN{M}
+struct SCRN{M} <: AbstractRecurrentLayer
     cell::M
 end
   

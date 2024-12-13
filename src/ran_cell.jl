@@ -1,12 +1,11 @@
 #https://arxiv.org/pdf/1705.07393
-struct RANCell{I,H,V}
+struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     bias::V
 end
 
 Flux.@layer RANCell
-
 
 @doc raw"""
     RANCell((input_size => hidden_size)::Pair;
@@ -76,12 +75,6 @@ function RANCell((input_size, hidden_size)::Pair;
     return RANCell(Wi, Wh, b)
 end
 
-function (ran::RANCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(ran.Wh, 2))
-    c_state = zeros_like(state)
-    return ran(inp, (state, c_state))
-end
-
 function (ran::RANCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(ran, inp, 1 => size(ran.Wi,2))
     Wi, Wh, b = ran.Wi, ran.Wh, ran.bias
@@ -102,7 +95,7 @@ Base.show(io::IO, ran::RANCell) =
     print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1)÷3, ")")
 
 
-struct RAN{M}
+struct RAN{M} <: AbstractRecurrentLayer
     cell::M
 end
 
@@ -140,12 +133,6 @@ h_t         &= g(c_t)
 function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
     return RAN(cell)
-end
-
-function (ran::RAN)(inp)
-    state = zeros_like(inp, size(ran.cell.Wh, 2))
-    c_state = zeros_like(state)
-    return ran(inp, (state, c_state))
 end
 
 function (ran::RAN)(inp, (state, c_state))

@@ -1,13 +1,11 @@
 #https://www.mdpi.com/2079-9292/13/16/3204
-struct LightRUCell{I,H,V}
+struct LightRUCell{I,H,V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
 end
 
 Flux.@layer LightRUCell
-
-initialstates(lightru::LightRUCell) = zeros_like(lightru.Wh, size(lightru.Wh, 2))
 
 @doc raw"""
     LightRUCell((input_size => hidden_size)::Pair;
@@ -49,11 +47,6 @@ function LightRUCell((input_size, hidden_size)::Pair;
     return LightRUCell(Wi, Wh, b)
 end
 
-function (lightru::LightRUCell)(inp::AbstractVecOrMat)
-    state = initialstates(lightru)
-    return lightru(inp, state)
-end
-
 function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
     _size_check(lightru, inp, 1 => size(lightru.Wi,2))
     Wi, Wh, b = lightru.Wi, lightru.Wh, lightru.bias
@@ -73,13 +66,11 @@ Base.show(io::IO, lightru::LightRUCell) =
 
 
 
-struct LightRU{M}
+struct LightRU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :expand LightRU
-
-initialstates(lightru::LightRU) = initialstates(lightru.cell)
 
 @doc raw"""
     LightRU((input_size => hidden_size)::Pair; kwargs...)
@@ -106,11 +97,6 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 function LightRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)
     return LightRU(cell)
-end
-  
-function (lightru::LightRU)(inp)
-    state = initialstates(lightru)
-    return lightru(inp, state)
 end
   
 function (lightru::LightRU)(inp, state)

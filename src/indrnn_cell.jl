@@ -1,14 +1,12 @@
 #https://arxiv.org/pdf/1803.04831
-struct IndRNNCell{F,I,H,V}
+struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
     σ::F
     Wi::I
-    u::H
+    Wh::H
     b::V
 end
 
 Flux.@layer IndRNNCell
-
-initialstates(indrnn::FastRNNCell) = zeros_like(indrnn.Wi, size(indrnn.Wi, 2))
 
 @doc raw"""
     IndRNNCell((input_size => hidden_size)::Pair, σ=relu;
@@ -43,20 +41,15 @@ function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
     init_recurrent_kernel = glorot_uniform,
     bias = true)
     Wi = init_kernel(hidden_size, input_size)
-    u = init_recurrent_kernel(hidden_size)
+    Wh = init_recurrent_kernel(hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
-    return IndRNNCell(σ, Wi, u, b)
-end
-
-function (indrnn::IndRNNCell)(inp::AbstractVecOrMat)
-    state = initialstates(indrnn)
-    return indrnn(inp, state)
+    return IndRNNCell(σ, Wi, Wh, b)
 end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
     σ = NNlib.fast_act(indrnn.σ, inp)
-    state = σ.(indrnn.Wi*inp .+ indrnn.u .* state .+ indrnn.b)
+    state = σ.(indrnn.Wi*inp .+ indrnn.Wh .* state .+ indrnn.b)
     return state
 end
 
@@ -66,13 +59,11 @@ function Base.show(io::IO, indrnn::IndRNNCell)
     print(io, ")")
 end
 
-struct IndRNN{M}
+struct IndRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :expand IndRNN
-
-initialstates(indrnn::IndRNN) = initialstates(indrnn.cell)
 
 @doc raw"""
     IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
@@ -97,11 +88,6 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
     cell = IndRNNCell(input_size, hidden_size, σ; kwargs...)
     return IndRNN(cell)
-end
-  
-function (indrnn::IndRNN)(inp)
-    state = initialstates(indrnn)
-    return indrnn(inp, state)
 end
   
 function (indrnn::IndRNN)(inp, state) 
