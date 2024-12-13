@@ -1,5 +1,5 @@
 #https://arxiv.org/pdf/1603.09420
-struct MGUCell{I, H, V}
+struct MGUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -48,11 +48,6 @@ function MGUCell((input_size, hidden_size)::Pair;
     return MGUCell(Wi, Wh, b)
 end
 
-function (mgu::MGUCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mgu.Wh, 2))
-    return mgu(inp, state)
-end
-
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     _size_check(mgu, inp, 1 => size(mgu.Wi,2))
     Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
@@ -70,7 +65,7 @@ Base.show(io::IO, mgu::MGUCell) =
     print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
 
 
-struct MGU{M}
+struct MGU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -101,11 +96,6 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU(cell)
-end
-
-function (mgu::MGU)(inp)
-    state = zeros_like(inp, size(mgu.cell.Wh, 2))
-    return mgu(inp, state)
 end
   
 function (mgu::MGU)(inp, state)

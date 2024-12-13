@@ -1,5 +1,5 @@
 #https://proceedings.mlr.press/v37/jozefowicz15.pdf
-struct MUT1Cell{I, H, V}
+struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -49,11 +49,6 @@ function MUT1Cell((input_size, hidden_size)::Pair;
     return MUT1Cell(Wi, Wh, b)
 end
 
-function (mut::MUT1Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
-    return mut(inp, state)
-end
-
 function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
@@ -73,7 +68,7 @@ end
 Base.show(io::IO, mut::MUT1Cell) =
     print(io, "MUT1Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
-struct MUT1{M}
+struct MUT1{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -107,11 +102,6 @@ function MUT1((input_size, hidden_size)::Pair; kwargs...)
     return MUT1(cell)
 end
 
-function (mut::MUT1)(inp)
-    state = zeros_like(inp, size(mut.cell.Wh, 2))
-    return mut(inp, state)
-end
-  
 function (mut::MUT1)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
     new_state = []
@@ -123,8 +113,7 @@ function (mut::MUT1)(inp, state)
 end
 
 
-
-struct MUT2Cell{I, H, V}
+struct MUT2Cell{I, H, V}  <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -174,11 +163,6 @@ function MUT2Cell((input_size, hidden_size)::Pair;
     return MUT2Cell(Wi, Wh, b)
 end
 
-function (mut::MUT2Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
-    return mut(inp, state)
-end
-
 function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
@@ -198,7 +182,7 @@ Base.show(io::IO, mut::MUT2Cell) =
     print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
 
-struct MUT2{M}
+struct MUT2{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -231,11 +215,6 @@ function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
     return MUT2(cell)
 end
-
-function (mut::MUT2)(inp)
-    state = zeros_like(inp, size(mut.cell.Wh, 2))
-    return mut(inp, state)
-end
   
 function (mut::MUT2)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
@@ -248,7 +227,7 @@ function (mut::MUT2)(inp, state)
 end
 
 
-struct MUT3Cell{I, H, V}
+struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -298,11 +277,6 @@ function MUT3Cell((input_size, hidden_size)::Pair;
     return MUT3Cell(Wi, Wh, b)
 end
 
-function (mut::MUT3Cell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(mut.Wh, 2))
-    return mut(inp, state)
-end
-
 function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
     _size_check(mut, inp, 1 => size(mut.Wi,2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
@@ -320,7 +294,7 @@ end
 Base.show(io::IO, mut::MUT3Cell) =
     print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
-struct MUT3{M}
+struct MUT3{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -352,11 +326,6 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
     return MUT3(cell)
-end
-
-function (mut::MUT3)(inp)
-    state = zeros_like(inp, size(mut.cell.Wh, 2))
-    return mut(inp, state)
 end
   
 function (mut::MUT3)(inp, state)

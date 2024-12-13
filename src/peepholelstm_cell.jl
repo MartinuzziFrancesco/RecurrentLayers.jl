@@ -1,5 +1,5 @@
 #https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf
-struct PeepholeLSTMCell{I, H, V}
+struct PeepholeLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -62,12 +62,6 @@ function PeepholeLSTMCell(
     return cell
 end
   
-function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(lstm.Wh, 2))
-    c_state = zeros_like(state)
-    return lstm(inp, (state, c_state))
-end
-  
 function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, 
     (state, c_state))
     _size_check(lstm, inp, 1 => size(lstm.Wi, 2))
@@ -84,7 +78,7 @@ Base.show(io::IO, lstm::PeepholeLSTMCell) =
   
   
 
-struct PeepholeLSTM{M}
+struct PeepholeLSTM{M} <: AbstractRecurrentLayer
     cell::M
 end
 
@@ -118,12 +112,6 @@ h_t &= o_t \odot \sigma_h(c_t).
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTM(input_size => hidden_size; kwargs...)
     return PeepholeLSTM(cell)
-end
-
-function (lstm::PeepholeLSTM)(inp)
-    state = zeros_like(inp, size(lstm.cell.Wh, 2))
-    c_state = zeros_like(state)
-    return lstm(inp, (state, c_state))
 end
 
 function (lstm::PeepholeLSTM)(inp, (state, c_state))

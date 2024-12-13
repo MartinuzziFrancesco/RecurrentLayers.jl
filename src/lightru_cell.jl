@@ -1,5 +1,5 @@
 #https://www.mdpi.com/2079-9292/13/16/3204
-struct LightRUCell{I,H,V}
+struct LightRUCell{I,H,V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -47,14 +47,9 @@ function LightRUCell((input_size, hidden_size)::Pair;
     return LightRUCell(Wi, Wh, b)
 end
 
-function (lru::LightRUCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(lru.Wh, 2))
-    return lru(inp, state)
-end
-
-function (lru::LightRUCell)(inp::AbstractVecOrMat, state)
-    _size_check(lru, inp, 1 => size(lru.Wi,2))
-    Wi, Wh, b = lru.Wi, lru.Wh, lru.bias
+function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
+    _size_check(lightru, inp, 1 => size(lightru.Wi,2))
+    Wi, Wh, b = lightru.Wi, lightru.Wh, lightru.bias
 
     #split
     gxs = chunk(Wi * inp, 2, dims=1)
@@ -66,12 +61,12 @@ function (lru::LightRUCell)(inp::AbstractVecOrMat, state)
     return new_state
 end
 
-Base.show(io::IO, lru::LightRUCell) =
-    print(io, "LightRUCell(", size(lru.Wi, 2), " => ", size(lru.Wi, 1)÷2, ")")
+Base.show(io::IO, lightru::LightRUCell) =
+    print(io, "LightRUCell(", size(lightru.Wi, 2), " => ", size(lightru.Wi, 1)÷2, ")")
 
 
 
-struct LightRU{M}
+struct LightRU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -104,16 +99,11 @@ function LightRU((input_size, hidden_size)::Pair; kwargs...)
     return LightRU(cell)
 end
   
-function (lru::LightRU)(inp)
-    state = zeros_like(inp, size(lru.cell.Wh, 2))
-    return lru(inp, state)
-end
-  
-function (lru::LightRU)(inp, state)
+function (lightru::LightRU)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
     new_state = []
     for inp_t in eachslice(inp, dims=2)
-        state = lru.cell(inp_t, state)
+        state = lightru.cell(inp_t, state)
         new_state = vcat(new_state, [state])
     end
     return stack(new_state, dims=2)

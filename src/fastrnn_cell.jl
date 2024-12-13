@@ -1,5 +1,5 @@
 #https://arxiv.org/abs/1901.02358
-struct FastRNNCell{I, H, V, A, B, F}
+struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -53,11 +53,6 @@ function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     return FastRNNCell(Wi, Wh, b, alpha, beta, activation)
 end
 
-function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(fastrnn.Wh, 2))
-    return fastrnn(inp, state)
-end
-
 function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     #checks
     _size_check(fastrnn, inp, 1 => size(fastrnn.Wi,2))
@@ -77,7 +72,7 @@ Base.show(io::IO, fastrnn::FastRNNCell) =
     print(io, "FastRNNCell(", size(fastrnn.Wi, 2), " => ", size(fastrnn.Wi, 1) ÷ 2, ")")
 
 
-struct FastRNN{M}
+struct FastRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -114,11 +109,6 @@ function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastRNN(cell)
 end
-
-function (fastrnn::FastRNN)(inp)
-    state = zeros_like(inp, size(fastrnn.cell.Wh, 2))
-    return fastrnn(inp, state)
-end
   
 function (fastrnn::FastRNN)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
@@ -131,7 +121,7 @@ function (fastrnn::FastRNN)(inp, state)
 end
 
 
-struct FastGRNNCell{I, H, V, A, B, F}
+struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -186,11 +176,6 @@ function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     return FastGRNNCell(Wi, Wh, b, alpha, beta, activation)
 end
 
-function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(fastgrnn.Wh, 2))
-    return fastgrnn(inp, state)
-end
-
 function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     #checks
     _size_check(fastgrnn, inp, 1 => size(fastgrnn.Wi,2))
@@ -214,7 +199,7 @@ Base.show(io::IO, fastgrnn::FastGRNNCell) =
     print(io, "FastGRNNCell(", size(fastgrnn.Wi, 2), " => ", size(fastgrnn.Wi, 1) ÷ 2, ")")
 
 
-struct FastGRNN{M}
+struct FastGRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -251,11 +236,6 @@ function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN(cell)
-end
-
-function (fastgrnn::FastGRNN)(inp)
-    state = zeros_like(inp, size(fastgrnn.cell.Wh, 2))
-    return fastgrnn(inp, state)
 end
   
 function (fastgrnn::FastGRNN)(inp, state)

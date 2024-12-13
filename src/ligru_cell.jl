@@ -1,5 +1,5 @@
 #https://arxiv.org/pdf/1803.10225
-struct LiGRUCell{I, H, V}
+struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -50,11 +50,6 @@ function LiGRUCell((input_size, hidden_size)::Pair;
     return LiGRUCell(Wi, Wh, b)
 end
 
-function (ligru::LiGRUCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(ligru.Wh, 2))
-    return ligru(inp, state)
-end
-
 function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     _size_check(ligru, inp, 1 => size(ligru.Wi,2))
     Wi, Wh, b = ligru.Wi, ligru.Wh, ligru.bias
@@ -69,7 +64,7 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
 end
 
 
-struct LiGRU{M}
+struct LiGRU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
@@ -102,11 +97,6 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU(cell)
-end
-  
-function (ligru::LiGRU)(inp)
-    state = zeros_like(inp, size(ligru.cell.Wh, 2))
-    return ligru(inp, state)
 end
   
 function (ligru::LiGRU)(inp, state)
