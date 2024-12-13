@@ -62,7 +62,7 @@ function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
         ghs[2] * (reset_gate .* state) .+ tanh_fast(gxs[3])
     ) #in the paper is tanh(x_t) but dimensionally it cannot work
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, mut::MUT1Cell) =
@@ -170,7 +170,7 @@ function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
     reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state) 
     candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, mut::MUT2Cell) =
@@ -278,7 +278,7 @@ function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
     reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state)
     candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, mut::MUT3Cell) =

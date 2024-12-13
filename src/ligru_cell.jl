@@ -60,7 +60,7 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     forget_gate = @. sigmoid_fast(gxs[1] + ghs[1])
     candidate_hidden = @. tanh_fast(gxs[2] + ghs[2])
     new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_hidden
-    return new_state
+    return new_state, new_state
 end
 
 

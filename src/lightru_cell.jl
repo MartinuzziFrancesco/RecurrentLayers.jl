@@ -58,7 +58,7 @@ function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
     candidate_state = @. tanh_fast(gxs[1])
     forget_gate = sigmoid_fast(gxs[2] .+ Wh * state .+ b)
     new_state = @. (1 - forget_gate) * state + forget_gate * candidate_state
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, lightru::LightRUCell) =

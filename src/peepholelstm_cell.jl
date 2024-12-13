@@ -70,7 +70,7 @@ function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat,
     input, forget, cell, output = chunk(g, 4; dims = 1)
     new_cstate = @. sigmoid_fast(forget) * c_state + sigmoid_fast(input) * tanh_fast(cell)
     new_state = @. sigmoid_fast(output) * tanh_fast(new_cstate)
-    return new_state, new_cstate
+    return new_state, (new_state, new_cstate)
 end
   
 Base.show(io::IO, lstm::PeepholeLSTMCell) =

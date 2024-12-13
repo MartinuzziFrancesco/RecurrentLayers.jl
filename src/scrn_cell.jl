@@ -73,7 +73,7 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     context_layer = (1 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
     hidden_layer = sigmoid_fast(gxs[2] .+ ghs[1] * state .+ gcs[1])
     new_state = tanh_fast(ghs[2] * hidden_layer .+ gcs[2])
-    return new_state, context_layer
+    return new_state, (new_state, context_layer)
 end
 
 Base.show(io::IO, scrn::SCRNCell) =

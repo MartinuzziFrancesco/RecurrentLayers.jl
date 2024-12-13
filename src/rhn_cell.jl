@@ -130,7 +130,7 @@ function (rhn::RHNCell)(inp, state=nothing)
         end
     end
 
-    return current_state
+    return current_state, current_state
 end
 
 # TODO fix implementation here

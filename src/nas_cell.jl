@@ -123,7 +123,7 @@ function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
 
     new_state = tanh_fast(new_cstate .* l3_2)
 
-    return new_state, new_cstate
+    return new_state, (new_state, new_cstate)
 end
 
 Base.show(io::IO, nas::NASCell) =

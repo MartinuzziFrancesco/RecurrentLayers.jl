@@ -65,7 +65,7 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     candidate_state = fastrnn.activation.(Wi * inp .+ Wh * state .+ b)
     new_state = alpha .* candidate_state .+ beta .* state
 
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, fastrnn::FastRNNCell) =
@@ -187,7 +187,7 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     candidate_state = tanh_fast.(partial_gate .+ bh)
     new_state = (zeta .* (ones(size(gate)) .- gate) .+ nu) .* candidate_state .+ gate .* state
 
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, fastgrnn::FastGRNNCell) =
