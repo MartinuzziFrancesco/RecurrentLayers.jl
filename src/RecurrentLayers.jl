@@ -18,7 +18,7 @@ function initialstates(rcell::AbstractDoubleRecurrentCell)
     return state, second_state
 end
 
-function (rcell::AbstractRecurrentCell)(inp)
+function (rcell::AbstractRecurrentCell)(inp::AbstractVecOrMat)
     state = initialstates(rcell)
     return rcell(inp, state)
 end
@@ -29,7 +29,7 @@ function initialstates(rlayer::AbstractRecurrentLayer)
     return initialstates(rlayer.cell)
 end
 
-function (rlayer::AbstractRecurrentLayer)(inp)
+function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     state = initialstates(rlayer)
     return rcell(inp, state)
 end
