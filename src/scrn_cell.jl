@@ -117,18 +117,8 @@ function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
     return SCRN(cell)
 end
-
-function (scrn::SCRN)(inp)
-    state = zeros_like(inp, size(scrn.cell.Wh, 2))
-    return scrn(inp, state)
-end
   
 function (scrn::SCRN)(inp, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = scrn.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(scrn.cell, inp, state)
 end

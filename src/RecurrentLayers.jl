@@ -3,7 +3,7 @@ module RecurrentLayers
 using Flux
 import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
-import Flux: initialstates
+import Flux: initialstates, scan
 
 abstract type AbstractRecurrentCell end
 abstract type AbstractDoubleRecurrentCell <: AbstractRecurrentCell end
@@ -31,7 +31,7 @@ end
 
 function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     state = initialstates(rlayer)
-    return rcell(inp, state)
+    return rlayer(inp, state)
 end
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
