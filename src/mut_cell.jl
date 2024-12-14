@@ -35,7 +35,18 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 
 # Forward
 
-    rnncell(inp, [state])
+    mutcell(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mutcell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the MUTCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns a tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function MUT1Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -96,6 +107,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 &\quad + h_t \odot (1 - z).
 \end{aligned}
 ```
+
+# Forward
+
+    mut(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mut. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the MUT. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns new hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function MUT1((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
@@ -144,7 +169,18 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 
 # Forward
 
-    rnncell(inp, [state])
+    mutcell(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mutcell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the MUTCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns a tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function MUT2Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -205,6 +241,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 &\quad + h_t \odot (1 - z).
 \end{aligned}
 ```
+
+# Forward
+
+    mut(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mut. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the MUT. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns new hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
@@ -253,7 +303,18 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 
 # Forward
 
-    rnncell(inp, [state])
+    mutcell(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mutcell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the MUTCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns a tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function MUT3Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -312,6 +373,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 &\quad + h_t \odot (1 - z).
 \end{aligned}
 ```
+
+# Forward
+
+    mut(inp, [state])
+
+The arguments of the forward pass are:
+
+- `inp`: The input to the mut. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the MUT. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+Returns new hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
