@@ -39,7 +39,21 @@ y_t &= f(U_y h_t + W_y s_t)
 
 # Forward
 
-    rnncell(inp, [state, c_state])
+    scrncell(inp, (state, cstate))
+    scrncell(inp)
+
+## Arguments
+
+- `inp`: The input to the scrncell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the SCRNCell.
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros.
+
+## Returns
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 function SCRNCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -112,6 +126,21 @@ h_t &= \sigma(W_h s_t + U_h h_{t-1} + b_h), \\
 y_t &= f(U_y h_t + W_y s_t)
 \end{aligned}
 ```
+
+# Forward
+
+    scrn(inp, (state, cstate))
+    scrn(inp)
+
+## Arguments
+- `inp`: The input to the scrn. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the SCRN. 
+    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+    If not provided, they are assumed to be vectors of zeros
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)

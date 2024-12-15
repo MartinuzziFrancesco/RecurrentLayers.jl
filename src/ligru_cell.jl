@@ -36,18 +36,19 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 
 # Forward
 
-    ligrucell(inp, [state])
+    ligrucell(inp, state)
+    ligrucell(inp)
 
-The arguments of the forward pass are:
-
+## Arguments
 - `inp`: The input to the ligrucell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `state`: The hidden state of the LiGRUCell. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
   If not provided, it is assumed to be a vector of zeros.
 
-Returns a tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-a tensor of size `hidden_size` or `hidden_size x batch_size`.
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function LiGRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -107,17 +108,18 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 
 # Forward
 
-    ligru(inp, [state])
+    ligru(inp, state)
+    ligru(inp)
 
-The arguments of the forward pass are:
-
+## Arguments
 - `inp`: The input to the ligru. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `state`: The hidden state of the LiGRU. If given, it is a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
   If not provided, it is assumed to be a vector of zeros.
 
-Returns new hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)

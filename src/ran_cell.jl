@@ -17,8 +17,6 @@ The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393),
 is a recurrent cell layer which provides additional memory through the
 use of gates.
 
-and returns both h_t anf c_t.
-
 See [`RAN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -41,29 +39,20 @@ h_t         &= g(c_t)
 
 # Forward
 
-    rancell(x, [h, c])
+    rancell(inp, (state, cstate))
+    rancell(inp)
 
-The forward pass takes the following arguments:
+## Arguments
+- `inp`: The input to the rancell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros.
 
-- `x`: Input to the cell, which can be a vector of size `in` or a matrix of size `in x batch_size`.
-- `h`: The hidden state vector of the cell, sized `out`, or a matrix of size `out x batch_size`.
-- `c`: The candidate state, sized `out`, or a matrix of size `out x batch_size`.
-If not provided, both `h` and `c` default to vectors of zeros.
-
-# Examples
-
-```julia
-rancell = RANCell(3 => 5)
-inp = rand(Float32, 3)
-#initializing the hidden states, if we want to provide them
-state = rand(Float32, 5)
-c_state = rand(Float32, 5)
-
-#result with default initialization of internal states
-result = rancell(inp)
-#result with internal states provided
-result_state = rancell(inp, (state, c_state))
-```
+## Returns
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 function RANCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -129,6 +118,21 @@ c_t         &= i_t \odot \tilde{c}_t + f_t \odot c_{t-1}, \\
 h_t         &= g(c_t)
 \end{aligned}
 ```
+
+# Forward
+
+    ran(inp, (state, cstate))
+    ran(inp)
+
+## Arguments
+- `inp`: The input to the ran. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the RAN. 
+    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+    If not provided, they are assumed to be vectors of zeros
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
