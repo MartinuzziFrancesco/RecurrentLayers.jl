@@ -68,12 +68,6 @@ function SCRNCell((input_size, hidden_size)::Pair;
     return SCRNCell(Wi, Wh, Wc, b, alpha)
 end
 
-function (scrn::SCRNCell)(inp::AbstractVecOrMat)
-    state = zeros_like(inp, size(scrn.Wh, 2))
-    c_state = zeros_like(state)
-    return scrn(inp, (state, c_state))
-end
-
 function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(scrn, inp, 1 => size(scrn.Wi,2))
     Wi, Wh, Wc, b = scrn.Wi, scrn.Wh, scrn.Wc, scrn.bias
