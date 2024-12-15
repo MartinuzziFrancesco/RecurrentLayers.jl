@@ -36,7 +36,19 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 
 # Forward
 
-    rnncell(inp, [state])
+    ligrucell(inp, state)
+    ligrucell(inp)
+
+## Arguments
+- `inp`: The input to the ligrucell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the LiGRUCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function LiGRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -60,7 +72,7 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     forget_gate = @. sigmoid_fast(gxs[1] + ghs[1])
     candidate_hidden = @. tanh_fast(gxs[2] + ghs[2])
     new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_hidden
-    return new_state
+    return new_state, new_state
 end
 
 
@@ -93,6 +105,21 @@ z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
 h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 \end{aligned}
 ```
+
+# Forward
+
+    ligru(inp, state)
+    ligru(inp)
+
+## Arguments
+- `inp`: The input to the ligru. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the LiGRU. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)

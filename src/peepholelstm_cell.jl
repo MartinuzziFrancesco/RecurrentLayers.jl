@@ -37,17 +37,21 @@ h_t &= o_t \odot \sigma_h(c_t).
 
 # Forward
 
-    lstmcell(x, [h, c])
+    peepholelstmcell(inp, (state, cstate))
+    peepholelstmcell(inp)
 
-The forward pass takes the following arguments:
+## Arguments
 
-- `x`: Input to the cell, which can be a vector of size `in` or a matrix of size `in x batch_size`.
-- `h`: The hidden state vector of the cell, sized `out`, or a matrix of size `out x batch_size`.
-- `c`: The candidate state, sized `out`, or a matrix of size `out x batch_size`.
-If not provided, both `h` and `c` default to vectors of zeros.
+- `inp`: The input to the peepholelstmcell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the PeepholeLSTMCell.
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros.
 
-# Examples
-
+## Returns
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 function PeepholeLSTMCell(
     (input_size, hidden_size)::Pair;
@@ -70,7 +74,7 @@ function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat,
     input, forget, cell, output = chunk(g, 4; dims = 1)
     new_cstate = @. sigmoid_fast(forget) * c_state + sigmoid_fast(input) * tanh_fast(cell)
     new_state = @. sigmoid_fast(output) * tanh_fast(new_cstate)
-    return new_state, new_cstate
+    return new_state, (new_state, new_cstate)
 end
   
 Base.show(io::IO, lstm::PeepholeLSTMCell) =
@@ -108,6 +112,20 @@ c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
 h_t &= o_t \odot \sigma_h(c_t).
 \end{align}
 ```
+# Forward
+
+    peepholelstm(inp, (state, cstate))
+    peepholelstm(inp)
+
+## Arguments
+- `inp`: The input to the peepholelstm. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the PeepholeLSTM. 
+    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+    If not provided, they are assumed to be vectors of zeros
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTM(input_size => hidden_size; kwargs...)

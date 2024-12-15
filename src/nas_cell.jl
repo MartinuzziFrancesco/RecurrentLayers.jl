@@ -78,7 +78,21 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 
 # Forward
 
-    rnncell(inp, [state])
+    nascell(inp, (state, cstate))
+    nascell(inp)
+
+## Arguments
+
+- `inp`: The input to the fastrnncell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the NASCell.
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros.
+
+## Returns
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 function NASCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -123,7 +137,7 @@ function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
 
     new_state = tanh_fast(new_cstate .* l3_2)
 
-    return new_state, new_cstate
+    return new_state, (new_state, new_cstate)
 end
 
 Base.show(io::IO, nas::NASCell) =
@@ -178,6 +192,21 @@ l_5 &= \tanh(l_3 + l_4) \\
 h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 \end{aligned}
 ```
+
+# Forward
+
+    nas(inp, (state, cstate))
+    nas(inp)
+
+## Arguments
+- `inp`: The input to the nas. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the NAS. 
+    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+    If not provided, they are assumed to be vectors of zeros
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)

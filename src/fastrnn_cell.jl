@@ -37,7 +37,19 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 
 # Forward
 
-    fastrnncell(inp, [state])
+    fastrnncell(inp, state)
+    fastrnncell(inp)
+
+## Arguments
+- `inp`: The input to the fastrnncell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the FastRNN. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -65,7 +77,7 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     candidate_state = fastrnn.activation.(Wi * inp .+ Wh * state .+ b)
     new_state = alpha .* candidate_state .+ beta .* state
 
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, fastrnn::FastRNNCell) =
@@ -102,7 +114,18 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 
 # Forward
 
-    fastrnn(inp, [state])
+    fastrnn(inp, state)
+    fastrnn(inp)
+
+## Arguments
+- `inp`: The input to the fastrnn. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the FastRNN. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)
@@ -155,7 +178,20 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 
 # Forward
 
-    fastgrnncell(inp, [state])
+    fastgrnncell(inp, state)
+    fastgrnncell(inp)
+
+## Arguments
+
+- `inp`: The input to the fastgrnncell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the FastGRNN. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -187,7 +223,7 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     candidate_state = tanh_fast.(partial_gate .+ bh)
     new_state = (zeta .* (ones(size(gate)) .- gate) .+ nu) .* candidate_state .+ gate .* state
 
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, fastgrnn::FastGRNNCell) =
@@ -225,7 +261,19 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 
 # Forward
 
-    fastgrnn(inp, [state])
+    fastgrnn(inp, state)
+    fastgrnn(inp)
+
+## Arguments
+
+- `inp`: The input to the fastgrnn. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the FastGRNN. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)

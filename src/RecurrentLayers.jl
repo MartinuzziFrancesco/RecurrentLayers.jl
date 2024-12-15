@@ -3,6 +3,7 @@ module RecurrentLayers
 using Flux
 import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
+#TODO add interlinks to initialstates in docstrings https://juliadocs.org/DocumenterInterLinks.jl/stable/
 import Flux: initialstates, scan
 
 abstract type AbstractRecurrentCell end

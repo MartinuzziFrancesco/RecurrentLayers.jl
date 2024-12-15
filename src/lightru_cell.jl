@@ -34,7 +34,19 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 
 # Forward
 
-    rnncell(inp, [state])
+    lightrucell(inp, state)
+    lightrucell(inp)
+
+## Arguments
+- `inp`: The input to the lightrucell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the LightRUCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function LightRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -58,7 +70,7 @@ function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
     candidate_state = @. tanh_fast(gxs[1])
     forget_gate = sigmoid_fast(gxs[2] .+ Wh * state .+ b)
     new_state = @. (1 - forget_gate) * state + forget_gate * candidate_state
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, lightru::LightRUCell) =
@@ -93,6 +105,21 @@ f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
 h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 \end{aligned}
 ```
+
+# Forward
+
+    lightru(inp, state)
+    lightru(inp)
+
+## Arguments
+- `inp`: The input to the lightru. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the LightRU. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function LightRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)

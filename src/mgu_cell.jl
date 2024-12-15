@@ -34,7 +34,19 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 
 # Forward
 
-    rnncell(inp, [state])
+    mgucell(inp, state)
+    mgucell(inp)
+
+## Arguments
+- `inp`: The input to the mgucell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the MGUCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
+  a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 function MGUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -58,7 +70,7 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state)
     candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state))
     new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
-    return new_state
+    return new_state, new_state
 end
 
 Base.show(io::IO, mgu::MGUCell) =
@@ -92,6 +104,21 @@ f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
 h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 \end{aligned}
 ```
+
+# Forward
+
+    mgu(inp, state)
+    mgu(inp)
+
+## Arguments
+- `inp`: The input to the mgu. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the MGU. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros.
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
