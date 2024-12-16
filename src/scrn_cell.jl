@@ -59,7 +59,7 @@ function SCRNCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
     bias::Bool = true,
-    alpha = 0.0)
+    alpha = 0.f0)
 
     Wi = init_kernel(2 * hidden_size, input_size)
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
@@ -78,7 +78,7 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     gcs = chunk(Wc * c_state .+ b, 2; dims=1)
 
     #compute
-    context_layer = (1 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
+    context_layer = (1.f0 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
     hidden_layer = sigmoid_fast(gxs[2] .+ ghs[1] * state .+ gcs[1])
     new_state = tanh_fast(ghs[2] * hidden_layer .+ gcs[2])
     return new_state, (new_state, context_layer)

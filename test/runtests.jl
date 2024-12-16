@@ -5,6 +5,10 @@ using Test
     include("qa.jl")
 end
 
-@safetestset "Sizes and parameters" begin
+@safetestset "Cells" begin
     include("test_cells.jl")
+end
+
+@safetestset "Layers" begin
+    include("test_layers.jl")
 end

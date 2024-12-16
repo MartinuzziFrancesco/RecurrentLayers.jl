@@ -35,7 +35,7 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
-function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray, state::AbstractVecOrMat)
+function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray, state)
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rlayer.cell, inp, state)
 end
@@ -46,6 +46,7 @@ FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
 SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
+public initialstates
 
 include("mgu_cell.jl")
 include("ligru_cell.jl")

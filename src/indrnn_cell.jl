@@ -111,6 +111,6 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
-    cell = IndRNNCell(input_size, hidden_size, σ; kwargs...)
+    cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
     return IndRNN(cell)
 end

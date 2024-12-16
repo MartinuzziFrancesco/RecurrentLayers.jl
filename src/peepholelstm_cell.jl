@@ -62,8 +62,7 @@ function PeepholeLSTMCell(
     Wi = init_kernel(hidden_size * 4, input_size)
     Wh = init_recurrent_kernel(hidden_size * 4, hidden_size)
     b = create_bias(Wi, bias, hidden_size * 4)
-    cell = PeepholeLSTMCell(Wi, Wh, b)
-    return cell
+    return PeepholeLSTMCell(Wi, Wh, b)
 end
   
 function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, 
@@ -74,7 +73,7 @@ function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat,
     input, forget, cell, output = chunk(g, 4; dims = 1)
     new_cstate = @. sigmoid_fast(forget) * c_state + sigmoid_fast(input) * tanh_fast(cell)
     new_state = @. sigmoid_fast(output) * tanh_fast(new_cstate)
-    return new_state, (new_state, new_cstate)
+    return new_cstate, (new_state, new_cstate)
 end
   
 Base.show(io::IO, lstm::PeepholeLSTMCell) =
@@ -128,6 +127,6 @@ h_t &= o_t \odot \sigma_h(c_t).
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
-    cell = PeepholeLSTM(input_size => hidden_size; kwargs...)
+    cell = PeepholeLSTMCell(input_size => hidden_size; kwargs...)
     return PeepholeLSTM(cell)
 end
