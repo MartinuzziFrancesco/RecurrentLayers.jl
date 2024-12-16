@@ -75,12 +75,14 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
+Base.show(io::IO, ligru::LiGRUCell) =
+    print(io, "LiGRUCell(", size(ligru.Wi, 2), " => ", size(ligru.Wi, 1) ÷ 2, ")")
 
 struct LiGRU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand LiGRU
+Flux.@layer :noexpand LiGRU
 
 @doc raw"""
     LiGRU((input_size => hidden_size)::Pair; kwargs...)
@@ -125,12 +127,3 @@ function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU(cell)
 end
-  
-function (ligru::LiGRU)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(ligru.cell, inp, state)
-end
-
-
-Base.show(io::IO, ligru::LiGRUCell) =
-    print(io, "LiGRUCell(", size(ligru.Wi, 2), " => ", size(ligru.Wi, 1) ÷ 2, ")")

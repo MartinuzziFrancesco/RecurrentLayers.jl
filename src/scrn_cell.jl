@@ -92,7 +92,7 @@ struct SCRN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand SCRN
+Flux.@layer :noexpand SCRN
 
 @doc raw"""
     SCRN((input_size => hidden_size)::Pair;
@@ -139,9 +139,4 @@ y_t &= f(U_y h_t + W_y s_t)
 function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
     return SCRN(cell)
-end
-  
-function (scrn::SCRN)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(scrn.cell, inp, state)
 end

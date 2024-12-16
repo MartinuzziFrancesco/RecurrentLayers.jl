@@ -88,7 +88,7 @@ struct FastRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand FastRNN
+Flux.@layer :noexpand FastRNN
 
 @doc raw"""
     FastRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -234,7 +234,7 @@ struct FastGRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand FastGRNN
+Flux.@layer :noexpand FastGRNN
 
 @doc raw"""
     FastGRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -279,9 +279,4 @@ function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN(cell)
-end
-  
-function (fastgrnn::FastGRNN)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(fastgrnn.call, inp, state)
 end

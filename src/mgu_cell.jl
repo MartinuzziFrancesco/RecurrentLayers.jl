@@ -81,7 +81,7 @@ struct MGU{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand MGU
+Flux.@layer :noexpand MGU
 
 @doc raw"""
     MGU((input_size => hidden_size)::Pair; kwargs...)
@@ -123,9 +123,4 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU(cell)
-end
-  
-function (mgu::MGU)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(mgu.cell, inp, state)
 end

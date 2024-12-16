@@ -148,7 +148,7 @@ struct NAS{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :expand NAS
+Flux.@layer :noexpand NAS
 
 @doc raw"""
     NAS((input_size => hidden_size)::Pair; kwargs...)
@@ -211,9 +211,4 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
     return NAS(cell)
-end
-
-function (nas::NAS)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(nas.cell, inp, state)
 end

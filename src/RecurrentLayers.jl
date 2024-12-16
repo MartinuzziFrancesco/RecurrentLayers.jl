@@ -35,6 +35,11 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
+function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray, state::AbstractVecOrMat)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    return scan(rlayer.cell, inp, state)
+end
+
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
 FastRNNCell, FastGRNNCell
@@ -42,7 +47,6 @@ export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
 SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
 
-#TODO add double bias
 include("mgu_cell.jl")
 include("ligru_cell.jl")
 include("indrnn_cell.jl")

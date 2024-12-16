@@ -88,7 +88,7 @@ struct RAN{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :expand RAN
+Flux.@layer :noexpand RAN
 
 @doc raw"""
     RAN(input_size => hidden_size; kwargs...)
@@ -138,9 +138,3 @@ function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
     return RAN(cell)
 end
-
-function (ran::RAN)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(ran.cell, inp, state)
-end
-
