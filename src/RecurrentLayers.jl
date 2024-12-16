@@ -1,6 +1,7 @@
 module RecurrentLayers
 
 using Flux
+using Compat #for @compat public
 import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
 #TODO add interlinks to initialstates in docstrings https://juliadocs.org/DocumenterInterLinks.jl/stable/
@@ -46,7 +47,7 @@ FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
 SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
-public initialstates
+@compat (public, (initialstates))
 
 include("mgu_cell.jl")
 include("ligru_cell.jl")

@@ -4,9 +4,11 @@ authors = ["Francesco Martinuzzi"]
 version = "0.2.1"
 
 [deps]
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 
 [compat]
+Compat = "4.16.0"
 Flux = "0.16"
 julia = "1.10"
 
