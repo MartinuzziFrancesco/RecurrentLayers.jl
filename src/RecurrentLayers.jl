@@ -47,7 +47,7 @@ FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
 SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
-@compat (public, (initialstates))
+@compat(public, (initialstates))
 
 include("mgu_cell.jl")
 include("ligru_cell.jl")
