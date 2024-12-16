@@ -138,7 +138,7 @@ struct RHN{M}
     cell::M
 end
   
-Flux.@layer :expand RHN
+Flux.@layer :noexpand RHN
 
 @doc raw"""
     RHN((input_size => hidden_size)::Pair depth=3; kwargs...)

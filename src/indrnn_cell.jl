@@ -74,7 +74,7 @@ struct IndRNN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand IndRNN
+Flux.@layer :noexpand IndRNN
 
 @doc raw"""
     IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
@@ -113,9 +113,4 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
     cell = IndRNNCell(input_size, hidden_size, σ; kwargs...)
     return IndRNN(cell)
-end
-  
-function (indrnn::IndRNN)(inp, state) 
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(indrnn.cell, inp, state)
 end

@@ -84,7 +84,7 @@ struct MUT1{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand MUT1
+Flux.@layer :noexpand MUT1
 
 @doc raw"""
     MUT1((input_size => hidden_size); kwargs...)
@@ -127,11 +127,6 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 function MUT1((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
     return MUT1(cell)
-end
-
-function (mut::MUT1)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(mut.cell, inp, state)
 end
 
 
@@ -220,7 +215,7 @@ struct MUT2{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand MUT2
+Flux.@layer :noexpand MUT2
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size); kwargs...)
@@ -263,11 +258,6 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
     return MUT2(cell)
-end
-  
-function (mut::MUT2)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(mut.cell, inp, state)
 end
 
 
@@ -354,7 +344,7 @@ struct MUT3{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :expand MUT3
+Flux.@layer :noexpand MUT3
 
 @doc raw"""
     MUT3((input_size => hidden_size); kwargs...)
@@ -397,9 +387,4 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
     return MUT3(cell)
-end
-  
-function (mut::MUT3)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(mut.cell, inp, state)
 end

@@ -86,7 +86,7 @@ struct PeepholeLSTM{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :expand PeepholeLSTM
+Flux.@layer :noexpand PeepholeLSTM
 
 @doc raw"""
     PeepholeLSTM((input_size => hidden_size)::Pair; kwargs...)
@@ -130,9 +130,4 @@ h_t &= o_t \odot \sigma_h(c_t).
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTM(input_size => hidden_size; kwargs...)
     return PeepholeLSTM(cell)
-end
-
-function (lstm::PeepholeLSTM)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(lstm.cell, inp, state)
 end

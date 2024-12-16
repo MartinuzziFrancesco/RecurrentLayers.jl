@@ -35,6 +35,11 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
+function (rlayer::AbstractRecurrentLayer)(inp, state)
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    return scan(rlayer.cell, inp, state)
+end
+
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
 FastRNNCell, FastGRNNCell
