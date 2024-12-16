@@ -1,6 +1,7 @@
 module RecurrentLayers
 
 using Flux
+using Compat: @compat #for @compat public
 import Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like
 import Flux: glorot_uniform
 #TODO add interlinks to initialstates in docstrings https://juliadocs.org/DocumenterInterLinks.jl/stable/
@@ -35,7 +36,9 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
-function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray, state::AbstractVecOrMat)
+function (rlayer::AbstractRecurrentLayer)(
+    inp::AbstractArray,
+    state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rlayer.cell, inp, state)
 end
@@ -46,6 +49,7 @@ FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
 SCRN, PeepholeLSTM, FastRNN, FastGRNN
 
+@compat(public, (initialstates))
 
 include("mgu_cell.jl")
 include("ligru_cell.jl")

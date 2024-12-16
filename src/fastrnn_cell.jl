@@ -132,11 +132,6 @@ function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastRNN(cell)
 end
-  
-function (fastrnn::FastRNN)(inp, state)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(fastrnn.cell, inp, state)
-end
 
 
 struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
@@ -221,7 +216,7 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     # perform computations
     gate = fastgrnn.activation.(partial_gate .+ bz)
     candidate_state = tanh_fast.(partial_gate .+ bh)
-    new_state = (zeta .* (ones(size(gate)) .- gate) .+ nu) .* candidate_state .+ gate .* state
+    new_state = (zeta .* (ones(Float32, size(gate)) .- gate) .+ nu) .* candidate_state .+ gate .* state
 
     return new_state, new_state
 end
