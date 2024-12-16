@@ -36,7 +36,9 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
-function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray, state)
+function (rlayer::AbstractRecurrentLayer)(
+    inp::AbstractArray,
+    state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rlayer.cell, inp, state)
 end
