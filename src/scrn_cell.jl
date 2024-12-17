@@ -48,7 +48,8 @@ y_t &= f(U_y h_t + W_y s_t)
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the SCRNCell.
   They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
@@ -130,8 +131,9 @@ y_t &= f(U_y h_t + W_y s_t)
 - `inp`: The input to the scrn. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the SCRN. 
-    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-    If not provided, they are assumed to be vectors of zeros
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.

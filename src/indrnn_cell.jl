@@ -41,7 +41,8 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
   or a matrix of size `input_size x batch_size`.
 - `state`: The hidden state of the IndRNNCell. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
-  If not provided, it is assumed to be a vector of zeros.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
@@ -105,7 +106,8 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
   or a matrix of size `input_size x len x batch_size`.
 - `state`: The hidden state of the IndRNN. If given, it is a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
-  If not provided, it is assumed to be a vector of zeros.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
