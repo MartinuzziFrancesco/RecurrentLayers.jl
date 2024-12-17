@@ -47,7 +47,8 @@ h_t         &= g(c_t)
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
   They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
@@ -128,8 +129,9 @@ h_t         &= g(c_t)
 - `inp`: The input to the ran. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the RAN. 
-    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-    If not provided, they are assumed to be vectors of zeros
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.

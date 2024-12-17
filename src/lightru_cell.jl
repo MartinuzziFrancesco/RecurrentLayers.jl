@@ -42,7 +42,8 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
   or a matrix of size `input_size x batch_size`.
 - `state`: The hidden state of the LightRUCell. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
-  If not provided, it is assumed to be a vector of zeros.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
@@ -116,7 +117,8 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
   or a matrix of size `input_size x len x batch_size`.
 - `state`: The hidden state of the LightRU. If given, it is a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
-  If not provided, it is assumed to be a vector of zeros.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.

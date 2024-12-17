@@ -87,7 +87,8 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the NASCell.
   They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
@@ -202,8 +203,9 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 - `inp`: The input to the nas. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the NAS. 
-    They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-    If not provided, they are assumed to be vectors of zeros
+  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
+  If not provided, they are assumed to be vectors of zeros,
+  initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
