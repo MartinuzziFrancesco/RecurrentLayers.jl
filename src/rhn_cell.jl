@@ -31,8 +31,8 @@ function (rhn::RHNCellUnit)(inp::AbstractVecOrMat)
 end
 
 function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(rhn, inp, 1 => size(rhn.weight, 2))
-    weight, bias = rhn.weight, rhn.bias
+    _size_check(rhn, inp, 1 => size(rhn.weights, 2))
+    weight, bias = rhn.weights, rhn.bias
 
     #compute
     pre_nonlin = weight * inp .+ bias
@@ -43,7 +43,7 @@ function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
 end
 
 Base.show(io::IO, rhn::RHNCellUnit) =
-    print(io, "RHNCellUnit(", size(rhn.weight, 2), " => ", size(rhn.weight, 1)÷3, ")")
+    print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ", size(rhn.weights, 1)÷3, ")")
 
 struct RHNCell{C}
     layers::C
@@ -189,10 +189,5 @@ end
   
 function (rhn::RHN)(inp::AbstractArray, state::AbstractVecOrMat)
     @assert ndims(inp) == 2 || ndims(inp) == 3
-    new_state = []
-    for inp_t in eachslice(inp, dims=2)
-        state = rhn.cell(inp_t, state)
-        new_state = vcat(new_state, [state])
-    end
-    return stack(new_state, dims=2)
+    return scan(rhn.cell, inp, state)
 end
