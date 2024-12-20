@@ -25,5 +25,5 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 Contributions are always welcome! We specifically look for :
  - Recurrent cells you would like to see implemented 
  - Benchmarks
- - Any bugs and mistakes of course!
+ - Fixes for any bugs/errors
  - Documentation, in any form: examples, how tos, docstrings  

@@ -4,10 +4,32 @@
 
 <div align="center">
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/)
-[![Build Status](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl)
-[![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
+| **Documentation** | **Build Status** | **Julia** | **Testing** |
+|:-----------------:|:----------------:|:---------:|:---------|
+| [![docs][docs-img]][docs-url] | [![CI][ci-img]][ci-url] [![codecov][cc-img]][cc-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] |
+
+[docs-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/
+
+[ci-img]: https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml/badge.svg?branch=main
+[ci-url]: https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml?query=branch%3Amain
+
+[cc-img]: https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl/branch/main/graph/badge.svg
+[cc-url]: https://codecov.io/gh/MartinuzziFrancesco/RecurrentLayers.jl
+
+[julia-img]: https://img.shields.io/badge/julia-v1.10+-blue.svg
+[julia-url]: https://julialang.org/
+
+[style-img]: https://img.shields.io/badge/code%20style-blue-4495d1.svg
+[style-url]: https://github.com/invenia/BlueStyle
+
+[aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
+[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
+
+[jet-img]: https://img.shields.io/badge/%E2%9C%88%EF%B8%8F%20tested%20with%20-%20JET.jl%20-%20red
+[jet-url]: https://github.com/aviatesk/JET.jl
+
 
 </div>
 
