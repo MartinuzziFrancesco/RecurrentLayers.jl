@@ -1,6 +1,7 @@
 # based on https://fluxml.ai/Flux.jl/stable/guide/models/recurrence/
-struct StackedRNN{L,S}
+struct StackedRNN{L,D,S}
     layers::L
+    droput::D
     states::S
 end
 
@@ -14,7 +15,8 @@ Constructs a stack of recurrent layers given the recurrent layer type.
 
 Arguments:
   - `rlayer`: Any recurrent layer such as [MGU](@ref), [RHN](@ref), etc... or
-    [RNN](@extref), [LSTM](@extref), etc...
+    [Flux.RNN](@extref), [Flux.LSTM](@extref), etc... Additionally anything wrapped in
+    [Flux.recurrence](@extref) can be used as `rlayer`.
   - `input_size`: Defines the input dimension for the first layer.
   - `hidden_size`: defines the dimension of the hidden layer.
   - `num_layers`: The number of layers to stack. Default is 1.
@@ -26,6 +28,7 @@ Returns:
 """
 function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
     num_layers::Int = 1,
+    dropout::Number = 0.0,
     kwargs...)
     layers = []
     for (idx,layer) in enumerate(num_layers)
@@ -34,12 +37,15 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
     end
     states = [initialstates(layer) for layer in layers]
 
-    return StackedRNN(layers, states0)
+    return StackedRNN(layers, Dropout(dropout), states)
 end
 
 function (stackedrnn::StackedRNN)(inp::AbstracArray)
-   for (layer, state) in zip(stackedrnn.layers, stackedrnn.states)
-      inp = layer(inp, state0) 
-   end
-   return inp
+    for (idx,(layer, state)) in enumerate(zip(stackedrnn.layers, stackedrnn.states))
+        inp = layer(inp, state0)
+        if !(idx == length(stackedrnn.layers))
+            inp = stackedrnn.dropout(inp)
+        end
+    end
+    return inp
 end
