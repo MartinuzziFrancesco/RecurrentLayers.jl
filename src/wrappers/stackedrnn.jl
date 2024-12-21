@@ -5,7 +5,7 @@ struct StackedRNN{L,D,S}
     states::S
 end
 
-Flux.@layer StackedRNN
+Flux.@layer StackedRNN trainable=(layers)
 
 """
     StackedRNN(rlayer, (input_size, hidden_size), args...;
@@ -40,7 +40,7 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
     return StackedRNN(layers, Dropout(dropout), states)
 end
 
-function (stackedrnn::StackedRNN)(inp::AbstracArray)
+function (stackedrnn::StackedRNN)(inp::AbstractArray)
     for (idx,(layer, state)) in enumerate(zip(stackedrnn.layers, stackedrnn.states))
         inp = layer(inp, state0)
         if !(idx == length(stackedrnn.layers))
