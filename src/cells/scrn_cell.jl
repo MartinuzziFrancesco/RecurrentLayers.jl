@@ -1,14 +1,4 @@
 #https://arxiv.org/pdf/1412.7753
-struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    Wc::C
-    bias::V
-    alpha::A
-end
-
-Flux.@layer SCRNCell
-
 
 @doc raw"""
     SCRNCell((input_size => hidden_size)::Pair;
@@ -56,6 +46,16 @@ y_t &= f(U_y h_t + W_y s_t)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
+    Wi::I
+    Wh::H
+    Wc::C
+    bias::V
+    alpha::A
+end
+
+Flux.@layer SCRNCell
+
 function SCRNCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -88,12 +88,6 @@ end
 Base.show(io::IO, scrn::SCRNCell) =
     print(io, "SCRNCell(", size(scrn.Wi, 2), " => ", size(scrn.Wi, 1)÷3, ")")
 
-
-struct SCRN{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand SCRN
 
 @doc raw"""
     SCRN((input_size => hidden_size)::Pair;
@@ -138,7 +132,18 @@ y_t &= f(U_y h_t + W_y s_t)
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct SCRN{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand SCRN
+
 function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
     return SCRN(cell)
+end
+
+function Base.show(io::IO, scrn::SCRN)
+    print(io, "SCRN(", size(scrn.cell.Wi, 2), " => ", size(scrn.cell.Wi, 1))
+    print(io, ")")
 end

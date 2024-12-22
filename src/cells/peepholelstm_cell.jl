@@ -1,12 +1,4 @@
 #https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf
-struct PeepholeLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-  
-Flux.@layer PeepholeLSTMCell
-
 @doc raw"""
     PeepholeLSTMCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -54,6 +46,14 @@ h_t &= o_t \odot \sigma_h(c_t).
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct PeepholeLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+  
+Flux.@layer PeepholeLSTMCell
+
 function PeepholeLSTMCell(
     (input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -81,13 +81,6 @@ Base.show(io::IO, lstm::PeepholeLSTMCell) =
     print(io, "PeepholeLSTMCell(", size(lstm.Wi, 2), " => ", size(lstm.Wi, 1) ÷ 4, ")")
   
   
-
-struct PeepholeLSTM{M} <: AbstractRecurrentLayer
-    cell::M
-end
-
-Flux.@layer :noexpand PeepholeLSTM
-
 @doc raw"""
     PeepholeLSTM((input_size => hidden_size)::Pair; kwargs...)
 
@@ -128,7 +121,18 @@ h_t &= o_t \odot \sigma_h(c_t).
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct PeepholeLSTM{M} <: AbstractRecurrentLayer
+    cell::M
+end
+
+Flux.@layer :noexpand PeepholeLSTM
+
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTMCell(input_size => hidden_size; kwargs...)
     return PeepholeLSTM(cell)
+end
+
+function Base.show(io::IO, peepholelstm::PeepholeLSTM)
+    print(io, "PeepholeLSTM(", size(peepholelstm.cell.Wi, 2), " => ", size(peepholelstm.cell.Wi, 1))
+    print(io, ")")
 end

@@ -1,12 +1,4 @@
 #https://arxiv.org/pdf/1603.09420
-struct MGUCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer MGUCell
-
 @doc raw"""
     MGUCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -49,6 +41,14 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct MGUCell{I, H, V} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer MGUCell
+
 function MGUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -77,12 +77,6 @@ end
 Base.show(io::IO, mgu::MGUCell) =
     print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
 
-
-struct MGU{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand MGU
 
 @doc raw"""
     MGU((input_size => hidden_size)::Pair; kwargs...)
@@ -122,7 +116,18 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct MGU{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand MGU
+
 function MGU((input_size, hidden_size)::Pair; kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU(cell)
+end
+
+function Base.show(io::IO, mgu::MGU)
+    print(io, "MGU(", size(mgu.cell.Wi, 2), " => ", size(mgu.cell.Wi, 1))
+    print(io, ")")
 end
