@@ -1,7 +1,7 @@
 # based on https://fluxml.ai/Flux.jl/stable/guide/models/recurrence/
 struct StackedRNN{L,D,S}
     layers::L
-    droput::D
+    dropout::D
     states::S
 end
 
@@ -39,7 +39,7 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
         @warn("Dropout is not applied when num_layers is 1.")
     end
 
-    for (idx,layer) in enumerate(num_layers)
+    for idx in 1:num_layers
         in_size = idx == 1 ? input_size : hidden_size
         push!(layers, rlayer(in_size => hidden_size, args...; kwargs...))
     end
@@ -52,7 +52,7 @@ end
 
 function (stackedrnn::StackedRNN)(inp::AbstractArray)
     for (idx,(layer, state)) in enumerate(zip(stackedrnn.layers, stackedrnn.states))
-        inp = layer(inp, state0)
+        inp = layer(inp, state)
         if !(idx == length(stackedrnn.layers))
             inp = stackedrnn.dropout(inp)
         end

@@ -12,3 +12,7 @@ end
 @safetestset "Layers" begin
     include("test_layers.jl")
 end
+
+@safetestset "Wrappers" begin
+    include("test_wrappers.jl")
+end
