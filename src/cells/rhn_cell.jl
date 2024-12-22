@@ -1,6 +1,11 @@
 #https://arxiv.org/pdf/1607.03474
 #https://github.com/jzilly/RecurrentHighwayNetworks/blob/master/rhn.py#L138C1-L180C60
 
+"""
+    RHNCellUnit((input_size => hidden_size)::Pair;
+        init_kernel = glorot_uniform,
+        bias = true)
+"""
 struct RHNCellUnit{I,V}
     weights::I
     bias::V
@@ -8,11 +13,6 @@ end
 
 Flux.@layer RHNCellUnit
 
-"""
-    RHNCellUnit((input_size => hidden_size)::Pair;
-        init_kernel = glorot_uniform,
-        bias = true)
-"""
 function RHNCellUnit((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     bias::Bool = true)
@@ -44,13 +44,6 @@ end
 
 Base.show(io::IO, rhn::RHNCellUnit) =
     print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ", size(rhn.weights, 1)÷3, ")")
-
-struct RHNCell{C}
-    layers::C
-    couple_carry::Bool
-end
-
-Flux.@layer RHNCell
 
 @doc raw"""
     RHNCell((input_size => hidden_size), depth=3;
@@ -85,6 +78,13 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell
     rnncell(inp, [state])
 
 """
+struct RHNCell{C}
+    layers::C
+    couple_carry::Bool
+end
+
+Flux.@layer RHNCell
+
 function RHNCell((input_size, hidden_size), depth::Integer = 3;
     couple_carry::Bool = true, #sec 5, setup
     cell_kwargs...)
@@ -141,12 +141,6 @@ function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
 end
 
 # TODO fix implementation here
-struct RHN{M}
-    cell::M
-end
-  
-Flux.@layer :noexpand RHN
-
 @doc raw"""
     RHN((input_size => hidden_size) depth=3; kwargs...)
 
@@ -173,6 +167,12 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell
 \end{aligned}
 ```
 """
+struct RHN{M}
+    cell::M
+end
+  
+Flux.@layer :noexpand RHN
+
 function RHN((input_size, hidden_size)::Pair, depth::Integer=3; kwargs...)
     cell = RHNCell(input_size => hidden_size, depth; kwargs...)
     return RHN(cell)

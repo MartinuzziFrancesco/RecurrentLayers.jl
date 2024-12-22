@@ -1,12 +1,4 @@
 #https://arxiv.org/pdf/1803.10225
-struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer LiGRUCell
-
 @doc raw"""
     LiGRUCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -51,6 +43,14 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer LiGRUCell
+
 function LiGRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -79,11 +79,6 @@ end
 Base.show(io::IO, ligru::LiGRUCell) =
     print(io, "LiGRUCell(", size(ligru.Wi, 2), " => ", size(ligru.Wi, 1) ÷ 2, ")")
 
-struct LiGRU{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand LiGRU
 
 @doc raw"""
     LiGRU((input_size => hidden_size)::Pair; kwargs...)
@@ -125,7 +120,18 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct LiGRU{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand LiGRU
+
 function LiGRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU(cell)
+end
+
+function Base.show(io::IO, ligru::LiGRU)
+    print(io, "LiGRU(", size(ligru.cell.Wi, 2), " => ", size(ligru.cell.Wi, 1))
+    print(io, ")")
 end

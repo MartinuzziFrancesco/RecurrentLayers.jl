@@ -1,12 +1,4 @@
 #https://proceedings.mlr.press/v37/jozefowicz15.pdf
-struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer MUT1Cell
-
 @doc raw"""
     MUT1Cell((input_size => hidden_size);
         init_kernel = glorot_uniform,
@@ -50,6 +42,14 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
 a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer MUT1Cell
+
 function MUT1Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -81,11 +81,6 @@ end
 Base.show(io::IO, mut::MUT1Cell) =
     print(io, "MUT1Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
-struct MUT1{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand MUT1
 
 @doc raw"""
     MUT1((input_size => hidden_size); kwargs...)
@@ -126,19 +121,22 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct MUT1{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand MUT1
+
 function MUT1((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
     return MUT1(cell)
 end
 
-
-struct MUT2Cell{I, H, V}  <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+function Base.show(io::IO, mut::MUT1)
+    print(io, "MUT1(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, ")")
 end
 
-Flux.@layer MUT2Cell
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size);
@@ -183,6 +181,14 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
 a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct MUT2Cell{I, H, V}  <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer MUT2Cell
+
 function MUT2Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -213,12 +219,6 @@ end
 Base.show(io::IO, mut::MUT2Cell) =
     print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
-
-struct MUT2{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand MUT2
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size); kwargs...)
@@ -259,19 +259,22 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct MUT2{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand MUT2
+
 function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
     return MUT2(cell)
 end
 
-
-struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+function Base.show(io::IO, mut::MUT2)
+    print(io, "MUT2(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, ")")
 end
 
-Flux.@layer MUT3Cell
 
 @doc raw"""
     MUT3Cell((input_size => hidden_size);
@@ -316,6 +319,14 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
 a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer MUT3Cell
+
 function MUT3Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -345,11 +356,6 @@ end
 Base.show(io::IO, mut::MUT3Cell) =
     print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
 
-struct MUT3{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand MUT3
 
 @doc raw"""
     MUT3((input_size => hidden_size); kwargs...)
@@ -390,7 +396,18 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct MUT3{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand MUT3
+
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
     return MUT3(cell)
+end
+
+function Base.show(io::IO, mut::MUT3)
+    print(io, "MUT3(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, ")")
 end

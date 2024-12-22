@@ -1,11 +1,4 @@
 #https://www.mdpi.com/2079-9292/13/16/3204
-struct LightRUCell{I,H,V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer LightRUCell
 
 @doc raw"""
     LightRUCell((input_size => hidden_size)::Pair;
@@ -49,6 +42,14 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct LightRUCell{I,H,V} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer LightRUCell
+
 function LightRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -77,13 +78,6 @@ end
 Base.show(io::IO, lightru::LightRUCell) =
     print(io, "LightRUCell(", size(lightru.Wi, 2), " => ", size(lightru.Wi, 1)÷2, ")")
 
-
-
-struct LightRU{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand LightRU
 
 @doc raw"""
     LightRU((input_size => hidden_size)::Pair; kwargs...)
@@ -123,7 +117,18 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct LightRU{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand LightRU
+
 function LightRU((input_size, hidden_size)::Pair; kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)
     return LightRU(cell)
+end
+
+function Base.show(io::IO, lightru::LightRU)
+    print(io, "LightRU(", size(lightru.cell.Wi, 2), " => ", size(lightru.cell.Wi, 1))
+    print(io, ")")
 end

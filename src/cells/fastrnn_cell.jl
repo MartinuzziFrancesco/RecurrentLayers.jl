@@ -1,15 +1,4 @@
 #https://arxiv.org/abs/1901.02358
-struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-    alpha::A
-    beta::B
-    activation::F
-end
-
-Flux.@layer FastRNNCell
-
 @doc raw"""
     FastRNNCell((input_size => hidden_size), [activation];
         init_kernel = glorot_uniform,
@@ -52,6 +41,17 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+    alpha::A
+    beta::B
+    activation::F
+end
+
+Flux.@layer FastRNNCell
+
 function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -84,12 +84,6 @@ end
 Base.show(io::IO, fastrnn::FastRNNCell) =
     print(io, "FastRNNCell(", size(fastrnn.Wi, 2), " => ", size(fastrnn.Wi, 1) ÷ 2, ")")
 
-
-struct FastRNN{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand FastRNN
 
 @doc raw"""
     FastRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -129,23 +123,24 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct FastRNN{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand FastRNN
+
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastRNN(cell)
 end
 
-
-struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-    zeta::A
-    nu::B
-    activation::F
+function Base.show(io::IO, fastrnn::FastRNN)
+    print(io, "FastRNN(", size(fastrnn.cell.Wi, 2), " => ", size(fastrnn.cell.Wi, 1))
+    print(io, ", ", fastgrnn.cell.activation)
+    print(io, ")")
 end
 
-Flux.@layer FastGRNNCell
 
 @doc raw"""
     FastGRNNCell((input_size => hidden_size), [activation];
@@ -191,6 +186,17 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+    zeta::A
+    nu::B
+    activation::F
+end
+
+Flux.@layer FastGRNNCell
+
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -227,12 +233,6 @@ end
 Base.show(io::IO, fastgrnn::FastGRNNCell) =
     print(io, "FastGRNNCell(", size(fastgrnn.Wi, 2), " => ", size(fastgrnn.Wi, 1) ÷ 2, ")")
 
-
-struct FastGRNN{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand FastGRNN
 
 @doc raw"""
     FastGRNN((input_size => hidden_size), [activation]; kwargs...)
@@ -274,8 +274,20 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct FastGRNN{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand FastGRNN
+
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN(cell)
+end
+
+function Base.show(io::IO, fastgrnn::FastGRNN)
+    print(io, "FastGRNN(", size(fastgrnn.cell.Wi, 2), " => ", size(fastgrnn.cell.Wi, 1))
+    print(io, ", ", fastgrnn.cell.activation)
+    print(io, ")")
 end

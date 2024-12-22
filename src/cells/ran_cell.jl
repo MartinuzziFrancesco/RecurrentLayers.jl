@@ -1,12 +1,4 @@
 #https://arxiv.org/pdf/1705.07393
-struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer RANCell
-
 @doc raw"""
     RANCell((input_size => hidden_size)::Pair;
         init_kernel = glorot_uniform,
@@ -55,6 +47,14 @@ h_t         &= g(c_t)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer RANCell
+
 function RANCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -84,12 +84,6 @@ end
 Base.show(io::IO, ran::RANCell) =
     print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1)÷3, ")")
 
-
-struct RAN{M} <: AbstractRecurrentLayer
-    cell::M
-end
-
-Flux.@layer :noexpand RAN
 
 @doc raw"""
     RAN(input_size => hidden_size; kwargs...)
@@ -136,7 +130,18 @@ h_t         &= g(c_t)
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct RAN{M} <: AbstractRecurrentLayer
+    cell::M
+end
+
+Flux.@layer :noexpand RAN
+
 function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
     return RAN(cell)
+end
+
+function Base.show(io::IO, ran::RAN)
+    print(io, "RAN(", size(ran.cell.Wi, 2), " => ", size(ran.cell.Wi, 1))
+    print(io, ")")
 end

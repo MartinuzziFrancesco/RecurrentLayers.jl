@@ -23,14 +23,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
-end
-
-Flux.@layer NASCell
-
 @doc raw"""
     NASCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
@@ -95,6 +87,14 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+Flux.@layer NASCell
+
 function NASCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -144,12 +144,6 @@ end
 Base.show(io::IO, nas::NASCell) =
     print(io, "NASCell(", size(nas.Wi, 2), " => ", size(nas.Wi, 1)÷8, ")")
 
-
-struct NAS{M} <: AbstractRecurrentLayer
-    cell::M
-end
-
-Flux.@layer :noexpand NAS
 
 @doc raw"""
     NAS((input_size => hidden_size)::Pair; kwargs...)
@@ -210,7 +204,18 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct NAS{M} <: AbstractRecurrentLayer
+    cell::M
+end
+
+Flux.@layer :noexpand NAS
+
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
     return NAS(cell)
+end
+
+function Base.show(io::IO, nas::NAS)
+    print(io, "NAS(", size(nas.cell.Wi, 2), " => ", size(nas.cell.Wi, 1))
+    print(io, ")")
 end
