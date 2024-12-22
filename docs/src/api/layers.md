@@ -1,4 +1,4 @@
-# Cell wrappers
+# Layers
 
 ```@docs
 RAN
