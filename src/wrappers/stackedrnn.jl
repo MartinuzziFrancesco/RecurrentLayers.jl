@@ -15,8 +15,7 @@ Constructs a stack of recurrent layers given the recurrent layer type.
 
 Arguments:
   - `rlayer`: Any recurrent layer such as [MGU](@ref), [RHN](@ref), etc... or
-    [`Flux.RNN`](@extref), [`Flux.LSTM`](@extref), etc... Additionally anything wrapped in
-    [`Flux.recurrence`](@extref) can be used as `rlayer`.
+    [`Flux.RNN`](@extref), [`Flux.LSTM`](@extref), etc.
   - `input_size`: Defines the input dimension for the first layer.
   - `hidden_size`: defines the dimension of the hidden layer.
   - `num_layers`: The number of layers to stack. Default is 1.
