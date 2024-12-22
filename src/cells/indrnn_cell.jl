@@ -1,12 +1,4 @@
 #https://arxiv.org/pdf/1803.04831
-struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
-    σ::F
-    Wi::I
-    Wh::H
-    b::V
-end
-
-Flux.@layer IndRNNCell
 
 @doc raw"""
     IndRNNCell((input_size => hidden_size)::Pair, σ=relu;
@@ -48,6 +40,15 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
+struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
+    σ::F
+    Wi::I
+    Wh::H
+    b::V
+end
+
+Flux.@layer IndRNNCell
+
 function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
     init_kernel = glorot_uniform,
     init_recurrent_kernel = glorot_uniform,
@@ -70,12 +71,6 @@ function Base.show(io::IO, indrnn::IndRNNCell)
     print(io, ", ", indrnn.σ)
     print(io, ")")
 end
-
-struct IndRNN{M} <: AbstractRecurrentLayer
-    cell::M
-end
-  
-Flux.@layer :noexpand IndRNN
 
 @doc raw"""
     IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
@@ -112,7 +107,19 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
+struct IndRNN{M} <: AbstractRecurrentLayer
+    cell::M
+end
+  
+Flux.@layer :noexpand IndRNN
+
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
     cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
     return IndRNN(cell)
+end
+
+function Base.show(io::IO, indrnn::IndRNN)
+    print(io, "IndRNN(", size(indrnn.cell.Wi, 2), " => ", size(indrnn.cell.Wi, 1))
+    print(io, ", ", indrnn.cell.σ)
+    print(io, ")")
 end
