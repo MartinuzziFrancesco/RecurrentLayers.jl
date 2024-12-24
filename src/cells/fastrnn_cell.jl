@@ -137,7 +137,7 @@ end
 
 function Base.show(io::IO, fastrnn::FastRNN)
     print(io, "FastRNN(", size(fastrnn.cell.Wi, 2), " => ", size(fastrnn.cell.Wi, 1))
-    print(io, ", ", fastgrnn.cell.activation)
+    print(io, ", ", fastrnn.cell.activation)
     print(io, ")")
 end
 

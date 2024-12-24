@@ -113,7 +113,7 @@ end
 
 function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
 
-    current_state = state
+    current_state = colify(state)
 
     for (i, layer) in enumerate(rhn.layers.layers)
         if i == 1
@@ -190,4 +190,11 @@ end
 function (rhn::RHN)(inp::AbstractArray, state::AbstractVecOrMat)
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rhn.cell, inp, state)
+end
+
+function colify(x::AbstractArray)
+    # If x is already 2D (e.g. (N,1)), leave it.
+    # If x is 1D (N,), reshape to (N, 1).
+    ndims(x) == 1 && return reshape(x, (length(x), 1))
+    return x
 end
