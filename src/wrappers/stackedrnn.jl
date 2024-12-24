@@ -51,9 +51,11 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
 end
 
 function (stackedrnn::StackedRNN)(inp::AbstractArray)
-    for (idx,(layer, state)) in enumerate(zip(stackedrnn.layers, stackedrnn.states))
-        inp = layer(inp, state)
-        if !(idx == length(stackedrnn.layers))
+    @assert length(stackedrnn.layers) == length(stackedrnn.states) "Mismatch in layers vs. states length!"
+    @assert !isempty(stackedrnn.layers) "StackedRNN has no layers!"
+    for idx in eachindex(stackedrnn.layers)
+        inp = stackedrnn.layers[idx](inp, stackedrnn.states[idx])
+        if idx != length(stackedrnn.layers)
             inp = stackedrnn.dropout(inp)
         end
     end
