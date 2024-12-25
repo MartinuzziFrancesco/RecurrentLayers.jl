@@ -73,8 +73,8 @@ function Base.show(io::IO, indrnn::IndRNNCell)
 end
 
 @doc raw"""
-    IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
-        kwargs...)
+    IndRNN((input_size, hidden_size)::Pair, σ = tanh;
+        return_state = false, kwargs...)
 
 [Independently recurrent network](https://arxiv.org/pdf/1803.04831).
 See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
@@ -83,6 +83,7 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `σ`: activation function. Default is `tanh`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -107,15 +108,17 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
-struct IndRNN{M} <: AbstractRecurrentLayer
+struct IndRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
+function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
+    return_state = false,
+    kwargs...)
     cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
-    return IndRNN(cell)
+    return IndRNN{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, indrnn::IndRNN)

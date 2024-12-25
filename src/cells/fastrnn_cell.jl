@@ -86,7 +86,8 @@ Base.show(io::IO, fastrnn::FastRNNCell) =
 
 
 @doc raw"""
-    FastRNN((input_size => hidden_size), [activation]; kwargs...)
+    FastRNN((input_size => hidden_size), [activation];
+    return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
 See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
@@ -95,6 +96,7 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `activation`: the activation function, defaults to `tanh_fast`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -123,16 +125,17 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
-struct FastRNN{M} <: AbstractRecurrentLayer
+struct FastRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :noexpand FastRNN
 
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
+    return_state = false,
     kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastRNN(cell)
+    return FastRNN{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, fastrnn::FastRNN)
@@ -235,7 +238,8 @@ Base.show(io::IO, fastgrnn::FastGRNNCell) =
 
 
 @doc raw"""
-    FastGRNN((input_size => hidden_size), [activation]; kwargs...)
+    FastGRNN((input_size => hidden_size), [activation];
+    return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
 See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
@@ -244,6 +248,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `activation`: the activation function, defaults to `tanh_fast`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -274,16 +279,17 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
 """
-struct FastGRNN{M} <: AbstractRecurrentLayer
+struct FastGRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 Flux.@layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
+    return_state = false,
     kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastGRNN(cell)
+    return FastGRNN{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)
