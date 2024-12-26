@@ -107,6 +107,8 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
 struct IndRNN{S,M} <: AbstractRecurrentLayer
     cell::M

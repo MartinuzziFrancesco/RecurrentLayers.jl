@@ -124,6 +124,8 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
 struct FastRNN{S,M} <: AbstractRecurrentLayer
     cell::M
@@ -278,6 +280,8 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
 struct FastGRNN{S,M} <: AbstractRecurrentLayer
     cell::M
