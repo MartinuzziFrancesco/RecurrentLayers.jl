@@ -120,16 +120,19 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct MUT1{M} <: AbstractRecurrentLayer
+struct MUT1{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 @layer :noexpand MUT1
 
-function MUT1((input_size, hidden_size)::Pair; kwargs...)
+function MUT1((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
-    return MUT1(cell)
+    return MUT1{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, mut::MUT1)
@@ -258,16 +261,19 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct MUT2{M} <: AbstractRecurrentLayer
+struct MUT2{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 @layer :noexpand MUT2
 
-function MUT2((input_size, hidden_size)::Pair; kwargs...)
+function MUT2((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
-    return MUT2(cell)
+    return MUT2{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, mut::MUT2)
@@ -395,6 +401,8 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
 struct MUT3{M} <: AbstractRecurrentLayer
     cell::M
@@ -402,9 +410,10 @@ end
   
 @layer :noexpand MUT3
 
-function MUT3((input_size, hidden_size)::Pair; kwargs...)
+function MUT3((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
-    return MUT3(cell)
+    return MUT3{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, mut::MUT3)

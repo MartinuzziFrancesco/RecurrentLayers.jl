@@ -131,8 +131,7 @@ end
 @layer :noexpand LiGRU
 
 function LiGRU((input_size, hidden_size)::Pair;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU{return_state, typeof(cell)}(cell)
 end

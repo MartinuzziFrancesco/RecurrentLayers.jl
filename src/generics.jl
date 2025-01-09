@@ -16,7 +16,7 @@ function (rcell::AbstractRecurrentCell)(inp::AbstractVecOrMat)
     return rcell(inp, state)
 end
 
-abstract type AbstractRecurrentLayer end
+abstract type AbstractRecurrentLayer{S} end
 
 function initialstates(rlayer::AbstractRecurrentLayer)
     return initialstates(rlayer.cell)
@@ -27,9 +27,14 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
     return rlayer(inp, state)
 end
 
-function (rlayer::AbstractRecurrentLayer)(
-    inp::AbstractArray,
-    state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
+function (rlayer::AbstractRecurrentLayer{false})(inp::AbstractArray,
+        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
+    @assert ndims(inp) == 2 || ndims(inp) == 3
+    return first(scan(rlayer.cell, inp, state))
+end
+
+function (rlayer::AbstractRecurrentLayer{true})(inp::AbstractArray,
+        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rlayer.cell, inp, state)
 end

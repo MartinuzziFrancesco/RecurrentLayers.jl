@@ -128,8 +128,7 @@ end
 @layer :noexpand LightRU
 
 function LightRU((input_size, hidden_size)::Pair;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)
     return LightRU{return_state, typeof(cell)}(cell)
 end

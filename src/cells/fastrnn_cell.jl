@@ -134,8 +134,7 @@ end
 @layer :noexpand FastRNN
 
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastRNN{return_state, typeof(cell)}(cell)
 end
@@ -290,8 +289,7 @@ end
 @layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN{return_state, typeof(cell)}(cell)
 end

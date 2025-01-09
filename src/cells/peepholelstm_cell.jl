@@ -120,16 +120,19 @@ h_t &= o_t \odot \sigma_h(c_t).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct PeepholeLSTM{M} <: AbstractRecurrentLayer
+struct PeepholeLSTM{S,M} <: AbstractRecurrentLayer
     cell::M
 end
 
 @layer :noexpand PeepholeLSTM
 
-function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
+function PeepholeLSTM((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = PeepholeLSTMCell(input_size => hidden_size; kwargs...)
-    return PeepholeLSTM(cell)
+    return PeepholeLSTM{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, peepholelstm::PeepholeLSTM)

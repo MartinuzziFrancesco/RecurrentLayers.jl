@@ -131,16 +131,19 @@ y_t &= f(U_y h_t + W_y s_t)
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct SCRN{M} <: AbstractRecurrentLayer
+struct SCRN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
 @layer :noexpand SCRN
 
-function SCRN((input_size, hidden_size)::Pair; kwargs...)
+function SCRN((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
-    return SCRN(cell)
+    return SCRN{return_state, typeof(cell)}(cell)
 end
 
 function Base.show(io::IO, scrn::SCRN)

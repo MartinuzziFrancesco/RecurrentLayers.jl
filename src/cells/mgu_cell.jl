@@ -127,8 +127,7 @@ end
 @layer :noexpand MGU
 
 function MGU((input_size, hidden_size)::Pair;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU{return_state, typeof(cell)}(cell)
 end

@@ -117,8 +117,7 @@ end
 @layer :noexpand IndRNN
 
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
-    return_state = false,
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
     return IndRNN{return_state, typeof(cell)}(cell)
 end
