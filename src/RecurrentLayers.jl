@@ -4,6 +4,7 @@ using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias,
     zeros_like, glorot_uniform, scan, @layer, default_rng
 import Flux: initialstates
+import Functors: functor
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
