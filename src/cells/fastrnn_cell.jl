@@ -50,7 +50,7 @@ struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     activation::F
 end
 
-Flux.@layer FastRNNCell
+@layer FastRNNCell
 
 function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -131,7 +131,7 @@ struct FastRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand FastRNN
+@layer :noexpand FastRNN
 
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     return_state = false,
@@ -200,7 +200,7 @@ struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     activation::F
 end
 
-Flux.@layer FastGRNNCell
+@layer FastGRNNCell
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -287,7 +287,7 @@ struct FastGRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand FastGRNN
+@layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     return_state = false,

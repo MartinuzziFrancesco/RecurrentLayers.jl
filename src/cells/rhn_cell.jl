@@ -11,7 +11,7 @@ struct RHNCellUnit{I,V}
     bias::V
 end
 
-Flux.@layer RHNCellUnit
+@layer RHNCellUnit
 
 function RHNCellUnit((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -83,7 +83,7 @@ struct RHNCell{C}
     couple_carry::Bool
 end
 
-Flux.@layer RHNCell
+@layer RHNCell
 
 function RHNCell((input_size, hidden_size), depth::Integer = 3;
     couple_carry::Bool = true, #sec 5, setup
@@ -171,7 +171,7 @@ struct RHN{M}
     cell::M
 end
   
-Flux.@layer :noexpand RHN
+@layer :noexpand RHN
 
 function RHN((input_size, hidden_size)::Pair, depth::Integer=3; kwargs...)
     cell = RHNCell(input_size => hidden_size, depth; kwargs...)

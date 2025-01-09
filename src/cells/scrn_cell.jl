@@ -54,7 +54,7 @@ struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
     alpha::A
 end
 
-Flux.@layer SCRNCell
+@layer SCRNCell
 
 function SCRNCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -136,7 +136,7 @@ struct SCRN{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand SCRN
+@layer :noexpand SCRN
 
 function SCRN((input_size, hidden_size)::Pair; kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)

@@ -49,7 +49,7 @@ struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer LiGRUCell
+@layer LiGRUCell
 
 function LiGRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -128,7 +128,7 @@ struct LiGRU{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand LiGRU
+@layer :noexpand LiGRU
 
 function LiGRU((input_size, hidden_size)::Pair;
     return_state = false,

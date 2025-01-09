@@ -52,7 +52,7 @@ struct PeepholeLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
     bias::V
 end
   
-Flux.@layer PeepholeLSTMCell
+@layer PeepholeLSTMCell
 
 function PeepholeLSTMCell(
     (input_size, hidden_size)::Pair;
@@ -125,7 +125,7 @@ struct PeepholeLSTM{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :noexpand PeepholeLSTM
+@layer :noexpand PeepholeLSTM
 
 function PeepholeLSTM((input_size, hidden_size)::Pair; kwargs...)
     cell = PeepholeLSTMCell(input_size => hidden_size; kwargs...)

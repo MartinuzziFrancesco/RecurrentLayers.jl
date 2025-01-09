@@ -47,7 +47,7 @@ struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
     b::V
 end
 
-Flux.@layer IndRNNCell
+@layer IndRNNCell
 
 function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
     init_kernel = glorot_uniform,
@@ -114,7 +114,7 @@ struct IndRNN{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand IndRNN
+@layer :noexpand IndRNN
 
 function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
     return_state = false,

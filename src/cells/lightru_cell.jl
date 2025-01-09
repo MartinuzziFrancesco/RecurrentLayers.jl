@@ -48,7 +48,7 @@ struct LightRUCell{I,H,V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer LightRUCell
+@layer LightRUCell
 
 function LightRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -125,7 +125,7 @@ struct LightRU{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand LightRU
+@layer :noexpand LightRU
 
 function LightRU((input_size, hidden_size)::Pair;
     return_state = false,

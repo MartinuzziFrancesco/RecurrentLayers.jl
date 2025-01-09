@@ -93,7 +93,7 @@ struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
     bias::V
 end
 
-Flux.@layer NASCell
+@layer NASCell
 
 function NASCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -208,7 +208,7 @@ struct NAS{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :noexpand NAS
+@layer :noexpand NAS
 
 function NAS((input_size, hidden_size)::Pair; kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)

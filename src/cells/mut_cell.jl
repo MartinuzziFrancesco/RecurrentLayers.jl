@@ -48,7 +48,7 @@ struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer MUT1Cell
+@layer MUT1Cell
 
 function MUT1Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -125,7 +125,7 @@ struct MUT1{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand MUT1
+@layer :noexpand MUT1
 
 function MUT1((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
@@ -187,7 +187,7 @@ struct MUT2Cell{I, H, V}  <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer MUT2Cell
+@layer MUT2Cell
 
 function MUT2Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -263,7 +263,7 @@ struct MUT2{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand MUT2
+@layer :noexpand MUT2
 
 function MUT2((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
@@ -325,7 +325,7 @@ struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer MUT3Cell
+@layer MUT3Cell
 
 function MUT3Cell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -400,7 +400,7 @@ struct MUT3{M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand MUT3
+@layer :noexpand MUT3
 
 function MUT3((input_size, hidden_size)::Pair; kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)

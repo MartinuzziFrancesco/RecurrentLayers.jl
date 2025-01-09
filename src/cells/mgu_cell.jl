@@ -47,7 +47,7 @@ struct MGUCell{I, H, V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer MGUCell
+@layer MGUCell
 
 function MGUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -124,7 +124,7 @@ struct MGU{S,M} <: AbstractRecurrentLayer
     cell::M
 end
   
-Flux.@layer :noexpand MGU
+@layer :noexpand MGU
 
 function MGU((input_size, hidden_size)::Pair;
     return_state = false,

@@ -5,7 +5,7 @@ struct StackedRNN{L,D,S}
     states::S
 end
 
-Flux.@layer StackedRNN trainable=(layers)
+@layer StackedRNN trainable=(layers)
 
 @doc raw"""
     StackedRNN(rlayer, (input_size, hidden_size), args...;
@@ -30,7 +30,7 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
     dropout::Number = 0.0,
     dims = :,
     active::Union{Bool,Nothing} = nothing,
-    rng = Flux.default_rng(),
+    rng = default_rng(),
     kwargs...)
     #build container
     layers = []

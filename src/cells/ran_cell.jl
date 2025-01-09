@@ -53,7 +53,7 @@ struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
     bias::V
 end
 
-Flux.@layer RANCell
+@layer RANCell
 
 function RANCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -134,7 +134,7 @@ struct RAN{M} <: AbstractRecurrentLayer
     cell::M
 end
 
-Flux.@layer :noexpand RAN
+@layer :noexpand RAN
 
 function RAN((input_size, hidden_size)::Pair; kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
