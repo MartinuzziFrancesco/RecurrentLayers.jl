@@ -125,9 +125,9 @@ function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
         pre_h, pre_t, pre_c = layer(inp_combined)
 
         # Apply nonlinearities
-        hidden_gate = tanh.(pre_h)
-        transform_gate = sigmoid.(pre_t)
-        carry_gate = sigmoid.(pre_c)
+        hidden_gate = tanh_fast.(pre_h)
+        transform_gate = sigmoid_fast.(pre_t)
+        carry_gate = sigmoid_fast.(pre_c)
 
         # Highway component
         if rhn.couple_carry
@@ -167,29 +167,22 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell
 \end{aligned}
 ```
 """
-struct RHN{M}
+struct RHN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
 @layer :noexpand RHN
 
-function RHN((input_size, hidden_size)::Pair, depth::Integer=3; kwargs...)
+function RHN((input_size, hidden_size)::Pair, depth::Integer=3;
+        return_state::Bool = false, kwargs...)
     cell = RHNCell(input_size => hidden_size, depth; kwargs...)
-    return RHN(cell)
+    return RHN{return_state, typeof(cell)}(cell)
 end
 
-function initialstates(rhn::RHN)
-    return initialstates(rhn.cell)
-end
-  
-function (rhn::RHN)(inp::AbstractArray)
-    state = initialstates(rhn)
-    return rhn(inp, state)
-end
-  
-function (rhn::RHN)(inp::AbstractArray, state::AbstractVecOrMat)
-    @assert ndims(inp) == 2 || ndims(inp) == 3
-    return scan(rhn.cell, inp, state)
+function functor(rhn::RHN{S}) where {S}
+    params = (cell = rhn.cell,) 
+    reconstruct = p -> RHN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function colify(x::AbstractArray)

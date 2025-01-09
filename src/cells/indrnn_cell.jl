@@ -61,7 +61,7 @@ end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
-    σ = NNlib.fast_act(indrnn.σ, inp)
+    σ = fast_act(indrnn.σ, inp)
     state = σ.(indrnn.Wi*inp .+ indrnn.Wh .* state .+ indrnn.b)
     return state, state
 end
