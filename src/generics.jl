@@ -38,9 +38,3 @@ function (rlayer::AbstractRecurrentLayer{true})(inp::AbstractArray,
     @assert ndims(inp) == 2 || ndims(inp) == 3
     return scan(rlayer.cell, inp, state)
 end
-
-function functor(rlayer::AbstractRecurrentLayer{S}) where {S}
-    params = (cell = rlayer.cell)
-    reconstruct = p -> rlayer{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end

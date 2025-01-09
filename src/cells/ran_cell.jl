@@ -144,6 +144,12 @@ function RAN((input_size, hidden_size)::Pair;
     return RAN{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::RAN{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> RAN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function Base.show(io::IO, ran::RAN)
     print(io, "RAN(", size(ran.cell.Wi, 2), " => ", size(ran.cell.Wi, 1))
     print(io, ")")

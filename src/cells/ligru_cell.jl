@@ -136,6 +136,12 @@ function LiGRU((input_size, hidden_size)::Pair;
     return LiGRU{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::LiGRU{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> LiGRU{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function Base.show(io::IO, ligru::LiGRU)
     print(io, "LiGRU(", size(ligru.cell.Wi, 2), " => ", size(ligru.cell.Wi, 1))
     print(io, ")")

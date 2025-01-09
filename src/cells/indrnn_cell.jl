@@ -122,6 +122,12 @@ function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
     return IndRNN{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::IndRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
+end
+
 function Base.show(io::IO, indrnn::IndRNN)
     print(io, "IndRNN(", size(indrnn.cell.Wi, 2), " => ", size(indrnn.cell.Wi, 1))
     print(io, ", ", indrnn.cell.σ)

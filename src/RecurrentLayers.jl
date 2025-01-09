@@ -2,9 +2,31 @@ module RecurrentLayers
 
 using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias,
-    zeros_like, glorot_uniform, scan, @layer, default_rng
+    zeros_like, glorot_uniform, scan, @layer, default_rng, tanh_fast
 import Flux: initialstates
 import Functors: functor
+
+rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
+    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN)
+
+rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
+    :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
+    :RANCell, :SCRNCell)
+
+for (rlayer,rcell) in zip(rlayers, rcells)
+    @eval begin
+        function ($rlayer)(rc::$rcell; return_state::Bool = false)
+            return $rlayer{return_state, typeof(rc)}(rc)
+        end
+
+        # why wont' this work?
+        #function functor(rl::$rlayer{S}) where {S}
+        #    params = (cell = rl.cell)
+        #    reconstruct = p -> $rlayer{S, typeof(p.cell)}(p.cell)
+        #    return params, reconstruct
+        #end
+    end
+end
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
 RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,

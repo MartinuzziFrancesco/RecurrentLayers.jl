@@ -135,6 +135,12 @@ function PeepholeLSTM((input_size, hidden_size)::Pair;
     return PeepholeLSTM{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::PeepholeLSTM{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> PeepholeLSTM{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function Base.show(io::IO, peepholelstm::PeepholeLSTM)
     print(io, "PeepholeLSTM(", size(peepholelstm.cell.Wi, 2), " => ", size(peepholelstm.cell.Wi, 1))
     print(io, ")")

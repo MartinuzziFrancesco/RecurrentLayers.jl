@@ -135,6 +135,12 @@ function MUT1((input_size, hidden_size)::Pair;
     return MUT1{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::MUT1{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> MUT1{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function Base.show(io::IO, mut::MUT1)
     print(io, "MUT1(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
     print(io, ")")
@@ -276,6 +282,12 @@ function MUT2((input_size, hidden_size)::Pair;
     return MUT2{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::MUT2{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> MUT2{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function Base.show(io::IO, mut::MUT2)
     print(io, "MUT2(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
     print(io, ")")
@@ -414,6 +426,12 @@ function MUT3((input_size, hidden_size)::Pair;
         return_state::Bool = false, kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
     return MUT3{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::MUT3{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> MUT3{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, mut::MUT3)

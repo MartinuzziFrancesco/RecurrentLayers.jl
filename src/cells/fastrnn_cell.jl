@@ -139,6 +139,12 @@ function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
     return FastRNN{return_state, typeof(cell)}(cell)
 end
 
+function functor(rnn::FastRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
+end
+
 function Base.show(io::IO, fastrnn::FastRNN)
     print(io, "FastRNN(", size(fastrnn.cell.Wi, 2), " => ", size(fastrnn.cell.Wi, 1))
     print(io, ", ", fastrnn.cell.activation)
@@ -292,6 +298,12 @@ function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
         return_state::Bool = false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::FastGRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)
