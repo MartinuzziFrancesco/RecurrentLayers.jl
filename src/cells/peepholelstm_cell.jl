@@ -123,7 +123,7 @@ h_t &= o_t \odot \sigma_h(c_t).
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct PeepholeLSTM{S,M} <: AbstractRecurrentLayer
+struct PeepholeLSTM{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 

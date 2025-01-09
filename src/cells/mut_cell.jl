@@ -123,7 +123,7 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT1{S,M} <: AbstractRecurrentLayer
+struct MUT1{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
@@ -264,7 +264,7 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT2{S,M} <: AbstractRecurrentLayer
+struct MUT2{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
@@ -404,7 +404,7 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT3{M} <: AbstractRecurrentLayer
+struct MUT3{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   

@@ -120,7 +120,7 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MGU{S,M} <: AbstractRecurrentLayer
+struct MGU{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   

@@ -110,7 +110,7 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct IndRNN{S,M} <: AbstractRecurrentLayer
+struct IndRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   

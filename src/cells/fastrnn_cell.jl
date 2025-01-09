@@ -127,7 +127,7 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastRNN{S,M} <: AbstractRecurrentLayer
+struct FastRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
@@ -282,7 +282,7 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastGRNN{S,M} <: AbstractRecurrentLayer
+struct FastGRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   

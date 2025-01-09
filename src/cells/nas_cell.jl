@@ -206,7 +206,7 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct NAS{S,M} <: AbstractRecurrentLayer
+struct NAS{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 

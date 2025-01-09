@@ -134,7 +134,7 @@ y_t &= f(U_y h_t + W_y s_t)
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct SCRN{S,M} <: AbstractRecurrentLayer
+struct SCRN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   

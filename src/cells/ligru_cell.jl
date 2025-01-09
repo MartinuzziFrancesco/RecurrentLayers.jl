@@ -124,7 +124,7 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct LiGRU{S,M} <: AbstractRecurrentLayer
+struct LiGRU{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
