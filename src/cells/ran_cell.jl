@@ -53,7 +53,7 @@ struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
     bias::V
 end
 
-Flux.@layer RANCell
+@layer RANCell
 
 function RANCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -129,16 +129,25 @@ h_t         &= g(c_t)
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct RAN{M} <: AbstractRecurrentLayer
+struct RAN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
-Flux.@layer :noexpand RAN
+@layer :noexpand RAN
 
-function RAN((input_size, hidden_size)::Pair; kwargs...)
+function RAN((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
-    return RAN(cell)
+    return RAN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::RAN{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> RAN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, ran::RAN)

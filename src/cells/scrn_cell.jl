@@ -54,7 +54,7 @@ struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
     alpha::A
 end
 
-Flux.@layer SCRNCell
+@layer SCRNCell
 
 function SCRNCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -131,16 +131,25 @@ y_t &= f(U_y h_t + W_y s_t)
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct SCRN{M} <: AbstractRecurrentLayer
+struct SCRN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand SCRN
+@layer :noexpand SCRN
 
-function SCRN((input_size, hidden_size)::Pair; kwargs...)
+function SCRN((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
-    return SCRN(cell)
+    return SCRN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::SCRN{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> SCRN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, scrn::SCRN)

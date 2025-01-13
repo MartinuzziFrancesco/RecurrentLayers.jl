@@ -49,7 +49,7 @@ struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer LiGRUCell
+@layer LiGRUCell
 
 function LiGRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -81,7 +81,8 @@ Base.show(io::IO, ligru::LiGRUCell) =
 
 
 @doc raw"""
-    LiGRU((input_size => hidden_size)::Pair; kwargs...)
+    LiGRU((input_size => hidden_size);
+        return_state = false, kwargs...)
 
 [Light gated recurrent network](https://arxiv.org/pdf/1803.10225).
 The implementation does not include the batch normalization as
@@ -91,6 +92,7 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -119,16 +121,25 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct LiGRU{M} <: AbstractRecurrentLayer
+struct LiGRU{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand LiGRU
+@layer :noexpand LiGRU
 
-function LiGRU((input_size, hidden_size)::Pair; kwargs...)
+function LiGRU((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
-    return LiGRU(cell)
+    return LiGRU{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::LiGRU{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> LiGRU{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, ligru::LiGRU)

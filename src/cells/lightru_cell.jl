@@ -48,7 +48,7 @@ struct LightRUCell{I,H,V} <: AbstractRecurrentCell
     bias::V
 end
 
-Flux.@layer LightRUCell
+@layer LightRUCell
 
 function LightRUCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -80,7 +80,8 @@ Base.show(io::IO, lightru::LightRUCell) =
 
 
 @doc raw"""
-    LightRU((input_size => hidden_size)::Pair; kwargs...)
+    LightRU((input_size => hidden_size);
+        return_state = false, kwargs...)
 
 [Light recurrent unit network](https://www.mdpi.com/2079-9292/13/16/3204).
 See [`LightRUCell`](@ref) for a layer that processes a single sequence.
@@ -88,6 +89,7 @@ See [`LightRUCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -116,16 +118,25 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct LightRU{M} <: AbstractRecurrentLayer
+struct LightRU{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand LightRU
+@layer :noexpand LightRU
 
-function LightRU((input_size, hidden_size)::Pair; kwargs...)
+function LightRU((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)
-    return LightRU(cell)
+    return LightRU{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::LightRU{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> LightRU{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, lightru::LightRU)

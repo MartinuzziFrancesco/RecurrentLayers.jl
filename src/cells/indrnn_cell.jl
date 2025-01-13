@@ -47,7 +47,7 @@ struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
     b::V
 end
 
-Flux.@layer IndRNNCell
+@layer IndRNNCell
 
 function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
     init_kernel = glorot_uniform,
@@ -61,7 +61,7 @@ end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
-    σ = NNlib.fast_act(indrnn.σ, inp)
+    σ = fast_act(indrnn.σ, inp)
     state = σ.(indrnn.Wi*inp .+ indrnn.Wh .* state .+ indrnn.b)
     return state, state
 end
@@ -73,8 +73,8 @@ function Base.show(io::IO, indrnn::IndRNNCell)
 end
 
 @doc raw"""
-    IndRNN((input_size, hidden_size)::Pair, σ = tanh, σ=relu;
-        kwargs...)
+    IndRNN((input_size, hidden_size)::Pair, σ = tanh;
+        return_state = false, kwargs...)
 
 [Independently recurrent network](https://arxiv.org/pdf/1803.04831).
 See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
@@ -83,6 +83,7 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `σ`: activation function. Default is `tanh`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -106,16 +107,25 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct IndRNN{M} <: AbstractRecurrentLayer
+struct IndRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand IndRNN
+@layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair, σ = tanh; kwargs...)
+function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
+        return_state::Bool = false, kwargs...)
     cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
-    return IndRNN(cell)
+    return IndRNN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::IndRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
 end
 
 function Base.show(io::IO, indrnn::IndRNN)

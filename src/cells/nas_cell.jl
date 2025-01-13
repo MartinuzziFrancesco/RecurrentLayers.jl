@@ -93,7 +93,7 @@ struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
     bias::V
 end
 
-Flux.@layer NASCell
+@layer NASCell
 
 function NASCell((input_size, hidden_size)::Pair;
     init_kernel = glorot_uniform,
@@ -203,16 +203,25 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct NAS{M} <: AbstractRecurrentLayer
+struct NAS{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
-Flux.@layer :noexpand NAS
+@layer :noexpand NAS
 
-function NAS((input_size, hidden_size)::Pair; kwargs...)
+function NAS((input_size, hidden_size)::Pair;
+        return_state::Bool = false, kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
-    return NAS(cell)
+    return NAS{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::NAS{S}) where {S}
+    params = (cell = rnn.cell,) 
+    reconstruct = p -> NAS{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, nas::NAS)

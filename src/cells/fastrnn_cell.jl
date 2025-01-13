@@ -50,7 +50,7 @@ struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     activation::F
 end
 
-Flux.@layer FastRNNCell
+@layer FastRNNCell
 
 function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -86,7 +86,8 @@ Base.show(io::IO, fastrnn::FastRNNCell) =
 
 
 @doc raw"""
-    FastRNN((input_size => hidden_size), [activation]; kwargs...)
+    FastRNN((input_size => hidden_size), [activation];
+    return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
 See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
@@ -95,6 +96,7 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `activation`: the activation function, defaults to `tanh_fast`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -122,17 +124,25 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct FastRNN{M} <: AbstractRecurrentLayer
+struct FastRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand FastRNN
+@layer :noexpand FastRNN
 
 function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastRNN(cell)
+    return FastRNN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::FastRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
 end
 
 function Base.show(io::IO, fastrnn::FastRNN)
@@ -195,7 +205,7 @@ struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     activation::F
 end
 
-Flux.@layer FastGRNNCell
+@layer FastGRNNCell
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     init_kernel = glorot_uniform,
@@ -235,7 +245,8 @@ Base.show(io::IO, fastgrnn::FastGRNNCell) =
 
 
 @doc raw"""
-    FastGRNN((input_size => hidden_size), [activation]; kwargs...)
+    FastGRNN((input_size => hidden_size), [activation];
+    return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
 See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
@@ -244,6 +255,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `activation`: the activation function, defaults to `tanh_fast`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -273,17 +285,25 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  the last state of the iteration.
 """
-struct FastGRNN{M} <: AbstractRecurrentLayer
+struct FastGRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
   
-Flux.@layer :noexpand FastGRNN
+@layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-    kwargs...)
+        return_state::Bool = false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastGRNN(cell)
+    return FastGRNN{return_state, typeof(cell)}(cell)
+end
+
+function functor(rnn::FastGRNN{S}) where {S}
+  params = (cell = rnn.cell,) 
+  reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
+  return params, reconstruct
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)
