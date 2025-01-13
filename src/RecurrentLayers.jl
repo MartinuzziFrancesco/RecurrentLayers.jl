@@ -6,6 +6,7 @@ using Flux: _size_check, _match_eltype, chunk, create_bias,
     default_rng, Chain, Dropout
 import Flux: initialstates
 import Functors: functor
+#to remove
 using NNlib: fast_act, sigmoid_fast, tanh_fast, relu
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
