@@ -1,6 +1,6 @@
 #https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf
 @doc raw"""
-    PeepholeLSTMCell((input_size => hidden_size)::Pair;
+    PeepholeLSTMCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -51,38 +51,34 @@ struct PeepholeLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wh::H
     bias::V
 end
-  
+
 @layer PeepholeLSTMCell
 
-function PeepholeLSTMCell(
-    (input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true,
-)
+function PeepholeLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 4, input_size)
     Wh = init_recurrent_kernel(hidden_size * 4, hidden_size)
     b = create_bias(Wi, bias, hidden_size * 4)
     return PeepholeLSTMCell(Wi, Wh, b)
 end
-  
-function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, 
-    (state, c_state))
+
+function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(lstm, inp, 1 => size(lstm.Wi, 2))
     b = lstm.bias
     g = lstm.Wi * inp .+ lstm.Wh * c_state .+ b
-    input, forget, cell, output = chunk(g, 4; dims = 1)
+    input, forget, cell, output = chunk(g, 4; dims=1)
     new_cstate = @. sigmoid_fast(forget) * c_state + sigmoid_fast(input) * tanh_fast(cell)
     new_state = @. sigmoid_fast(output) * tanh_fast(new_cstate)
     return new_cstate, (new_state, new_cstate)
 end
-  
-Base.show(io::IO, lstm::PeepholeLSTMCell) =
+
+function Base.show(io::IO, lstm::PeepholeLSTMCell)
     print(io, "PeepholeLSTMCell(", size(lstm.Wi, 2), " => ", size(lstm.Wi, 1) ÷ 4, ")")
-  
-  
+end
+
 @doc raw"""
-    PeepholeLSTM((input_size => hidden_size)::Pair; kwargs...)
+    PeepholeLSTM((input_size => hidden_size); kwargs...)
 
 [Peephole long short term memory network](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf).
 See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
@@ -123,25 +119,26 @@ h_t &= o_t \odot \sigma_h(c_t).
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct PeepholeLSTM{S,M} <: AbstractRecurrentLayer{S}
+struct PeepholeLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand PeepholeLSTM
 
-function PeepholeLSTM((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function PeepholeLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = PeepholeLSTMCell(input_size => hidden_size; kwargs...)
     return PeepholeLSTM{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::PeepholeLSTM{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> PeepholeLSTM{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, peepholelstm::PeepholeLSTM)
-    print(io, "PeepholeLSTM(", size(peepholelstm.cell.Wi, 2), " => ", size(peepholelstm.cell.Wi, 1))
+    print(io, "PeepholeLSTM(", size(peepholelstm.cell.Wi, 2),
+        " => ", size(peepholelstm.cell.Wi, 1))
     print(io, ")")
 end

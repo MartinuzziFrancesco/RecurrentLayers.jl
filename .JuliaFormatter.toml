@@ -1,6 +1,6 @@
-style = "blue"
+style = "sciml"
+format_markdown = false
 whitespace_in_kwargs = false
-always_use_return = true
 margin = 92
 indent = 4
 format_docstrings = true

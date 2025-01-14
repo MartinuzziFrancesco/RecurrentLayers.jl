@@ -1,7 +1,7 @@
 #https://www.mdpi.com/2079-9292/13/16/3204
 
 @doc raw"""
-    LightRUCell((input_size => hidden_size)::Pair;
+    LightRUCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -42,7 +42,7 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct LightRUCell{I,H,V} <: AbstractRecurrentCell
+struct LightRUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -50,10 +50,9 @@ end
 
 @layer LightRUCell
 
-function LightRUCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
+function LightRUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(2 * hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
@@ -62,11 +61,11 @@ function LightRUCell((input_size, hidden_size)::Pair;
 end
 
 function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
-    _size_check(lightru, inp, 1 => size(lightru.Wi,2))
+    _size_check(lightru, inp, 1 => size(lightru.Wi, 2))
     Wi, Wh, b = lightru.Wi, lightru.Wh, lightru.bias
 
     #split
-    gxs = chunk(Wi * inp, 2, dims=1)
+    gxs = chunk(Wi * inp, 2; dims=1)
 
     #compute
     candidate_state = @. tanh_fast(gxs[1])
@@ -75,9 +74,9 @@ function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
-Base.show(io::IO, lightru::LightRUCell) =
-    print(io, "LightRUCell(", size(lightru.Wi, 2), " => ", size(lightru.Wi, 1)÷2, ")")
-
+function Base.show(io::IO, lightru::LightRUCell)
+    print(io, "LightRUCell(", size(lightru.Wi, 2), " => ", size(lightru.Wi, 1) ÷ 2, ")")
+end
 
 @doc raw"""
     LightRU((input_size => hidden_size);
@@ -121,20 +120,20 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct LightRU{S,M} <: AbstractRecurrentLayer{S}
+struct LightRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand LightRU
 
-function LightRU((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function LightRU((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = LightRUCell(input_size => hidden_size; kwargs...)
     return LightRU{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::LightRU{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> LightRU{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

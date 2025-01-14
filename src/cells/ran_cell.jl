@@ -47,7 +47,7 @@ h_t         &= g(c_t)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct RANCell{I,H,V} <: AbstractDoubleRecurrentCell
+struct RANCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -55,10 +55,9 @@ end
 
 @layer RANCell
 
-function RANCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
+function RANCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(3 * hidden_size, input_size)
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
@@ -66,13 +65,11 @@ function RANCell((input_size, hidden_size)::Pair;
 end
 
 function (ran::RANCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(ran, inp, 1 => size(ran.Wi,2))
+    _size_check(ran, inp, 1 => size(ran.Wi, 2))
     Wi, Wh, b = ran.Wi, ran.Wh, ran.bias
-
     #split
     gxs = chunk(Wi * inp, 3; dims=1)
     ghs = chunk(Wh * state .+ b, 2; dims=1)
-
     #compute
     input_gate = @. sigmoid_fast(gxs[2] + ghs[1])
     forget_gate = @. sigmoid_fast(gxs[3] + ghs[2])
@@ -81,9 +78,9 @@ function (ran::RANCell)(inp::AbstractVecOrMat, (state, c_state))
     return new_state, (new_state, candidate_state)
 end
 
-Base.show(io::IO, ran::RANCell) =
-    print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1)÷3, ")")
-
+function Base.show(io::IO, ran::RANCell)
+    print(io, "RANCell(", size(ran.Wi, 2), " => ", size(ran.Wi, 1) ÷ 3, ")")
+end
 
 @doc raw"""
     RAN(input_size => hidden_size; kwargs...)
@@ -132,20 +129,20 @@ h_t         &= g(c_t)
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct RAN{S,M} <: AbstractRecurrentLayer{S}
+struct RAN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand RAN
 
-function RAN((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function RAN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
     return RAN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::RAN{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> RAN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

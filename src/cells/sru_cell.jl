@@ -1,5 +1,5 @@
 #https://arxiv.org/pdf/1709.02755
-struct SRUCell{I,H,B,V}
+struct SRUCell{I, H, B, V}
     Wi::I
     Wh::H
     v::B
@@ -9,9 +9,9 @@ end
 Flux.@layer SRUCell
 
 function SRUCell((in, out)::Pair, σ=tanh;
-    kernel_init = glorot_uniform,
-    recurrent_kernel_init = glorot_uniform,
-    bias = true)
+        kernel_init=glorot_uniform,
+        recurrent_kernel_init=glorot_uniform,
+        bias=true)
     Wi = kernel_init(2 * out, in)
     Wh = recurrent_kernel_init(2 * out, out)
     v = kernel_init(2 * out)
@@ -29,13 +29,13 @@ function (sru::SRUCell)(inp::AbstractVecOrMat)
 end
 
 function (sru::SRUCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(sru, inp, 1 => size(sru.Wi,2))
+    _size_check(sru, inp, 1 => size(sru.Wi, 2))
     Wi, Wh, v, b = sru.Wi, sru.Wh, sru.v, sru.bias
 
     #split
-    gxs = chunk(Wi * inp, 3, dims=1)
-    ghs = chunk(Wh * state .+ b, 2, dims=1)
-    vs = chunk(v, 2, dims=1)
+    gxs = chunk(Wi * inp, 3; dims=1)
+    ghs = chunk(Wh * state .+ b, 2; dims=1)
+    vs = chunk(v, 2; dims=1)
 
     #compute
     input_gate = @. sigmoid_fast(gxs[2] + ghs[1])
@@ -45,5 +45,6 @@ function (sru::SRUCell)(inp::AbstractVecOrMat, (state, c_state))
     return new_state, candidate_state
 end
 
-Base.show(io::IO, sru::SRUCell) =
-    print(io, "SRUCell(", size(sru.Wi, 2), " => ", size(sru.Wi, 1)÷2, ")")
+function Base.show(io::IO, sru::SRUCell)
+    print(io, "SRUCell(", size(sru.Wi, 2), " => ", size(sru.Wi, 1) ÷ 2, ")")
+end

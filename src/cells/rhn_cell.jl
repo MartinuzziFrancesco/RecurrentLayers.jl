@@ -6,16 +6,15 @@
         init_kernel = glorot_uniform,
         bias = true)
 """
-struct RHNCellUnit{I,V}
+struct RHNCellUnit{I, V}
     weights::I
     bias::V
 end
 
 @layer RHNCellUnit
 
-function RHNCellUnit((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    bias::Bool = true)
+function RHNCellUnit((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, bias::Bool=true)
     weight = init_kernel(3 * hidden_size, input_size)
     b = create_bias(weight, bias, size(weight, 1))
     return RHNCellUnit(weight, b)
@@ -33,17 +32,16 @@ end
 function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(rhn, inp, 1 => size(rhn.weights, 2))
     weight, bias = rhn.weights, rhn.bias
-
     #compute
     pre_nonlin = weight * inp .+ bias
-
     #split
-    pre_h, pre_t, pre_c = chunk(pre_nonlin, 3, dims = 1)
+    pre_h, pre_t, pre_c = chunk(pre_nonlin, 3; dims=1)
     return pre_h, pre_t, pre_c
 end
 
-Base.show(io::IO, rhn::RHNCellUnit) =
-    print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ", size(rhn.weights, 1)÷3, ")")
+function Base.show(io::IO, rhn::RHNCellUnit)
+    print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ", size(rhn.weights, 1) ÷ 3, ")")
+end
 
 @doc raw"""
     RHNCell((input_size => hidden_size), depth=3;
@@ -85,10 +83,9 @@ end
 
 @layer RHNCell
 
-function RHNCell((input_size, hidden_size), depth::Integer = 3;
-    couple_carry::Bool = true, #sec 5, setup
-    cell_kwargs...)
-
+function RHNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Integer=3;
+        couple_carry::Bool=true, #sec 5, setup
+        cell_kwargs...)
     layers = []
     for layer in 1:depth
         if layer == 1
@@ -112,7 +109,6 @@ function (rhn::RHNCell)(inp::AbstractArray)
 end
 
 function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
-
     current_state = colify(state)
 
     for (i, layer) in enumerate(rhn.layers.layers)
@@ -131,7 +127,8 @@ function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
 
         # Highway component
         if rhn.couple_carry
-            current_state = (hidden_gate .- current_state) .* transform_gate .+ current_state
+            current_state = (hidden_gate .- current_state) .* transform_gate .+
+                            current_state
         else
             current_state = hidden_gate .* transform_gate .+ current_state .* carry_gate
         end
@@ -142,7 +139,7 @@ end
 
 # TODO fix implementation here
 @doc raw"""
-    RHN((input_size => hidden_size) depth=3; kwargs...)
+    RHN((input_size => hidden_size), depth=3; kwargs...)
 
 [Recurrent highway network](https://arxiv.org/pdf/1607.03474).
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
@@ -167,20 +164,20 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell
 \end{aligned}
 ```
 """
-struct RHN{S,M} <: AbstractRecurrentLayer{S}
+struct RHN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand RHN
 
-function RHN((input_size, hidden_size)::Pair, depth::Integer=3;
-        return_state::Bool = false, kwargs...)
+function RHN((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Integer=3;
+        return_state::Bool=false, kwargs...)
     cell = RHNCell(input_size => hidden_size, depth; kwargs...)
     return RHN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rhn::RHN{S}) where {S}
-    params = (cell = rhn.cell,) 
+    params = (cell=rhn.cell,)
     reconstruct = p -> RHN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

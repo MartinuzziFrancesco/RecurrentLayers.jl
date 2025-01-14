@@ -1,7 +1,7 @@
 #https://arxiv.org/pdf/1803.04831
 
 @doc raw"""
-    IndRNNCell((input_size => hidden_size)::Pair, σ=relu;
+    IndRNNCell((input_size => hidden_size), σ=relu;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -40,7 +40,7 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
   a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct IndRNNCell{F,I,H,V} <: AbstractRecurrentCell
+struct IndRNNCell{F, I, H, V} <: AbstractRecurrentCell
     σ::F
     Wi::I
     Wh::H
@@ -49,10 +49,9 @@ end
 
 @layer IndRNNCell
 
-function IndRNNCell((input_size, hidden_size)::Pair, σ=relu;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
+function IndRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, σ=relu;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
@@ -62,7 +61,7 @@ end
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
     σ = fast_act(indrnn.σ, inp)
-    state = σ.(indrnn.Wi*inp .+ indrnn.Wh .* state .+ indrnn.b)
+    state = σ.(indrnn.Wi * inp .+ indrnn.Wh .* state .+ indrnn.b)
     return state, state
 end
 
@@ -73,7 +72,7 @@ function Base.show(io::IO, indrnn::IndRNNCell)
 end
 
 @doc raw"""
-    IndRNN((input_size, hidden_size)::Pair, σ = tanh;
+    IndRNN((input_size, hidden_size), σ = tanh;
         return_state = false, kwargs...)
 
 [Independently recurrent network](https://arxiv.org/pdf/1803.04831).
@@ -110,22 +109,22 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct IndRNN{S,M} <: AbstractRecurrentLayer{S}
+struct IndRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair, σ = tanh;
-        return_state::Bool = false, kwargs...)
+function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, σ=tanh;
+        return_state::Bool=false, kwargs...)
     cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
     return IndRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::IndRNN{S}) where {S}
-  params = (cell = rnn.cell,) 
-  reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
-  return params, reconstruct
+    params = (cell=rnn.cell,)
+    reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, indrnn::IndRNN)
