@@ -50,11 +50,9 @@ end
 
 @layer MUT1Cell
 
-function MUT1Cell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias::Bool = true)
-
+function MUT1Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 3, input_size)
     Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, 3 * hidden_size)
@@ -63,14 +61,14 @@ function MUT1Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi,2))
+    _size_check(mut, inp, 1 => size(mut.Wi, 2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp .+ b, 3, dims=1)
-    ghs = chunk(Wh, 2, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3; dims=1)
+    ghs = chunk(Wh, 2; dims=1)
 
     forget_gate = sigmoid_fast.(gxs[1])
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[1]*state)
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[1] * state)
     candidate_state = tanh_fast.(
         ghs[2] * (reset_gate .* state) .+ tanh_fast(gxs[3])
     ) #in the paper is tanh(x_t) but dimensionally it cannot work
@@ -78,9 +76,9 @@ function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
-Base.show(io::IO, mut::MUT1Cell) =
+function Base.show(io::IO, mut::MUT1Cell)
     print(io, "MUT1Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
-
+end
 
 @doc raw"""
     MUT1((input_size => hidden_size); kwargs...)
@@ -123,20 +121,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT1{S,M} <: AbstractRecurrentLayer{S}
+struct MUT1{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand MUT1
 
-function MUT1((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function MUT1((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
     return MUT1{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT1{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> MUT1{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
@@ -145,7 +143,6 @@ function Base.show(io::IO, mut::MUT1)
     print(io, "MUT1(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
     print(io, ")")
 end
-
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size);
@@ -190,7 +187,7 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 - A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
 a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT2Cell{I, H, V}  <: AbstractRecurrentCell
+struct MUT2Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -198,11 +195,9 @@ end
 
 @layer MUT2Cell
 
-function MUT2Cell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias::Bool = true)
-
+function MUT2Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 3, input_size)
     Wh = init_recurrent_kernel(hidden_size * 3, hidden_size)
     b = create_bias(Wi, bias, 3 * hidden_size)
@@ -211,23 +206,23 @@ function MUT2Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi,2))
+    _size_check(mut, inp, 1 => size(mut.Wi, 2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp .+ b, 3, dims=1)
-    ghs = chunk(Wh, 3, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3; dims=1)
+    ghs = chunk(Wh, 3; dims=1)
 
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
     # the dimensionlity alos does not work here like the paper describes it
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state) 
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2] * state)
     candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state, new_state
 end
 
-Base.show(io::IO, mut::MUT2Cell) =
+function Base.show(io::IO, mut::MUT2Cell)
     print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
-
+end
 
 @doc raw"""
     MUT2Cell((input_size => hidden_size); kwargs...)
@@ -270,20 +265,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT2{S,M} <: AbstractRecurrentLayer{S}
+struct MUT2{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand MUT2
 
-function MUT2((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function MUT2((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
     return MUT2{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT2{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> MUT2{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
@@ -292,7 +287,6 @@ function Base.show(io::IO, mut::MUT2)
     print(io, "MUT2(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
     print(io, ")")
 end
-
 
 @doc raw"""
     MUT3Cell((input_size => hidden_size);
@@ -345,11 +339,9 @@ end
 
 @layer MUT3Cell
 
-function MUT3Cell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
-
+function MUT3Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 3, input_size)
     Wh = init_recurrent_kernel(hidden_size * 3, hidden_size)
     b = create_bias(Wi, bias, 3 * hidden_size)
@@ -358,22 +350,22 @@ function MUT3Cell((input_size, hidden_size)::Pair;
 end
 
 function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi,2))
+    _size_check(mut, inp, 1 => size(mut.Wi, 2))
     Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
     #split
-    gxs = chunk(Wi * inp .+ b, 3, dims=1)
-    ghs = chunk(Wh, 3, dims=1)
+    gxs = chunk(Wi * inp .+ b, 3; dims=1)
+    ghs = chunk(Wh, 3; dims=1)
 
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * tanh_fast(state))
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2]*state)
+    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2] * state)
     candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
     new_state = candidate_state .* forget_gate .+ state .* (1 .- forget_gate)
     return new_state, new_state
 end
 
-Base.show(io::IO, mut::MUT3Cell) =
+function Base.show(io::IO, mut::MUT3Cell)
     print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
-
+end
 
 @doc raw"""
     MUT3((input_size => hidden_size); kwargs...)
@@ -416,20 +408,20 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT3{S,M} <: AbstractRecurrentLayer{S}
+struct MUT3{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand MUT3
 
-function MUT3((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function MUT3((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
     return MUT3{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT3{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> MUT3{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

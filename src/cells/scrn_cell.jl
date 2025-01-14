@@ -1,7 +1,7 @@
 #https://arxiv.org/pdf/1412.7753
 
 @doc raw"""
-    SCRNCell((input_size => hidden_size)::Pair;
+    SCRNCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true,
@@ -46,7 +46,7 @@ y_t &= f(U_y h_t + W_y s_t)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
+struct SCRNCell{I, H, C, V, A} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     Wc::C
@@ -56,12 +56,9 @@ end
 
 @layer SCRNCell
 
-function SCRNCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias::Bool = true,
-    alpha = 0.f0)
-
+function SCRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, alpha=0.0f0)
     Wi = init_kernel(2 * hidden_size, input_size)
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     Wc = init_recurrent_kernel(2 * hidden_size, hidden_size)
@@ -70,7 +67,7 @@ function SCRNCell((input_size, hidden_size)::Pair;
 end
 
 function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(scrn, inp, 1 => size(scrn.Wi,2))
+    _size_check(scrn, inp, 1 => size(scrn.Wi, 2))
     Wi, Wh, Wc, b = scrn.Wi, scrn.Wh, scrn.Wc, scrn.bias
 
     #split
@@ -79,18 +76,18 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     gcs = chunk(Wc * c_state .+ b, 2; dims=1)
 
     #compute
-    context_layer = (1.f0 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
+    context_layer = (1.0f0 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
     hidden_layer = sigmoid_fast(gxs[2] .+ ghs[1] * state .+ gcs[1])
     new_state = tanh_fast(ghs[2] * hidden_layer .+ gcs[2])
     return new_state, (new_state, context_layer)
 end
 
-Base.show(io::IO, scrn::SCRNCell) =
-    print(io, "SCRNCell(", size(scrn.Wi, 2), " => ", size(scrn.Wi, 1)÷3, ")")
-
+function Base.show(io::IO, scrn::SCRNCell)
+    print(io, "SCRNCell(", size(scrn.Wi, 2), " => ", size(scrn.Wi, 1) ÷ 3, ")")
+end
 
 @doc raw"""
-    SCRN((input_size => hidden_size)::Pair;
+    SCRN((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true,
@@ -134,20 +131,20 @@ y_t &= f(U_y h_t + W_y s_t)
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct SCRN{S,M} <: AbstractRecurrentLayer{S}
+struct SCRN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand SCRN
 
-function SCRN((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function SCRN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
     return SCRN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::SCRN{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> SCRN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

@@ -1,5 +1,5 @@
 # based on https://fluxml.ai/Flux.jl/stable/guide/models/recurrence/
-struct StackedRNN{L,D,S}
+struct StackedRNN{L, D, S}
     layers::L
     dropout::D
     states::S
@@ -25,18 +25,14 @@ Arguments:
 Returns:
   A `StackedRNN` instance containing the specified number of RNN layers and their initial states.
 """
-function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
-    num_layers::Int = 1,
-    dropout::Number = 0.0,
-    dims = :,
-    active::Union{Bool,Nothing} = nothing,
-    rng = default_rng(),
-    kwargs...)
+function StackedRNN(rlayer, (input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
+        num_layers::Int=1, dropout::Number=0.0, dims=:,
+        active::Union{Bool, Nothing}=nothing, rng=default_rng(), kwargs...)
     #build container
     layers = []
     #warn for dropout and num_layers
-    if num_layers ==1 && dropout != 0.0
-        @warn("Dropout is not applied when num_layers is 1.")
+    if num_layers == 1 && dropout != 0.0
+        @warn("Dropout is not applied when num_layers = 1.")
     end
 
     for idx in 1:num_layers
@@ -46,12 +42,12 @@ function StackedRNN(rlayer, (input_size, hidden_size)::Pair, args...;
     states = [initialstates(layer) for layer in layers]
 
     return StackedRNN(layers,
-        Dropout(dropout; dims = dims, active = active, rng = rng),
+        Dropout(dropout; dims=dims, active=active, rng=rng),
         states)
 end
 
 function (stackedrnn::StackedRNN)(inp::AbstractArray)
-    @assert length(stackedrnn.layers) == length(stackedrnn.states) "Mismatch in layers vs. states length!"
+    @assert length(stackedrnn.layers)==length(stackedrnn.states) "Mismatch in layers vs. states length!"
     @assert !isempty(stackedrnn.layers) "StackedRNN has no layers!"
     for idx in eachindex(stackedrnn.layers)
         inp = stackedrnn.layers[idx](inp, stackedrnn.states[idx])

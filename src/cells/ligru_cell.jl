@@ -1,6 +1,6 @@
 #https://arxiv.org/pdf/1803.10225
 @doc raw"""
-    LiGRUCell((input_size => hidden_size)::Pair;
+    LiGRUCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -51,11 +51,9 @@ end
 
 @layer LiGRUCell
 
-function LiGRUCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
-
+function LiGRUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 2, input_size)
     Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
@@ -64,11 +62,11 @@ function LiGRUCell((input_size, hidden_size)::Pair;
 end
 
 function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
-    _size_check(ligru, inp, 1 => size(ligru.Wi,2))
+    _size_check(ligru, inp, 1 => size(ligru.Wi, 2))
     Wi, Wh, b = ligru.Wi, ligru.Wh, ligru.bias
     #split
-    gxs = chunk(Wi * inp, 2, dims=1)
-    ghs = chunk(Wh * state .+ b, 2, dims=1)
+    gxs = chunk(Wi * inp, 2; dims=1)
+    ghs = chunk(Wh * state .+ b, 2; dims=1)
     #compute
     forget_gate = @. sigmoid_fast(gxs[1] + ghs[1])
     candidate_hidden = @. tanh_fast(gxs[2] + ghs[2])
@@ -76,9 +74,9 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
-Base.show(io::IO, ligru::LiGRUCell) =
+function Base.show(io::IO, ligru::LiGRUCell)
     print(io, "LiGRUCell(", size(ligru.Wi, 2), " => ", size(ligru.Wi, 1) ÷ 2, ")")
-
+end
 
 @doc raw"""
     LiGRU((input_size => hidden_size);
@@ -124,20 +122,20 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct LiGRU{S,M} <: AbstractRecurrentLayer{S}
+struct LiGRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand LiGRU
 
-function LiGRU((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function LiGRU((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = LiGRUCell(input_size => hidden_size; kwargs...)
     return LiGRU{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::LiGRU{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> LiGRU{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

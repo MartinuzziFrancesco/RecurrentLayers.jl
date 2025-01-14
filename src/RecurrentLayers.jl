@@ -1,19 +1,18 @@
 module RecurrentLayers
 
 using Compat: @compat
-using Flux: _size_check, _match_eltype, chunk, create_bias,
-    zeros_like, glorot_uniform, scan, @layer,
-    default_rng, Chain, Dropout
+using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_uniform,
+            scan, @layer, default_rng, Chain, Dropout
 import Flux: initialstates
 import Functors: functor
 #to remove
 using NNlib: fast_act, sigmoid_fast, tanh_fast, relu
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
-    RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-    FastRNNCell, FastGRNNCell
+       RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
+       FastRNNCell, FastGRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-    SCRN, PeepholeLSTM, FastRNN, FastGRNN
+       SCRN, PeepholeLSTM, FastRNN, FastGRNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -34,7 +33,6 @@ include("cells/fastrnn_cell.jl")
 
 include("wrappers/stackedrnn.jl")
 
-
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
     :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN)
@@ -43,9 +41,9 @@ rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
     :RANCell, :SCRNCell)
 
-for (rlayer,rcell) in zip(rlayers, rcells)
+for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
-        function ($rlayer)(rc::$rcell; return_state::Bool = false)
+        function ($rlayer)(rc::$rcell; return_state::Bool=false)
             return $rlayer{return_state, typeof(rc)}(rc)
         end
 

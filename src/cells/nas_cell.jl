@@ -87,7 +87,7 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct NASCell{I,H,V} <: AbstractDoubleRecurrentCell
+struct NASCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     bias::V
@@ -95,10 +95,9 @@ end
 
 @layer NASCell
 
-function NASCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
+function NASCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(8 * hidden_size, input_size)
     Wh = init_recurrent_kernel(8 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
@@ -106,7 +105,7 @@ function NASCell((input_size, hidden_size)::Pair;
 end
 
 function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(nas, inp, 1 => size(nas.Wi,2))
+    _size_check(nas, inp, 1 => size(nas.Wi, 2))
     Wi, Wh, b = nas.Wi, nas.Wh, nas.bias
 
     #matmul and split
@@ -141,9 +140,9 @@ function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
     return new_state, (new_state, new_cstate)
 end
 
-Base.show(io::IO, nas::NASCell) =
-    print(io, "NASCell(", size(nas.Wi, 2), " => ", size(nas.Wi, 1)÷8, ")")
-
+function Base.show(io::IO, nas::NASCell)
+    print(io, "NASCell(", size(nas.Wi, 2), " => ", size(nas.Wi, 1) ÷ 8, ")")
+end
 
 @doc raw"""
     NAS((input_size => hidden_size)::Pair; kwargs...)
@@ -206,20 +205,20 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct NAS{S,M} <: AbstractRecurrentLayer{S}
+struct NAS{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand NAS
 
-function NAS((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function NAS((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
     return NAS{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::NAS{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> NAS{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end

@@ -52,11 +52,9 @@ end
 
 @layer FastRNNCell
 
-function FastRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
-
+function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
@@ -68,7 +66,7 @@ end
 
 function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     #checks
-    _size_check(fastrnn, inp, 1 => size(fastrnn.Wi,2))
+    _size_check(fastrnn, inp, 1 => size(fastrnn.Wi, 2))
 
     # get variables
     Wi, Wh, b = fastrnn.Wi, fastrnn.Wh, fastrnn.bias
@@ -81,9 +79,9 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
-Base.show(io::IO, fastrnn::FastRNNCell) =
+function Base.show(io::IO, fastrnn::FastRNNCell)
     print(io, "FastRNNCell(", size(fastrnn.Wi, 2), " => ", size(fastrnn.Wi, 1) ÷ 2, ")")
-
+end
 
 @doc raw"""
     FastRNN((input_size => hidden_size), [activation];
@@ -127,22 +125,22 @@ h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastRNN{S,M} <: AbstractRecurrentLayer{S}
+struct FastRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand FastRNN
 
-function FastRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-        return_state::Bool = false, kwargs...)
+function FastRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
+        return_state::Bool=false, kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::FastRNN{S}) where {S}
-  params = (cell = rnn.cell,) 
-  reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
-  return params, reconstruct
+    params = (cell=rnn.cell,)
+    reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, fastrnn::FastRNN)
@@ -150,7 +148,6 @@ function Base.show(io::IO, fastrnn::FastRNN)
     print(io, ", ", fastrnn.cell.activation)
     print(io, ")")
 end
-
 
 @doc raw"""
     FastGRNNCell((input_size => hidden_size), [activation];
@@ -208,10 +205,8 @@ end
 @layer FastGRNNCell
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
-
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     b = create_bias(Wi, bias, 2 * size(Wi, 1))
@@ -223,7 +218,7 @@ end
 
 function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     #checks
-    _size_check(fastgrnn, inp, 1 => size(fastgrnn.Wi,2))
+    _size_check(fastgrnn, inp, 1 => size(fastgrnn.Wi, 2))
 
     # get variables
     Wi, Wh, b = fastgrnn.Wi, fastgrnn.Wh, fastgrnn.bias
@@ -231,18 +226,18 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     bh, bz = chunk(b, 2)
     partial_gate = Wi * inp .+ Wh * state
 
-
     # perform computations
     gate = fastgrnn.activation.(partial_gate .+ bz)
     candidate_state = tanh_fast.(partial_gate .+ bh)
-    new_state = (zeta .* (ones(Float32, size(gate)) .- gate) .+ nu) .* candidate_state .+ gate .* state
+    new_state = (zeta .* (ones(Float32, size(gate)) .- gate) .+ nu) .* candidate_state .+
+                gate .* state
 
     return new_state, new_state
 end
 
-Base.show(io::IO, fastgrnn::FastGRNNCell) =
+function Base.show(io::IO, fastgrnn::FastGRNNCell)
     print(io, "FastGRNNCell(", size(fastgrnn.Wi, 2), " => ", size(fastgrnn.Wi, 1) ÷ 2, ")")
-
+end
 
 @doc raw"""
     FastGRNN((input_size => hidden_size), [activation];
@@ -288,22 +283,22 @@ h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastGRNN{S,M} <: AbstractRecurrentLayer{S}
+struct FastGRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand FastGRNN
 
-function FastGRNN((input_size, hidden_size)::Pair, activation = tanh_fast;
-        return_state::Bool = false, kwargs...)
+function FastGRNN((input_size, hidden_size)::Pair, activation=tanh_fast;
+        return_state::Bool=false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
     return FastGRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::FastGRNN{S}) where {S}
-  params = (cell = rnn.cell,) 
-  reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
-  return params, reconstruct
+    params = (cell=rnn.cell,)
+    reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)

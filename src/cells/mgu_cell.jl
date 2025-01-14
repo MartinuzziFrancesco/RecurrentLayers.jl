@@ -1,6 +1,6 @@
 #https://arxiv.org/pdf/1603.09420
 @doc raw"""
-    MGUCell((input_size => hidden_size)::Pair;
+    MGUCell((input_size => hidden_size);
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -49,11 +49,9 @@ end
 
 @layer MGUCell
 
-function MGUCell((input_size, hidden_size)::Pair;
-    init_kernel = glorot_uniform,
-    init_recurrent_kernel = glorot_uniform,
-    bias = true)
-
+function MGUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
     Wi = init_kernel(hidden_size * 2, input_size)
     Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
@@ -62,21 +60,21 @@ function MGUCell((input_size, hidden_size)::Pair;
 end
 
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
-    _size_check(mgu, inp, 1 => size(mgu.Wi,2))
+    _size_check(mgu, inp, 1 => size(mgu.Wi, 2))
     Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
     #split
-    gxs = chunk(Wi * inp .+ b, 2, dims=1)
-    ghs = chunk(Wh, 2, dims=1)
+    gxs = chunk(Wi * inp .+ b, 2; dims=1)
+    ghs = chunk(Wh, 2; dims=1)
 
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1]*state)
-    candidate_state = tanh_fast.(gxs[2] .+ ghs[2]*(forget_gate.*state))
+    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
+    candidate_state = tanh_fast.(gxs[2] .+ ghs[2] * (forget_gate .* state))
     new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
     return new_state, new_state
 end
 
-Base.show(io::IO, mgu::MGUCell) =
+function Base.show(io::IO, mgu::MGUCell)
     print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
-
+end
 
 @doc raw"""
     MGU((input_size => hidden_size);
@@ -120,20 +118,20 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MGU{S,M} <: AbstractRecurrentLayer{S}
+struct MGU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
-  
+
 @layer :noexpand MGU
 
-function MGU((input_size, hidden_size)::Pair;
-        return_state::Bool = false, kwargs...)
+function MGU((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MGUCell(input_size => hidden_size; kwargs...)
     return MGU{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MGU{S}) where {S}
-    params = (cell = rnn.cell,) 
+    params = (cell=rnn.cell,)
     reconstruct = p -> MGU{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
