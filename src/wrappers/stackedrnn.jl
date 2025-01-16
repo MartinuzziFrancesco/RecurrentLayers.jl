@@ -20,7 +20,7 @@ Constructs a stack of recurrent layers given the recurrent layer type.
   - `kwargs...`: Additional keyword arguments passed to the recurrent layers.
 
 # Examples
-```jldoctest RecurrentLayers
+```jldoctest
 julia> stac_rnn = StackedRNN(MGU, (3=>5); num_layers = 4)
 StackedRNN(
   [

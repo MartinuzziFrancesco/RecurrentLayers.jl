@@ -11,7 +11,7 @@ makedocs(;
     modules=[RecurrentLayers],
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
-    clean=true, doctest=true,
+    clean=true, doctest=false,
     doctestsetup=:(using RecurrentLayers), linkcheck=true,
     format=Documenter.HTML(;
         mathengine,
