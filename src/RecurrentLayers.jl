@@ -2,11 +2,11 @@ module RecurrentLayers
 
 using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_uniform,
-            scan, @layer, default_rng, Chain, Dropout
+            scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
 import Flux: initialstates
 import Functors: functor
 #to remove
-using NNlib: fast_act, sigmoid_fast, tanh_fast, relu
+using NNlib: fast_act
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
