@@ -1,5 +1,4 @@
-using SafeTestsets
-using Test
+using SafeTestsets, Test
 
 @safetestset "Quality Assurance" begin
     include("qa.jl")

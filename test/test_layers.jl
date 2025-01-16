@@ -1,7 +1,4 @@
-using RecurrentLayers
-using Flux
-using Test
-
+using RecurrentLayers, Flux, Test
 import Flux: initialstates
 
 layers = [MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
