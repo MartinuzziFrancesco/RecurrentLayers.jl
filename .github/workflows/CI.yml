@@ -63,7 +63,7 @@ jobs:
           julia --project=docs -e '
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()
+            Pkg.instantiate()'
       - run: |
           DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs -e '
             using Documenter: doctest
