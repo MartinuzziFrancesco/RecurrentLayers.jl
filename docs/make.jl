@@ -12,7 +12,7 @@ makedocs(;
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
     clean=true, doctest=true,
-    doctestsetup=:(using RecurrentLayers), linkcheck=true,
+    linkcheck=true,
     format=Documenter.HTML(;
         mathengine,
         assets=["assets/favicon.ico"],
