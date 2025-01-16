@@ -1,6 +1,4 @@
-using RecurrentLayers
-using Flux
-using Test
+using RecurrentLayers, Flux, Test
 
 layers = [RNN, GRU, GRUv3, LSTM, MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
     SCRN, PeepholeLSTM, FastRNN, FastGRNN]

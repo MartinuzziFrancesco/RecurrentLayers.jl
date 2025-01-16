@@ -1,6 +1,4 @@
-using RecurrentLayers
-using Flux
-using Test
+using RecurrentLayers, Flux, Test
 
 #cells returning a single hidden state
 single_cells = [MGUCell, LiGRUCell, IndRNNCell,
