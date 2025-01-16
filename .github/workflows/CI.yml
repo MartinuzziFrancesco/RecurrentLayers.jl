@@ -64,8 +64,6 @@ jobs:
             using Pkg
             Pkg.develop(PackageSpec(path=pwd()))
             Pkg.instantiate()
-            using RecurrentLayers
-            @show pathof(RecurrentLayers)'
       - run: |
           DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs -e '
             using Documenter: doctest

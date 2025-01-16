@@ -21,6 +21,8 @@ Constructs a stack of recurrent layers given the recurrent layer type.
 
 # Examples
 ```jldoctest
+julia> using RecurrentLayers
+
 julia> stac_rnn = StackedRNN(MGU, (3=>5); num_layers = 4)
 StackedRNN(
   [
