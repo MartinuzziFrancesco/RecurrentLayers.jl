@@ -1,5 +1,4 @@
-using RecurrentLayers
-using Documenter, DocumenterInterLinks
+using RecurrentLayers, Documenter, DocumenterInterLinks
 include("pages.jl")
 
 DocMeta.setdocmeta!(
@@ -14,7 +13,8 @@ makedocs(;
     modules=[RecurrentLayers],
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
-    clean=true, doctest=false, linkcheck=true,
+    clean=true, doctest = :both,
+    doctestsetup = :(using RecurrentLayers), linkcheck=true,
     format=Documenter.HTML(;
         mathengine,
         assets=["assets/favicon.ico"],
