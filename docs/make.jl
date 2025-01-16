@@ -1,8 +1,6 @@
 using RecurrentLayers, Documenter, DocumenterInterLinks
 include("pages.jl")
 
-DocMeta.setdocmeta!(
-    RecurrentLayers, :DocTestSetup, :(using RecurrentLayers); recursive=true)
 mathengine = Documenter.MathJax()
 
 links = InterLinks(
@@ -13,8 +11,8 @@ makedocs(;
     modules=[RecurrentLayers],
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
-    clean=true, doctest = :both,
-    doctestsetup = :(using RecurrentLayers), linkcheck=true,
+    clean=true, doctest=true,
+    doctestsetup=:(using RecurrentLayers), linkcheck=true,
     format=Documenter.HTML(;
         mathengine,
         assets=["assets/favicon.ico"],
