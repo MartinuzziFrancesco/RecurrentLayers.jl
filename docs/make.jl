@@ -14,6 +14,7 @@ makedocs(;
     modules=[RecurrentLayers],
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
+    clean=true, doctest=false, linkcheck=true,
     format=Documenter.HTML(;
         mathengine,
         assets=["assets/favicon.ico"],
