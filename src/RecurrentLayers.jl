@@ -9,9 +9,9 @@ using NNlib: fast_act
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-       FastRNNCell, FastGRNNCell
+       FastRNNCell, FastGRNNCell, FSRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-       SCRN, PeepholeLSTM, FastRNN, FastGRNN
+       SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -31,6 +31,7 @@ include("cells/peepholelstm_cell.jl")
 include("cells/fastrnn_cell.jl")
 
 include("wrappers/stackedrnn.jl")
+include("wrappers/fsrnn_cell.jl")
 
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
