@@ -15,4 +15,5 @@ SCRN
 PeepholeLSTM
 FastRNN
 FastGRNN
+FSRNN
 ```
