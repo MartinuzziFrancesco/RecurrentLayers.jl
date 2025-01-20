@@ -80,7 +80,7 @@ function Base.show(io::IO, fsrnn::FSRNNCell)
         size(first(fsrnn.fast_cells).Wi, 1) ÷ 4, ")")
 end
 
-@docs raw"""
+@doc raw"""
     FSRNN(input_size => hidden_size,
         fast_cells, slow_cell;
         return_state=false)
