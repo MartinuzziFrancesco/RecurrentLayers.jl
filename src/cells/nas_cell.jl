@@ -75,7 +75,7 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 
 ## Arguments
 
-- `inp`: The input to the fastrnncell. It should be a vector of size `input_size`
+- `inp`: The input to the nascell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the NASCell.
   They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.

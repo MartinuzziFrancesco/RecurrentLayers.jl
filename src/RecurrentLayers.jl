@@ -29,17 +29,17 @@ include("cells/mut_cell.jl")
 include("cells/scrn_cell.jl")
 include("cells/peepholelstm_cell.jl")
 include("cells/fastrnn_cell.jl")
+include("cells/fsrnn_cell.jl")
 
 include("wrappers/stackedrnn.jl")
-include("wrappers/fsrnn_cell.jl")
 
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
-    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN)
+    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN)
 
 rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
-    :RANCell, :SCRNCell)
+    :RANCell, :SCRNCell, :FSRNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
