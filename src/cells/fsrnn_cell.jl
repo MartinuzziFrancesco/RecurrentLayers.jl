@@ -1,5 +1,5 @@
 #https://arxiv.org/abs/1705.08639
-@docs raw"""
+@doc raw"""
     FSRNNCell(input_size => hidden_size,
         fast_cells, slow_cell)
 
