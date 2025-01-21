@@ -30,11 +30,21 @@ end
 function (rlayer::AbstractRecurrentLayer{false})(inp::AbstractArray,
         state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
+    @assert typeof(state)==typeof(initialstates(rlayer)) """\n
+      The layer $rlayer is calling states not supported by its
+      forward method. Check if this is a single or double return
+      recurrent layer, and adjust your inputs accordingly.
+  """
     return first(scan(rlayer.cell, inp, state))
 end
 
 function (rlayer::AbstractRecurrentLayer{true})(inp::AbstractArray,
         state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
+    @assert typeof(state)==typeof(initialstates(rlayer)) """\n
+      The layer $rlayer is calling states not supported by its
+      forward method. Check if this is a single or double return
+      recurrent layer, and adjust your inputs accordingly.
+  """
     return scan(rlayer.cell, inp, state)
 end
