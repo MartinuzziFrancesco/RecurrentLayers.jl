@@ -8,17 +8,22 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 
 ## Implemented layers
 
- - Minimal gated unit as `MGUCell` [arxiv](https://arxiv.org/abs/1603.09420)
- - Light gated recurrent unit as `LiGRUCell` [arxiv](https://arxiv.org/abs/1803.10225)
- - Independently recurrent neural networks as `IndRNNCell` [arxiv](https://arxiv.org/abs/1803.04831)
- - Recurrent addictive networks as `RANCell` [arxiv](https://arxiv.org/abs/1705.07393)
- - Recurrent highway network as `RHNCell` [arixv](https://arxiv.org/pdf/1607.03474)
- - Light recurrent unit as `LightRUCell` [pub](https://www.mdpi.com/2079-9292/13/16/3204)
- - Neural architecture search unit `NASCell` [arxiv](https://arxiv.org/abs/1611.01578)
- - Evolving recurrent neural networks as `MUT1Cell`, `MUT2Cell`, `MUT3Cell` [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
- - Structurally constrained recurrent neural network as `SCRNCell` [arxiv](https://arxiv.org/pdf/1412.7753)
- - Peephole long short term memory as `PeepholeLSTMCell` [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
- - `FastRNNCell` and `FastGRNNCell` [arxiv](https://arxiv.org/pdf/1901.02358)
+Cells and layers:
+ - [x] Minimal gated unit (MGU) [arxiv](https://arxiv.org/abs/1603.09420)
+ - [x] Light gated recurrent unit (LiGRU) [arxiv](https://arxiv.org/abs/1803.10225)
+ - [x] Independently recurrent neural networks (IndRNN) [arxiv](https://arxiv.org/abs/1803.04831)
+ - [x] Recurrent addictive networks (RAN) [arxiv](https://arxiv.org/abs/1705.07393)
+ - [x] Recurrent highway network (RHN) [arixv](https://arxiv.org/pdf/1607.03474)
+ - [x] Light recurrent unit (LightRU) [pub](https://www.mdpi.com/2079-9292/13/16/3204)
+ - [x] Neural architecture search unit (NAS) [arxiv](https://arxiv.org/abs/1611.01578)
+ - [x] Evolving recurrent neural networks (MUT1/2/3) [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
+ - [x] Structurally constrained recurrent neural network (SCRN) [arxiv](https://arxiv.org/pdf/1412.7753)
+ - [x] Peephole long short term memory (PeepholeLSTM) [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
+ - [x] FastRNN and FastGRNN [arxiv](https://arxiv.org/pdf/1901.02358)
+
+Wrappers:
+ - [x] Stacked RNNs
+ - [x] FastSlow RNNs [arxiv](https://arxiv.org/abs/1705.08639)
 
 ## Contributing
 
