@@ -6,7 +6,7 @@
 
 
 | **Documentation** | **Build Status** | **Julia** | **Testing** |
-|:-----------------:|:----------------:|:---------:|:---------|
+|:-----------------:|:----------------:|:---------:|:-----------:|
 | [![docs][docs-img]][docs-url] | [![CI][ci-img]][ci-url] [![codecov][cc-img]][cc-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
 
 [docs-img]: https://img.shields.io/badge/docs-stable-blue.svg
@@ -41,7 +41,7 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 
 ## Features 🚀
 
-Currently available layers and work in progress in the short term:
+Currently available cells:
  - [x] Minimal gated unit (MGU) [arxiv](https://arxiv.org/abs/1603.09420)
  - [x] Light gated recurrent unit (LiGRU) [arxiv](https://arxiv.org/abs/1803.10225)
  - [x] Independently recurrent neural networks (IndRNN) [arxiv](https://arxiv.org/abs/1803.04831)
@@ -53,7 +53,10 @@ Currently available layers and work in progress in the short term:
  - [x] Structurally constrained recurrent neural network (SCRN) [arxiv](https://arxiv.org/pdf/1412.7753)
  - [x] Peephole long short term memory (PeepholeLSTM) [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
  - [x] FastRNN and FastGRNN [arxiv](https://arxiv.org/pdf/1901.02358)
- - [ ] Minimal gated recurrent unit (minGRU) and minimal long short term memory (minLSTM) [arxiv](https://arxiv.org/abs/2410.01201)
+
+Currently available wrappers:
+ - [x] Stacked RNNs
+ - [x] FastSlow RNNs [arxiv](https://arxiv.org/abs/1705.08639)
 
 ## Installation 💻
 
