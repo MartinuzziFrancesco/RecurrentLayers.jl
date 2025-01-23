@@ -1,6 +1,6 @@
 #https://arxiv.org/pdf/1603.09420
 @doc raw"""
-    MGUCell((input_size => hidden_size);
+    MGUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -77,7 +77,7 @@ function Base.show(io::IO, mgu::MGUCell)
 end
 
 @doc raw"""
-    MGU((input_size => hidden_size);
+    MGU(input_size => hidden_size;
         return_state = false, kwargs...)
 
 [Minimal gated unit network](https://arxiv.org/pdf/1603.09420).

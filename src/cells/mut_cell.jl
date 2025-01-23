@@ -1,6 +1,6 @@
 #https://proceedings.mlr.press/v37/jozefowicz15.pdf
 @doc raw"""
-    MUT1Cell((input_size => hidden_size);
+    MUT1Cell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -81,7 +81,9 @@ function Base.show(io::IO, mut::MUT1Cell)
 end
 
 @doc raw"""
-    MUT1((input_size => hidden_size); kwargs...)
+    MUT1(input_size => hidden_size;
+        return_state=false,
+        kwargs...)
 
 [Mutated unit 1 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
 See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
@@ -92,6 +94,7 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 
 # Equations
 ```math
@@ -145,7 +148,7 @@ function Base.show(io::IO, mut::MUT1)
 end
 
 @doc raw"""
-    MUT2Cell((input_size => hidden_size);
+    MUT2Cell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -225,7 +228,9 @@ function Base.show(io::IO, mut::MUT2Cell)
 end
 
 @doc raw"""
-    MUT2Cell((input_size => hidden_size); kwargs...)
+    MUT2Cell(input_size => hidden_size;
+        return_state=false,
+        kwargs...)
 
 [Mutated unit 2 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
 See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
@@ -236,6 +241,7 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 
 # Equations
 ```math
@@ -289,7 +295,7 @@ function Base.show(io::IO, mut::MUT2)
 end
 
 @doc raw"""
-    MUT3Cell((input_size => hidden_size);
+    MUT3Cell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -368,7 +374,8 @@ function Base.show(io::IO, mut::MUT3Cell)
 end
 
 @doc raw"""
-    MUT3((input_size => hidden_size); kwargs...)
+    MUT3(input_size => hidden_size;
+    return_state = false, kwargs...)
 
 [Mutated unit 3 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
 See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
@@ -379,6 +386,7 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 
 # Equations
 ```math

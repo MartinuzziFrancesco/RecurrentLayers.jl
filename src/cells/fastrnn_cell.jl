@@ -1,6 +1,6 @@
 #https://arxiv.org/abs/1901.02358
 @doc raw"""
-    FastRNNCell((input_size => hidden_size), [activation];
+    FastRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -84,8 +84,8 @@ function Base.show(io::IO, fastrnn::FastRNNCell)
 end
 
 @doc raw"""
-    FastRNN((input_size => hidden_size), [activation];
-    return_state = false, kwargs...)
+    FastRNN(input_size => hidden_size, [activation];
+        return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
 See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
@@ -150,7 +150,7 @@ function Base.show(io::IO, fastrnn::FastRNN)
 end
 
 @doc raw"""
-    FastGRNNCell((input_size => hidden_size), [activation];
+    FastGRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -240,7 +240,7 @@ function Base.show(io::IO, fastgrnn::FastGRNNCell)
 end
 
 @doc raw"""
-    FastGRNN((input_size => hidden_size), [activation];
+    FastGRNN(input_size => hidden_size, [activation];
     return_state = false, kwargs...)
 
 [Fast recurrent neural network](https://arxiv.org/abs/1901.02358).

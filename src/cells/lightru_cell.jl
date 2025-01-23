@@ -1,7 +1,7 @@
 #https://www.mdpi.com/2079-9292/13/16/3204
 
 @doc raw"""
-    LightRUCell((input_size => hidden_size);
+    LightRUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -79,7 +79,7 @@ function Base.show(io::IO, lightru::LightRUCell)
 end
 
 @doc raw"""
-    LightRU((input_size => hidden_size);
+    LightRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
 [Light recurrent unit network](https://www.mdpi.com/2079-9292/13/16/3204).

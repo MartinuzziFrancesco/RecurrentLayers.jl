@@ -1,7 +1,7 @@
 #https://arxiv.org/pdf/1412.7753
 
 @doc raw"""
-    SCRNCell((input_size => hidden_size);
+    SCRNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true,
@@ -87,17 +87,19 @@ function Base.show(io::IO, scrn::SCRNCell)
 end
 
 @doc raw"""
-    SCRN((input_size => hidden_size);
+    SCRN(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true,
-        alpha = 0.0)
+        alpha = 0.0,
+        return_state = false)
 
 [Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
 See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
