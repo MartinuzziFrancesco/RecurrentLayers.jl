@@ -169,8 +169,8 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 # Equations
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1} + b_z), \\
-\tilde{h}_t &= \tanh(W_h x_t + U_h h_{t-1} + b_h), \\
+z_t &= \sigma(W x_t + U h_{t-1} + b_z), \\
+\tilde{h}_t &= \tanh(W x_t + U h_{t-1} + b_h), \\
 h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
 \end{aligned}
 ```

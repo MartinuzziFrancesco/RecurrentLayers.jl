@@ -5,10 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
-is a recurrent cell layer which provides additional memory through the
-use of gates.
-
+[Recurrent Additive Network cell](https://arxiv.org/pdf/1705.07393).
 See [`RAN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -85,12 +82,7 @@ end
 @doc raw"""
     RAN(input_size => hidden_size; kwargs...)
 
-The `RANCell`, introduced in [this paper](https://arxiv.org/pdf/1705.07393), 
-is a recurrent cell layer which provides additional memory through the
-use of gates.
-
-and returns both h_t anf c_t.
-
+[Recurrent Additive Network cell](https://arxiv.org/pdf/1705.07393).
 See [`RANCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
