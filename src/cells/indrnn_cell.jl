@@ -1,7 +1,7 @@
 #https://arxiv.org/pdf/1803.04831
 
 @doc raw"""
-    IndRNNCell((input_size => hidden_size), σ=relu;
+    IndRNNCell(input_size => hidden_size, σ=relu;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -72,7 +72,7 @@ function Base.show(io::IO, indrnn::IndRNNCell)
 end
 
 @doc raw"""
-    IndRNN((input_size, hidden_size), σ = tanh;
+    IndRNN(input_size, hidden_size, σ = tanh;
         return_state = false, kwargs...)
 
 [Independently recurrent network](https://arxiv.org/pdf/1803.04831).

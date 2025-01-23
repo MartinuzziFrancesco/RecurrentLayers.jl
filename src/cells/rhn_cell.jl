@@ -2,7 +2,7 @@
 #https://github.com/jzilly/RecurrentHighwayNetworks/blob/master/rhn.py#L138C1-L180C60
 
 """
-    RHNCellUnit((input_size => hidden_size)::Pair;
+    RHNCellUnit(input_size => hidden_size;
         init_kernel = glorot_uniform,
         bias = true)
 """
@@ -44,8 +44,8 @@ function Base.show(io::IO, rhn::RHNCellUnit)
 end
 
 @doc raw"""
-    RHNCell((input_size => hidden_size), depth=3;
-        couple_carry::Bool = true,
+    RHNCell(input_size => hidden_size, [depth];
+        couple_carry = true,
         cell_kwargs...)
 
 [Recurrent highway network](https://arxiv.org/pdf/1607.03474).
@@ -139,7 +139,9 @@ end
 
 # TODO fix implementation here
 @doc raw"""
-    RHN((input_size => hidden_size), depth=3; kwargs...)
+    RHN(input_size => hidden_size, [depth];
+        return_state = false,
+        kwargs...)
 
 [Recurrent highway network](https://arxiv.org/pdf/1607.03474).
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
@@ -147,6 +149,7 @@ See [`RHNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `depth`: depth of the recurrence. Default is 3
 - `couple_carry`: couples the carry gate and the transform gate. Default `true`

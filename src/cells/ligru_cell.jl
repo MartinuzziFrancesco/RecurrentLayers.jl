@@ -1,6 +1,6 @@
 #https://arxiv.org/pdf/1803.10225
 @doc raw"""
-    LiGRUCell((input_size => hidden_size);
+    LiGRUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -79,7 +79,7 @@ function Base.show(io::IO, ligru::LiGRUCell)
 end
 
 @doc raw"""
-    LiGRU((input_size => hidden_size);
+    LiGRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
 [Light gated recurrent network](https://arxiv.org/pdf/1803.10225).

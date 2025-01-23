@@ -24,7 +24,7 @@
 # limitations under the License.
 
 @doc raw"""
-    NASCell((input_size => hidden_size);
+    NASCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -145,7 +145,9 @@ function Base.show(io::IO, nas::NASCell)
 end
 
 @doc raw"""
-    NAS((input_size => hidden_size)::Pair; kwargs...)
+    NAS(input_size => hidden_size;
+        return_state = false,
+        kwargs...)
 
 
 [Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
@@ -153,6 +155,7 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights

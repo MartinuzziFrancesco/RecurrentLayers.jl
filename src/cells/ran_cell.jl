@@ -1,6 +1,6 @@
 #https://arxiv.org/pdf/1705.07393
 @doc raw"""
-    RANCell((input_size => hidden_size)::Pair;
+    RANCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -80,13 +80,15 @@ function Base.show(io::IO, ran::RANCell)
 end
 
 @doc raw"""
-    RAN(input_size => hidden_size; kwargs...)
+    RAN(input_size => hidden_size;
+        return_state = false, kwargs...)
 
 [Recurrent Additive Network cell](https://arxiv.org/pdf/1705.07393).
 See [`RANCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
+- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
