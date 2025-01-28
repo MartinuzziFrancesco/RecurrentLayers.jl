@@ -61,8 +61,8 @@ function train_recurrent!(epoch, train_loader, opt, model, criterion)
     total_loss = 0.0
     for (input_data, target_data) in train_loader
         input_data, target_data = CuArray(input_data), CuArray(target_data)
-        grads = gradient(() -> criterion(input_data, target_data), Flux.params(model))
-        Flux.Optimise.update!(opt, Flux.params(model), grads)
+        grads = gradient(() -> criterion(input_data, target_data), model)
+        Flux.update!(opt, model, grads[1])
         total_loss += criterion(input_data, target_data)
     end
     avg_loss = total_loss / length(train_loader)
