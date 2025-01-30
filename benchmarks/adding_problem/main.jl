@@ -1,10 +1,7 @@
 using Flux, RecurrentLayers, MLUtils, StatsBase, Comonicon, Printf, CUDA
 
-function generate_adding_data(
-        sequence_length::Int,
-        n_samples::Int;
-        kwargs...
-)
+function generate_adding_data(sequence_length::Int, n_samples::Int;
+        kwargs...)
     random_sequence = rand(Float32, 1, sequence_length, n_samples)
     mask_sequence = zeros(Float32, 1, sequence_length, n_samples)
     targets = zeros(Float32, n_samples)
@@ -25,45 +22,40 @@ function generate_adding_data(
     return dataloader
 end
 
-function generate_dataloaders(
-        sequence_length::Int,
-        n_train::Int,
-        n_test::Int;
+function generate_dataloaders(sequence_length::Int, n_train::Int, n_test::Int;
         kwargs...)
     train_loader = generate_adding_data(sequence_length, n_train; kwargs...)
     test_loader = generate_adding_data(sequence_length, n_test; kwargs...)
     return train_loader, test_loader
 end
 
-struct RecurrentModel{H, C, D}
-    h0::H
+struct RecurrentModel{C, D}
     rnn::C
     dense::D
 end
 
-Flux.@layer RecurrentModel trainable=(rnn, dense)
+Flux.@layer RecurrentModel
 
-function RecurrentModel(rnn_wrapper, input_size::Int, hidden_size::Int)
+function RecurrentModel(rlayer, input_size::Int, hidden_size::Int; kwargs...)
     return RecurrentModel(
-        zeros(Float32, hidden_size),
-        rnn_wrapper(input_size => hidden_size),
+        StackedRNN(rlayer, (input_size => hidden_size); kwargs...),
         Dense(hidden_size => 1, sigmoid))
 end
 
 function (model::RecurrentModel)(inp)
-    state = model.rnn(inp, model.h0)
+    state = model.rnn(inp)
     state = state[:, end, :]
     output = model.dense(state)
     return output
 end
 
-function train_recurrent!(epoch, train_loader, opt, model, criterion)
+function train_recurrent!(epoch, train_loader, opt_state, model, criterion)
     total_loss = 0.0
     for (input_data, target_data) in train_loader
         input_data, target_data = CuArray(input_data), CuArray(target_data)
-        grads = gradient(() -> criterion(input_data, target_data), Flux.params(model))
-        Flux.Optimise.update!(opt, Flux.params(model), grads)
-        total_loss += criterion(input_data, target_data)
+        grads = gradient(m -> criterion(m, input_data, target_data), model)
+        Flux.update!(opt_state, model, grads[1])
+        total_loss += criterion(model, input_data, target_data)
     end
     avg_loss = total_loss / length(train_loader)
     return avg_loss
@@ -73,39 +65,39 @@ function test_recurrent(epoch, test_loader, model, criterion)
     total_loss = 0.0
     for (input_data, target_data) in test_loader
         input_data, target_data = CuArray(input_data), CuArray(target_data)
-        total_loss += criterion(input_data, target_data)
+        total_loss += criterion(model, input_data, target_data)
     end
     avg_loss = total_loss / length(test_loader)
     return avg_loss
     #println("Epoch $epoch/$num_epochs, Loss: $(round(avg_loss, digits=4))")
 end
 
-Comonicon.@main function main(rnn_wrapper;
-        epochs::Int=50,
-        shuffle::Bool=true,
-        batchsize::Int=64,
-        sequence_length::Int=1000,
-        n_train::Int=500,
-        n_test::Int=200,
-        hidden_size::Int=20,
-        learning_rate::Float64=0.01)
+Comonicon.@main function main(; rlayer=MGU, epochs::Int=50, shuffle::Bool=false,
+        batchsize::Int=32, sequence_length::Int=10, n_train::Int=500, n_test::Int=200,
+        hidden_size::Int=32, learning_rate::AbstractFloat=0.01, num_layers::Int=2,
+        dropout::AbstractFloat=0.2)
+    println("Getting data...")
     train_loader, test_loader = generate_dataloaders(
         sequence_length, n_train, n_test; batchsize=batchsize, shuffle=shuffle
     )
 
     input_size = 2
-    model = RecurrentModel(rnn_wrapper, input_size, hidden_size)
-    function criterion(input_data, target_data)
+    println("Building model...")
+    model = RecurrentModel(rlayer, input_size, hidden_size;
+        num_layers=num_layers, dropout=dropout)
+    function criterion(m, input_data, target_data)
         Flux.mse(
-            model(input_data), reshape(target_data, 1, :)
+            m(input_data), reshape(target_data, 1, :)
         )
     end
     model = Flux.gpu(model)
     opt = Flux.Adam(learning_rate)
+    opt_state = Flux.setup(opt, model)
 
+    println("Training...")
     for epoch in 1:epochs
         start_time = time()
-        train_loss = train_recurrent!(epoch, train_loader, opt, model, criterion)
+        train_loss = train_recurrent!(epoch, train_loader, opt_state, model, criterion)
         test_loss = test_recurrent(epoch, test_loader, model, criterion)
         total_time = time() - start_time
 
