@@ -29,23 +29,21 @@ function generate_dataloaders(sequence_length::Int, n_train::Int, n_test::Int;
     return train_loader, test_loader
 end
 
-struct RecurrentModel{H, C, D}
-    h0::H
+struct RecurrentModel{C, D}
     rnn::C
     dense::D
 end
 
-Flux.@layer RecurrentModel trainable=(rnn, dense)
+Flux.@layer RecurrentModel
 
-function RecurrentModel(rnn_wrapper, input_size::Int, hidden_size::Int)
+function RecurrentModel(rlayer, input_size::Int, hidden_size::Int; kwargs...)
     return RecurrentModel(
-        zeros(Float32, hidden_size),
-        rnn_wrapper(input_size => hidden_size),
+        StackedRNN(rlayer, (input_size => hidden_size); kwargs...),
         Dense(hidden_size => 1, sigmoid))
 end
 
 function (model::RecurrentModel)(inp)
-    state = model.rnn(inp, model.h0)
+    state = model.rnn(inp)
     state = state[:, end, :]
     output = model.dense(state)
     return output
@@ -74,9 +72,10 @@ function test_recurrent(epoch, test_loader, model, criterion)
     #println("Epoch $epoch/$num_epochs, Loss: $(round(avg_loss, digits=4))")
 end
 
-Comonicon.@main function main(;rnn_wrapper=MGU, epochs::Int=50, shuffle::Bool=false,
+Comonicon.@main function main(; rlayer=MGU, epochs::Int=50, shuffle::Bool=false,
         batchsize::Int=32, sequence_length::Int=10, n_train::Int=500, n_test::Int=200,
-        hidden_size::Int=20,learning_rate::Float64=0.01)
+        hidden_size::Int=32, learning_rate::AbstractFloat=0.01, num_layers::Int=2,
+        dropout::AbstractFloat=0.2)
     println("Getting data...")
     train_loader, test_loader = generate_dataloaders(
         sequence_length, n_train, n_test; batchsize=batchsize, shuffle=shuffle
@@ -84,7 +83,8 @@ Comonicon.@main function main(;rnn_wrapper=MGU, epochs::Int=50, shuffle::Bool=fa
 
     input_size = 2
     println("Building model...")
-    model = RecurrentModel(rnn_wrapper, input_size, hidden_size)
+    model = RecurrentModel(rlayer, input_size, hidden_size;
+        num_layers=num_layers, dropout=dropout)
     function criterion(m, input_data, target_data)
         Flux.mse(
             m(input_data), reshape(target_data, 1, :)
@@ -96,7 +96,6 @@ Comonicon.@main function main(;rnn_wrapper=MGU, epochs::Int=50, shuffle::Bool=fa
 
     println("Training...")
     for epoch in 1:epochs
-        println(epoch)
         start_time = time()
         train_loss = train_recurrent!(epoch, train_loader, opt_state, model, criterion)
         test_loss = test_recurrent(epoch, test_loader, model, criterion)
