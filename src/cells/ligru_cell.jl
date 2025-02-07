@@ -13,6 +13,9 @@ See [`LiGRU`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -40,8 +43,8 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-  a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where both elements are given by the updated state
+  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -90,7 +93,11 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
-- `return_state`: Option to return the last state together with the output. Default is `false`.
+
+# Keyword arguments
+
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`

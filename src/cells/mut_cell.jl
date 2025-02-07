@@ -11,6 +11,9 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -39,8 +42,8 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where both elements are given by the updated state
+  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -91,10 +94,14 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
-- `return_state`: Option to return the last state together with the output. Default is `false`.
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math
@@ -159,6 +166,9 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -187,8 +197,8 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where both elements are given by the updated state
+  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct MUT2Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -238,10 +248,14 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
-- `return_state`: Option to return the last state together with the output. Default is `false`.
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math
@@ -306,6 +320,9 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -334,8 +351,8 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where both elements are given by the updated state
+  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -383,10 +400,14 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
-- `return_state`: Option to return the last state together with the output. Default is `false`.
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math

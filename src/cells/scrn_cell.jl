@@ -4,8 +4,7 @@
     SCRNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true,
-        alpha = 0.0)
+        bias = true, alpha = 0.0)
 
 [Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
 See [`SCRN`](@ref) for a layer that processes entire sequences.
@@ -13,6 +12,9 @@ See [`SCRN`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -37,8 +39,8 @@ y_t &= f(U_y h_t + W_y s_t)
 - `inp`: The input to the scrncell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the SCRNCell.
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
@@ -63,7 +65,7 @@ function SCRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     Wc = init_recurrent_kernel(2 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
-    return SCRNCell(Wi, Wh, Wc, b, alpha)
+    return SCRNCell(Wi, Wh, Wc, b, eltype(Wi)(alpha))
 end
 
 function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
@@ -76,7 +78,7 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     gcs = chunk(Wc * c_state .+ b, 2; dims=1)
 
     #compute
-    context_layer = (1.0f0 .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
+    context_layer = (eltype(Wi)(1.0f0) .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
     hidden_layer = sigmoid_fast(gxs[2] .+ ghs[1] * state .+ gcs[1])
     new_state = tanh_fast(ghs[2] * hidden_layer .+ gcs[2])
     return new_state, (new_state, context_layer)
@@ -90,8 +92,7 @@ end
     SCRN(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true,
-        alpha = 0.0,
+        bias = true, alpha = 0.0,
         return_state = false)
 
 [Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
@@ -99,12 +100,16 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `alpha`: structural contraint. Default is 0.0
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math
@@ -124,8 +129,8 @@ y_t &= f(U_y h_t + W_y s_t)
 - `inp`: The input to the scrn. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the SCRN. 
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns

@@ -35,6 +35,9 @@ See [`NAS`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -78,8 +81,8 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 - `inp`: The input to the nascell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the NASCell.
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
@@ -155,11 +158,15 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math
@@ -199,8 +206,8 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 - `inp`: The input to the nas. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
 - `(state, cstate)`: A tuple containing the hidden and cell states of the NAS. 
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
