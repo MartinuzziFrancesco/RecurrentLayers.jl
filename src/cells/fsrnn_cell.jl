@@ -30,9 +30,9 @@ See [`FSRNN`](@ref) for a layer that processes entire sequences.
 
 - `inp`: The input to the fsrnncell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `(fast_state, slow_state)`: A tuple containing the hidden and cell states of the FSRNNCell.
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+- `(fast_state, slow_state)`: A tuple containing the hidden and cell states of the
+  FSRNNCell. They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
@@ -114,8 +114,8 @@ See [`FSRNNCell`](@ref) for a layer that processes a single sequence.
 - `inp`: The input to the fsrnn. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `(fast_state, slow_state)`: A tuple containing the hidden and cell states of the FSRNN.
-  They should be vectors of size `hidden_size` or matrices of size `hidden_size x batch_size`.
-  If not provided, they are assumed to be vectors of zeros,
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns

@@ -56,6 +56,9 @@ See [`RHN`](@ref) for a layer that processes entire sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `depth`: depth of the recurrence. Default is 3
+
+# Keyword arguments
+
 - `couple_carry`: couples the carry gate and the transform gate. Default `true`
 - `init_kernel`: initializer for the input to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -149,12 +152,16 @@ See [`RHNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `return_state`: Option to return the last state together with the output. Default is `false`.
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `depth`: depth of the recurrence. Default is 3
+
+# Keyword arguments
+
 - `couple_carry`: couples the carry gate and the transform gate. Default `true`
 - `init_kernel`: initializer for the input to hidden weights
 - `bias`: include a bias or not. Default is `true`
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 
 # Equations
 ```math

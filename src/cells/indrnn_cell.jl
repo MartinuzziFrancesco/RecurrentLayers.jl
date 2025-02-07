@@ -1,7 +1,7 @@
 #https://arxiv.org/pdf/1803.04831
 
 @doc raw"""
-    IndRNNCell(input_size => hidden_size, σ=relu;
+    IndRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -13,7 +13,10 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
+- `activation`: activation function. Default is `tanh`
+
+# Keyword arguments
+
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -37,11 +40,11 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state `new_state`, 
-  a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where both elements are given by the updated state
+  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct IndRNNCell{F, I, H, V} <: AbstractRecurrentCell
-    σ::F
+    activation::F
     Wi::I
     Wh::H
     b::V
@@ -49,30 +52,30 @@ end
 
 @layer IndRNNCell
 
-function IndRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, σ=relu;
+function IndRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
-    return IndRNNCell(σ, Wi, Wh, b)
+    return IndRNNCell(activation, Wi, Wh, b)
 end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
-    σ = fast_act(indrnn.σ, inp)
-    state = σ.(indrnn.Wi * inp .+ indrnn.Wh .* state .+ indrnn.b)
+    activation = fast_act(indrnn.activation, inp)
+    state = activation.(indrnn.Wi * inp .+ indrnn.Wh .* state .+ indrnn.b)
     return state, state
 end
 
 function Base.show(io::IO, indrnn::IndRNNCell)
     print(io, "IndRNNCell(", size(indrnn.Wi, 2), " => ", size(indrnn.Wi, 1))
-    print(io, ", ", indrnn.σ)
+    print(io, ", ", indrnn.activation)
     print(io, ")")
 end
 
 @doc raw"""
-    IndRNN(input_size, hidden_size, σ = tanh;
+    IndRNN(input_size, hidden_size, [activation];
         return_state = false, kwargs...)
 
 [Independently recurrent network](https://arxiv.org/pdf/1803.04831).
@@ -81,8 +84,12 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer
-- `σ`: activation function. Default is `tanh`
-- `return_state`: Option to return the last state together with the output. Default is `false`.
+- `activation`: activation function. Default is `tanh`
+
+# Keyword arguments
+
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -115,9 +122,9 @@ end
 
 @layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, σ=tanh;
+function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
         return_state::Bool=false, kwargs...)
-    cell = IndRNNCell(input_size => hidden_size, σ; kwargs...)
+    cell = IndRNNCell(input_size => hidden_size, activation; kwargs...)
     return IndRNN{return_state, typeof(cell)}(cell)
 end
 
@@ -129,6 +136,6 @@ end
 
 function Base.show(io::IO, indrnn::IndRNN)
     print(io, "IndRNN(", size(indrnn.cell.Wi, 2), " => ", size(indrnn.cell.Wi, 1))
-    print(io, ", ", indrnn.cell.σ)
+    print(io, ", ", indrnn.cell.activation)
     print(io, ")")
 end
