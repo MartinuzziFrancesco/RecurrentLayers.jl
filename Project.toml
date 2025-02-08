@@ -1,7 +1,7 @@
 name = "RecurrentLayers"
 uuid = "78449bcf-6750-4b78-9e82-63d4a1ccdf8c"
 authors = ["Francesco Martinuzzi"]
-version = "0.2.6"
+version = "0.2.7"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
