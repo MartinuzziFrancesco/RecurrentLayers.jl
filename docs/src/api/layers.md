@@ -16,4 +16,5 @@ PeepholeLSTM
 FastRNN
 FastGRNN
 FSRNN
+LEM
 ```

@@ -1,7 +1,7 @@
 using RecurrentLayers, Flux, Test
 
 layers = [RNN, GRU, GRUv3, LSTM, MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
-    SCRN, PeepholeLSTM, FastRNN, FastGRNN]
+    SCRN, PeepholeLSTM, FastRNN, FastGRNN, LEM]
 
 @testset "Sizes for StackedRNN with layer: $layer" for layer in layers
     wrap = StackedRNN(layer, 2 => 4)

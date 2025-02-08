@@ -17,4 +17,5 @@ PeepholeLSTMCell
 FastRNNCell
 FastGRNNCell
 FSRNNCell
+LEMCell
 ```
