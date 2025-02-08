@@ -22,7 +22,7 @@ function initialstates(rlayer::AbstractRecurrentLayer)
     return initialstates(rlayer.cell)
 end
 
-function (rlayer::AbstractRecurrentLayer)(inp::AbstractVecOrMat)
+function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray)
     state = initialstates(rlayer)
     return rlayer(inp, state)
 end

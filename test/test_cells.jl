@@ -67,3 +67,17 @@ end
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
 end
+
+@testset "LEMCell" begin
+    rnncell = LEMCell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 4
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = LEMCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+end
