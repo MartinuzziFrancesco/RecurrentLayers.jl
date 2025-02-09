@@ -109,7 +109,9 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
-
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
+  
 # Equations
 ```math
 \begin{aligned}
