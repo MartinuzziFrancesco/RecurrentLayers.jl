@@ -18,4 +18,5 @@ FastRNNCell
 FastGRNNCell
 FSRNNCell
 LEMCell
+coRNNCell
 ```

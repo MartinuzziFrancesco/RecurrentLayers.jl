@@ -17,4 +17,5 @@ FastRNN
 FastGRNN
 FSRNN
 LEM
+coRNN
 ```

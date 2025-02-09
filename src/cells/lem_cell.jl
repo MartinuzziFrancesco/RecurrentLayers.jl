@@ -129,8 +129,8 @@ y_n &= (1 - \boldsymbol{\Delta t_n}) \odot y_{n-1} +
 
 # Forward
 
-    LEM(inp, (state, zstate))
-    LEM(inp)
+    lem(inp, (state, zstate))
+    lem(inp)
 
 ## Arguments
 - `inp`: The input to the LEM. It should be a vector of size `input_size x len`
