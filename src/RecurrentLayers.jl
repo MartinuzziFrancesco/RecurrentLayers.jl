@@ -9,9 +9,9 @@ using NNlib: fast_act
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-       FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell
+       FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell, coRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-       SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM
+       SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM, coRNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -31,16 +31,17 @@ include("cells/peepholelstm_cell.jl")
 include("cells/fastrnn_cell.jl")
 include("cells/fsrnn_cell.jl")
 include("cells/lem_cell.jl")
+include("cells/cornn_cell.jl")
 
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
-    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN, :LEM)
+    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN, :LEM, :coRNN)
 
 rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
-    :RANCell, :SCRNCell, :FSRNNCell, :LEMCell)
+    :RANCell, :SCRNCell, :FSRNNCell, :LEMCell, :coRNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin

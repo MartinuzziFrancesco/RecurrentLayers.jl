@@ -41,22 +41,33 @@ RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurren
 
 ## Features 🚀
 
-Currently available cells:
- - [x] Minimal gated unit (MGU) [arxiv](https://arxiv.org/abs/1603.09420)
- - [x] Light gated recurrent unit (LiGRU) [arxiv](https://arxiv.org/abs/1803.10225)
- - [x] Independently recurrent neural networks (IndRNN) [arxiv](https://arxiv.org/abs/1803.04831)
- - [x] Recurrent addictive networks (RAN) [arxiv](https://arxiv.org/abs/1705.07393)
- - [x] Recurrent highway network (RHN) [arixv](https://arxiv.org/pdf/1607.03474)
- - [x] Light recurrent unit (LightRU) [pub](https://www.mdpi.com/2079-9292/13/16/3204)
- - [x] Neural architecture search unit (NAS) [arxiv](https://arxiv.org/abs/1611.01578)
- - [x] Evolving recurrent neural networks (MUT1/2/3) [pub](https://proceedings.mlr.press/v37/jozefowicz15.pdf)
- - [x] Structurally constrained recurrent neural network (SCRN) [arxiv](https://arxiv.org/pdf/1412.7753)
- - [x] Peephole long short term memory (PeepholeLSTM) [pub](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf)
- - [x] FastRNN and FastGRNN [arxiv](https://arxiv.org/pdf/1901.02358)
+The package offers multiple cells and architectures:
+ - Modifications of vanilla RNNs:
+   [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
+   [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753), and
+   [FastRNN](https://arxiv.org/pdf/1901.02358)
 
-Currently available wrappers:
- - [x] Stacked RNNs
- - [x] FastSlow RNNs [arxiv](https://arxiv.org/abs/1705.08639)
+ - Variations over gated architectures:
+   [Minimal gated unit](https://arxiv.org/abs/1603.09420),
+   [Light gated recurrent networks](https://arxiv.org/abs/1803.10225),
+   [Recurrent addictive networks](https://arxiv.org/abs/1705.07393),
+   [Light recurrent networks](https://www.mdpi.com/2079-9292/13/16/3204),
+   [Neural architecture search networks](https://arxiv.org/abs/1611.01578),
+   [Evolving recurrent neural networks](https://proceedings.mlr.press/v37/jozefowicz15.pdf),
+   [Peephole long short term memory](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf), and
+   [FastGRNN](https://arxiv.org/pdf/1901.02358)
+
+ - Discretized ordinary differential equation formulations of RNNs:
+   [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), and
+   [Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951).
+
+ - Additional more complex architectures:
+   [Recurrent highway networks](https://arxiv.org/pdf/1607.03474),
+   and [FastSlow RNNs](https://arxiv.org/abs/1705.08639)
+
+ - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026)
+
+
 
 ## Installation 💻
 
