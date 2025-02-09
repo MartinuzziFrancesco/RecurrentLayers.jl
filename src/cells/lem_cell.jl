@@ -34,20 +34,21 @@ y_n &= (1 - \boldsymbol{\Delta t_n}) \odot y_{n-1} +
 
 # Forward
 
-    lemcell(inp, state)
+    lemcell(inp, (state, cstate))
     lemcell(inp)
 
 ## Arguments
 - `inp`: The input to the lemcell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `state`: The hidden state of the LEMCell. It should be a vector of size
-  `hidden_size` or a matrix of size `hidden_size x batch_size`.
-  If not provided, it is assumed to be a vector of zeros,
+- `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
+  They should be vectors of size `hidden_size` or matrices of size
+  `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state
-  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct LEMCell{I, H, Z, V, D} <: AbstractDoubleRecurrentCell
     Wi::I

@@ -9,7 +9,7 @@ using NNlib: fast_act
 
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-       FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell
+       FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell, coRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
        SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM
 export StackedRNN
@@ -40,7 +40,7 @@ rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
 
 rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
-    :RANCell, :SCRNCell, :FSRNNCell, :LEMCell)
+    :RANCell, :SCRNCell, :FSRNNCell, :LEMCell, :coRNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
