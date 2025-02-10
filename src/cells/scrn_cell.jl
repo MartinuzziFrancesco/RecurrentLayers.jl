@@ -65,7 +65,7 @@ function SCRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     Wc = init_recurrent_kernel(2 * hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wh, 1))
-    return SCRNCell(Wi, Wh, Wc, b, eltype(Wi)(alpha))
+    return SCRNCell(Wi, Wh, Wc, b, [eltype(Wi)(alpha)])
 end
 
 function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
