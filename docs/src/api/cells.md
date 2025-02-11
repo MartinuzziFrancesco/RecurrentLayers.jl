@@ -19,4 +19,5 @@ FastGRNNCell
 FSRNNCell
 LEMCell
 coRNNCell
+AntisymmetricRNNCell
 ```

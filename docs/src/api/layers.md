@@ -18,4 +18,5 @@ FastGRNN
 FSRNN
 LEM
 coRNN
+AntisymmetricRNN
 ```
