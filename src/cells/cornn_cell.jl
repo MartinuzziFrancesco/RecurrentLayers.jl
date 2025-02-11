@@ -1,6 +1,7 @@
 #https://arxiv.org/abs/2010.00951
 @doc raw"""
     coRNNCell(input_size => hidden_size, [dt], [gamma], [epsilon];
+        gamma=0.0, epsilon=0.0,
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true)
@@ -12,11 +13,11 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `dt`: time step. Default is 1.0.
-- `gamma`: damping for state. Default is 0.0.
-- `epsilon`: damping for candidate state. Default is 0.0.
 
 # Keyword arguments
 
+- `gamma`: damping for state. Default is 0.0.
+- `epsilon`: damping for candidate state. Default is 0.0.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
@@ -62,7 +63,7 @@ end
 @layer coRNNCell
 
 function coRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
-        dt::Number=1.0f0, gamma::Number=0.0f0, epsilon::Number=0.0f0;
+        dt::Number=1.0f0; gamma::Number=0.0f0, epsilon::Number=0.0f0,
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
@@ -90,7 +91,8 @@ function Base.show(io::IO, cornn::coRNNCell)
 end
 
 @doc raw"""
-    coRNN(input_size => hidden_size, [dt], [gamma], [epsilon];
+    coRNN(input_size => hidden_size, [dt];
+        gamma=0.0, epsilon=0.0,
         return_state=false, init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform, bias = true)
 
@@ -101,11 +103,11 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `dt`: time step. Default is 1.0.
-- `gamma`: damping for state. Default is 0.0.
-- `epsilon`: damping for candidate state. Default is 0.0.
 
 # Keyword arguments
 
+- `gamma`: damping for state. Default is 0.0.
+- `epsilon`: damping for candidate state. Default is 0.0.
 - `init_kernel`: initializer for the input to hidden weights
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
