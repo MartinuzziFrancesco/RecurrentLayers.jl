@@ -26,8 +26,9 @@ The package offers multiple cells and architectures:
    [FastGRNN](https://arxiv.org/pdf/1901.02358)
 
  - Discretized ordinary differential equation formulations of RNNs:
-   [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), and
-   [Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951).
+   [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 
+   [Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951), and
+   [Antisymmetric recurrent neural network](https://arxiv.org/abs/1902.09689)
 
  - Additional more complex architectures:
    [Recurrent highway networks](https://arxiv.org/pdf/1607.03474),

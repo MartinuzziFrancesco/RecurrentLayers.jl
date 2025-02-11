@@ -3,7 +3,7 @@ using RecurrentLayers, Flux, Test
 #cells returning a single hidden state
 single_cells = [MGUCell, LiGRUCell, IndRNNCell,
     LightRUCell, MUT1Cell, MUT2Cell,
-    MUT3Cell]
+    MUT3Cell, AntisymmetricRNNCell]
 
 #cells returning hidden state as a tuple
 double_cells = [RANCell, NASCell, PeepholeLSTMCell]
