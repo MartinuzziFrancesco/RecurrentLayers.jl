@@ -20,4 +20,5 @@ FSRNNCell
 LEMCell
 coRNNCell
 AntisymmetricRNNCell
+GatedAntisymmetricRNNCell
 ```

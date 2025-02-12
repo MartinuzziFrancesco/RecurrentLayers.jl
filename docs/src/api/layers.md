@@ -19,4 +19,5 @@ FSRNN
 LEM
 coRNN
 AntisymmetricRNN
+GatedAntisymmetricRNN
 ```
