@@ -151,7 +151,6 @@ function Base.show(io::IO, asymrnn::AntisymmetricRNN)
     print(io, ")")
 end
 
-
 @doc raw"""
     GatedAntisymmetricRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
@@ -220,20 +219,23 @@ function GatedAntisymmetricRNNCell(
     return GatedAntisymmetricRNNCell(Wi, Wh, b, T(epsilon), T(gamma))
 end
 
-function (asymrnn::GatedAntisymmetricRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
+function (asymrnn::GatedAntisymmetricRNNCell)(
+        inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(asymrnn, inp, 1 => size(asymrnn.Wi, 2))
     Wi, Wh, b = asymrnn.Wi, asymrnn.Wh, asymrnn.b
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
     epsilon, gamma = asymrnn.epsilon, asymrnn.gamma
     recurrent_matrix = compute_asym_recurrent(Wh, gamma)
     input_gate = sigmoid_fast(recurrent_matrix * state .+ gxs[1])
-    new_state = state + epsilon .* input_gate .*
-                        tanh_fast.(gxs[2] .+ recurrent_matrix * state)
+    new_state = state +
+                epsilon .* input_gate .*
+                tanh_fast.(gxs[2] .+ recurrent_matrix * state)
     return new_state, new_state
 end
 
 function Base.show(io::IO, asymrnn::GatedAntisymmetricRNNCell)
-    print(io, "GatedAntisymmetricRNNCell(", size(asymrnn.Wi, 2), " => ", size(asymrnn.Wi, 1) ÷ 2)
+    print(io, "GatedAntisymmetricRNNCell(",
+        size(asymrnn.Wi, 2), " => ", size(asymrnn.Wi, 1) ÷ 2)
     print(io, ")")
 end
 
@@ -302,7 +304,8 @@ end
 
 function Base.show(io::IO, asymrnn::GatedAntisymmetricRNN)
     print(
-        io, "GatedAntisymmetricRNN(", size(asymrnn.cell.Wi, 2), " => ", size(asymrnn.cell.Wi, 1) ÷ 2)
+        io, "GatedAntisymmetricRNN(", size(asymrnn.cell.Wi, 2),
+        " => ", size(asymrnn.cell.Wi, 1) ÷ 2)
     print(io, ")")
 end
 
