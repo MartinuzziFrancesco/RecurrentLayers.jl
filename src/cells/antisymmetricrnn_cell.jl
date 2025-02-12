@@ -20,7 +20,7 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `epsilon`: step size. Default is 1.0.
-- `gamma`: strenght of diffusion. Default is 0.0
+- `gamma`: strength of diffusion. Default is 0.0
 
 # Equations
 ```math
@@ -101,7 +101,7 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `epsilon`: step size. Default is 1.0.
-- `gamma`: strenght of diffusion. Default is 0.0
+- `gamma`: strength of diffusion. Default is 0.0
 
 # Equations
 ```math
@@ -171,7 +171,7 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `epsilon`: step size. Default is 1.0.
-- `gamma`: strenght of diffusion. Default is 0.0
+- `gamma`: strength of diffusion. Default is 0.0
 
 # Equations
 ```math
@@ -226,7 +226,7 @@ function (asymrnn::GatedAntisymmetricRNNCell)(
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
     epsilon, gamma = asymrnn.epsilon, asymrnn.gamma
     recurrent_matrix = compute_asym_recurrent(Wh, gamma)
-    input_gate = sigmoid_fast(recurrent_matrix * state .+ gxs[1])
+    input_gate = sigmoid_fast.(recurrent_matrix * state .+ gxs[1])
     new_state = state +
                 epsilon .* input_gate .*
                 tanh_fast.(gxs[2] .+ recurrent_matrix * state)
@@ -256,7 +256,7 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights
 - `bias`: include a bias or not. Default is `true`
 - `epsilon`: step size. Default is 1.0.
-- `gamma`: strenght of diffusion. Default is 0.0
+- `gamma`: strength of diffusion. Default is 0.0
 
 # Equations
 ```math
