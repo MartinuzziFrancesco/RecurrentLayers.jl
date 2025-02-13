@@ -6,7 +6,7 @@ single_cells = [MGUCell, LiGRUCell, IndRNNCell,
     MUT3Cell, AntisymmetricRNNCell, GatedAntisymmetricRNNCell]
 
 #cells returning hidden state as a tuple
-double_cells = [RANCell, NASCell, PeepholeLSTMCell]
+double_cells = [RANCell, NASCell, PeepholeLSTMCell, JANETCell]
 
 #cells with a little more complexity to them
 different_cells = [SCRNCell, RHNCell, FastRNNCell, FastGRNNCell]

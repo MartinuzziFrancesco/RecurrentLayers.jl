@@ -20,4 +20,5 @@ LEM
 coRNN
 AntisymmetricRNN
 GatedAntisymmetricRNN
+JANET
 ```

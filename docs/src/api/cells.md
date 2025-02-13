@@ -21,4 +21,5 @@ LEMCell
 coRNNCell
 AntisymmetricRNNCell
 GatedAntisymmetricRNNCell
+JANETCell
 ```
