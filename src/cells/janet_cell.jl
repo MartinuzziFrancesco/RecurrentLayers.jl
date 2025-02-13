@@ -77,9 +77,10 @@ function (janet::JANETCell)(inp::AbstractVecOrMat, (state, c_state))
 
     linear_gate = gxs[1] .+ ghs[1]
     candidate_state = tanh_fast.(gxs[2] .+ ghs[2])
-    new_cstate = sigmoid_fast.(linear_gate) .* c_state .+ 
-        (fill(eltype(Wi)(1.0), size(Wh, 2)) .- sigmoid_fast.(linear_gate .- beta)) .*
-        candidate_state
+    new_cstate = sigmoid_fast.(linear_gate) .* c_state .+
+                 (fill(eltype(Wi)(1.0), size(Wh, 2)) .-
+                  sigmoid_fast.(linear_gate .- beta)) .*
+                 candidate_state
     new_state = new_cstate
 
     return new_state, (new_state, new_cstate)
@@ -88,7 +89,6 @@ end
 function Base.show(io::IO, janet::JANETCell)
     print(io, "JANETCell(", size(janet.Wi, 2), " => ", size(janet.Wi, 1) ÷ 2, ")")
 end
-
 
 @doc raw"""
     JANET(input_size => hidden_size;

@@ -11,7 +11,7 @@ using NNlib: fast_act
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
        FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell, coRNNCell, AntisymmetricRNNCell,
-       GatedAntisymmetricRNNCell,JANETCell
+       GatedAntisymmetricRNNCell, JANETCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
        SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM, coRNN, AntisymmetricRNN,
        GatedAntisymmetricRNN, JANET
