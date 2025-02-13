@@ -3,7 +3,7 @@ import Flux: initialstates
 
 layers = [MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
     SCRN, PeepholeLSTM, FastRNN, FastGRNN, LEM, coRNN, AntisymmetricRNN,
-    GatedAntisymmetricRNN]
+    GatedAntisymmetricRNN, JANET]
 #IndRNN handles internal states diffrently
 #RHN should be checked more for consistency for initialstates
 

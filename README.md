@@ -54,8 +54,10 @@ The package offers multiple cells and architectures:
    [Light recurrent networks](https://www.mdpi.com/2079-9292/13/16/3204),
    [Neural architecture search networks](https://arxiv.org/abs/1611.01578),
    [Evolving recurrent neural networks](https://proceedings.mlr.press/v37/jozefowicz15.pdf),
-   [Peephole long short term memory](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf), and
-   [FastGRNN](https://arxiv.org/pdf/1901.02358)
+   [Peephole long short term memory](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf),
+   [FastGRNN](https://arxiv.org/pdf/1901.02358), and
+   [Just another network](https://arxiv.org/abs/1804.04849).
+
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 
