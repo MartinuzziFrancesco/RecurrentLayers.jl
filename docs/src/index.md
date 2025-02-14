@@ -4,7 +4,9 @@ CurrentModule = RecurrentLayers
 
 # RecurrentLayers
 
-RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) recurrent layers offering by providing implementations of bleeding edge recurrent layers not commonly available in base deep learning libraries. It is designed for a seamless integration with the larger Flux ecosystem, enabling researchers and practitioners to leverage the latest developments in recurrent neural networks.
+RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl)
+recurrent layers offering by providing implementations of bleeding edge
+recurrent layers not commonly available in base deep learning libraries.
 
 ## Implemented layers
 
@@ -45,4 +47,16 @@ Contributions are always welcome! We specifically look for :
  - Recurrent cells you would like to see implemented 
  - Benchmarks
  - Fixes for any bugs/errors
- - Documentation, in any form: examples, how tos, docstrings  
+ - Documentation, in any form: examples, how tos, docstrings
+
+Please consider the following guidelines before opening a pull request:
+ - The code should be formatted according to the format file provided
+ - Variable names should be meaningful: please no single letter variables,
+   and try to avoid double letters variables too. I know at the moment there are
+   some in the codebase, but I will need a breaking change in order to fix the majority
+   of them.
+ - The format file does not format markdown. If you are adding docs, or docstrings
+   please take care of not going over 92 cols.
+
+For any clarification feel free to contact me directly (@MartinuzziFrancesco)
+either in the julia slack, by email or X/bluesky.
