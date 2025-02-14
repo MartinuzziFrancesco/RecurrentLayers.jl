@@ -22,4 +22,5 @@ coRNNCell
 AntisymmetricRNNCell
 GatedAntisymmetricRNNCell
 JANETCell
+CFNCell
 ```

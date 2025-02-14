@@ -21,4 +21,5 @@ coRNN
 AntisymmetricRNN
 GatedAntisymmetricRNN
 JANET
+CFN
 ```
