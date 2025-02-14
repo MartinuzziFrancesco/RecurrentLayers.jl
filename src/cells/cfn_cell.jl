@@ -68,7 +68,7 @@ function (cfn::CFNCell)(inp::AbstractVecOrMat, state)
     Wi, Wh, b = cfn.Wi, cfn.Wh, cfn.bias
     #split
     gxs = chunk(Wi * inp, 3; dims=1)
-    ghs = chunk(Wh * state  .+ b, 2; dims=1)
+    ghs = chunk(Wh * state .+ b, 2; dims=1)
 
     horizontal_gate = sigmoid_fast.(gxs[1] .+ ghs[1])
     vertical_gate = sigmoid_fast.(gxs[2] .+ ghs[2])
@@ -79,7 +79,6 @@ end
 function Base.show(io::IO, cfn::CFNCell)
     print(io, "CFNCell(", size(cfn.Wi, 2), " => ", size(cfn.Wi, 1) ÷ 2, ")")
 end
-
 
 @doc raw"""
     CFN(input_size => hidden_size;
