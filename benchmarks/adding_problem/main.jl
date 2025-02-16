@@ -1,4 +1,4 @@
-using Flux, RecurrentLayers, MLUtils, StatsBase, Comonicon, Printf, CUDA
+using Flux, RecurrentLayers, MLUtils, StatsBase, Comonicon, Printf, CUDA, cuDNN
 
 function generate_adding_data(sequence_length::Int, n_samples::Int;
         kwargs...)
@@ -72,9 +72,9 @@ function test_recurrent(epoch, test_loader, model, criterion)
     #println("Epoch $epoch/$num_epochs, Loss: $(round(avg_loss, digits=4))")
 end
 
-Comonicon.@main function main(; rlayer=MGU, epochs::Int=50, shuffle::Bool=false,
-        batchsize::Int=32, sequence_length::Int=10, n_train::Int=500, n_test::Int=200,
-        hidden_size::Int=32, learning_rate::AbstractFloat=0.01, num_layers::Int=2,
+Comonicon.@main function main(; rlayer=MGU, epochs::Int=1000, shuffle::Bool=false,
+        batchsize::Int=100, sequence_length::Int=50, n_train::Int=10000, n_test::Int=1000,
+        hidden_size::Int=100, learning_rate::AbstractFloat=0.001, num_layers::Int=1,
         dropout::AbstractFloat=0.2)
     println("Getting data...")
     train_loader, test_loader = generate_dataloaders(
