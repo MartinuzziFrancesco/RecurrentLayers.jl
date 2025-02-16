@@ -5,13 +5,12 @@ CurrentModule = RecurrentLayers
 # RecurrentLayers
 
 RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl)
-recurrent layers offering by providing implementations of bleeding edge
-recurrent layers not commonly available in base deep learning libraries.
+recurrent layers offering by providing implementations of additional
+recurrent layers not available in base deep learning libraries.
 
-## Implemented layers
+## Features
 
-
-The package offers multiple cells and architectures:
+The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl):
  - Modifications of vanilla RNNs:
    [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
    [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753), and
@@ -41,6 +40,20 @@ The package offers multiple cells and architectures:
 
  - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026)
 
+## Installation
+
+You can install `RecurrentLayers` using either of:
+
+```julia
+using Pkg
+Pkg.add("RecurrentLayers")
+```
+
+```julia_repl
+julia> ]
+pkg> add RecurrentLayers
+```
+
 ## Contributing
 
 Contributions are always welcome! We specifically look for :
@@ -53,8 +66,7 @@ Please consider the following guidelines before opening a pull request:
  - The code should be formatted according to the format file provided
  - Variable names should be meaningful: please no single letter variables,
    and try to avoid double letters variables too. I know at the moment there are
-   some in the codebase, but I will need a breaking change in order to fix the majority
-   of them.
+   some in the codebase, but I will need a breaking change in order to fix the majority of them.
  - The format file does not format markdown. If you are adding docs, or docstrings
    please take care of not going over 92 cols.
 
