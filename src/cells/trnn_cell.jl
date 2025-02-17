@@ -71,7 +71,7 @@ function (trnn::TRNNCell)(inp::AbstractVecOrMat, state)
 end
 
 function initialstates(trnn::TRNNCell)
-  return zeros_like(trnn.Wi, size(trnn.Wi, 1) ÷ 2)
+    return zeros_like(trnn.Wi, size(trnn.Wi, 1) ÷ 2)
 end
 
 function Base.show(io::IO, trnn::TRNNCell)
