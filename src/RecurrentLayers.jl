@@ -14,7 +14,7 @@ export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        GatedAntisymmetricRNNCell, JANETCell, CFNCell, TRNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
        SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM, coRNN, AntisymmetricRNN,
-       GatedAntisymmetricRNN, JANET, CFN
+       GatedAntisymmetricRNN, JANET, CFN, TRNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -45,7 +45,7 @@ include("wrappers/stackedrnn.jl")
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
     :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN, :LEM, :coRNN,
-    :AntisymmetricRNN, :JANET, :CFN)
+    :AntisymmetricRNN, :JANET, :CFN, :TRNN)
 
 rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,

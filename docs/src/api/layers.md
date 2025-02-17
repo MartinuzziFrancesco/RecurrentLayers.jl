@@ -22,4 +22,5 @@ AntisymmetricRNN
 GatedAntisymmetricRNN
 JANET
 CFN
+TRNN
 ```

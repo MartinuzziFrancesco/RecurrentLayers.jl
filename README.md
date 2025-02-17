@@ -46,8 +46,9 @@ recurrent layers not available in base deep learning libraries.
 The package offers multiple cells and architectures:
  - Modifications of vanilla RNNs:
    [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
-   [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753), and
-   [FastRNN](https://arxiv.org/pdf/1901.02358)
+   [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753),
+   [FastRNN](https://arxiv.org/pdf/1901.02358), and
+   [Typed RNNs](https://arxiv.org/abs/1602.02218)
 
  - Variations over gated architectures:
    [Minimal gated unit](https://arxiv.org/abs/1603.09420),
