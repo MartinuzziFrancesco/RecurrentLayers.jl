@@ -24,4 +24,5 @@ GatedAntisymmetricRNNCell
 JANETCell
 CFNCell
 TRNNCell
+TGRUCell
 ```

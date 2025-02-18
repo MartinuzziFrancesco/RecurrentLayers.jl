@@ -59,8 +59,9 @@ The package offers multiple cells and architectures:
    [Evolving recurrent neural networks](https://proceedings.mlr.press/v37/jozefowicz15.pdf),
    [Peephole long short term memory](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf),
    [FastGRNN](https://arxiv.org/pdf/1901.02358),
-   [Just another network](https://arxiv.org/abs/1804.04849), and
-   [Chaos free network](https://arxiv.org/abs/1612.06212).
+   [Just another network](https://arxiv.org/abs/1804.04849),
+   [Chaos free network](https://arxiv.org/abs/1612.06212), and
+   [Typed gated recurrent unit](https://arxiv.org/abs/1602.02218).
 
 
  - Discretized ordinary differential equation formulations of RNNs:
