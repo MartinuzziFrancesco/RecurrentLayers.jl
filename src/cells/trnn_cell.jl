@@ -155,7 +155,7 @@ end
         bias = true)
 
 [Strongly typed gated recurrent unit](https://arxiv.org/abs/1602.02218).
-See [`TRNN`](@ref) for a layer that processes entire sequences.
+See [`TGRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
@@ -191,8 +191,9 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
-- A tuple `(output, state)`, where both elements are given by the updated state
-  `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, inp)` is the new hidden state together with the current input. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct TGRUCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -237,7 +238,7 @@ function Base.show(io::IO, tgru::TGRUCell)
 end
 
 @doc raw"""
-    TGRU(input_size => hidden_size, [activation];
+    TGRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
 [Strongly typed recurrent gated unit](https://arxiv.org/abs/1602.02218).
@@ -303,5 +304,169 @@ end
 
 function Base.show(io::IO, tgru::TGRU)
     print(io, "TGRU(", size(tgru.cell.Wi, 2), " => ", size(tgru.cell.Wi, 1) ÷ 3)
+    print(io, ")")
+end
+
+@doc raw"""
+    TLSTMCell(input_size => hidden_size;
+        init_kernel = glorot_uniform,
+        init_recurrent_kernel = glorot_uniform,
+        bias = true)
+
+[Strongly typed long short term memory cell](https://arxiv.org/abs/1602.02218).
+See [`TLSTM`](@ref) for a layer that processes entire sequences.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer
+
+# Keyword arguments
+
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
+    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
+    h_t &= c_t \odot o_t
+\end{aligned}
+```
+
+# Forward
+
+    tlstmcell(inp, state)
+    tlstmcell(inp)
+
+## Arguments
+- `inp`: The input to the tlstmcell. It should be a vector of size `input_size`
+  or a matrix of size `input_size x batch_size`.
+- `state`: The hidden state of the TLSTMCell. It should be a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
+
+## Returns
+- A tuple `(output, state)`, where `output = new_state` is the new hidden state and
+  `state = (new_state, new_cstate, inp)` is the new hidden and cell state, together
+  with the current input. 
+  They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+"""
+struct TLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
+    Wi::I
+    Wh::H
+    bias::V
+end
+
+@layer TLSTMCell
+
+function TLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true)
+    Wi = init_kernel(hidden_size * 3, input_size)
+    Wh = init_recurrent_kernel(hidden_size * 3, input_size)
+    b = create_bias(Wi, bias, size(Wi, 1))
+    return TLSTMCell(Wi, Wh, b)
+end
+
+function (tlstm::TLSTMCell)(inp::AbstractVecOrMat, (state, c_state, prev_inp))
+    #checks and variables
+    _size_check(tlstm, inp, 1 => size(tlstm.Wi, 2))
+    Wi, Wh, b = tlstm.Wi, tlstm.Wh, tlstm.bias
+    #split
+    gxs = chunk(Wi * inp .+ b, 3; dims=1)
+    ghs = chunk(Wh * prev_inp, 3; dims=1)
+    #equations
+    reset_gate = gxs[1] .+ ghs[1]
+    update_gate = sigmoid_fast.(gxs[2] .+ ghs[2])
+    candidate_state = tanh_fast.(gxs[3] .+ ghs[3])
+    new_cstate = update_gate .* c_state .+ (1 .- update_gate) .* reset_gate
+    new_state = new_cstate .* candidate_state
+    return new_state, (new_state, new_cstate, inp)
+end
+
+function initialstates(tlstm::TLSTMCell)
+    initial_state = zeros_like(tlstm.Wi, size(tlstm.Wi, 1) ÷ 3)
+    initial_cstate = zeros_like(tlstm.Wi, size(tlstm.Wi, 1) ÷ 3)
+    initial_inp = zeros_like(tlstm.Wi, size(tlstm.Wi, 2))
+    return initial_state, initial_cstate, initial_inp
+end
+
+function Base.show(io::IO, tlstm::TLSTMCell)
+    print(io, "TLSTMCell(", size(tlstm.Wi, 2), " => ", size(tlstm.Wi, 1) ÷ 3, ")")
+end
+
+@doc raw"""
+    TLSTM(input_size => hidden_size;
+        return_state = false, kwargs...)
+
+[Strongly typed long short term memory](https://arxiv.org/abs/1602.02218).
+See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
+
+# Arguments
+
+- `input_size => hidden_size`: input and inner dimension of the layer.
+
+# Keyword arguments
+
+- `return_state`: Option to return the last state together with the output.
+  Default is `false`.
+- `init_kernel`: initializer for the input to hidden weights
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights
+- `bias`: include a bias or not. Default is `true`
+
+# Equations
+```math
+\begin{aligned}
+    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
+    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
+    h_t &= c_t \odot o_t
+\end{aligned}
+```
+
+# Forward
+
+    tlstm(inp, state)
+    tlstm(inp)
+
+## Arguments
+- `inp`: The input to the tlstm. It should be a vector of size `input_size x len`
+  or a matrix of size `input_size x len x batch_size`.
+- `state`: The hidden state of the TLSTM. If given, it is a vector of size
+  `hidden_size` or a matrix of size `hidden_size x batch_size`.
+  If not provided, it is assumed to be a vector of zeros,
+  initialized by [`Flux.initialstates`](@extref).
+
+## Returns
+- New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
+  When `return_state = true` it returns a tuple of the hidden states `new_states` and
+  the last state of the iteration.
+"""
+struct TLSTM{S, M} <: AbstractRecurrentLayer{S}
+    cell::M
+end
+
+@layer :noexpand TLSTM
+
+function TLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
+    cell = TLSTMCell(input_size => hidden_size; kwargs...)
+    return TLSTM{return_state, typeof(cell)}(cell)
+end
+
+function functor(tlstm::TLSTM{S}) where {S}
+    params = (cell=tlstm.cell,)
+    reconstruct = p -> TLSTM{S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
+function Base.show(io::IO, tlstm::TLSTM)
+    print(io, "TLSTM(", size(tlstm.cell.Wi, 2), " => ", size(tlstm.cell.Wi, 1) ÷ 3)
     print(io, ")")
 end

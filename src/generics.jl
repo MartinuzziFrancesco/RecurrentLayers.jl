@@ -28,7 +28,8 @@ function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray)
 end
 
 function (rlayer::AbstractRecurrentLayer{false})(inp::AbstractArray,
-        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
+        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat},
+            Tuple{AbstractVecOrMat, AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
     @assert typeof(state)==typeof(initialstates(rlayer)) """\n
        The layer $rlayer is calling states not supported by its
@@ -39,7 +40,8 @@ function (rlayer::AbstractRecurrentLayer{false})(inp::AbstractArray,
 end
 
 function (rlayer::AbstractRecurrentLayer{true})(inp::AbstractArray,
-        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat}})
+        state::Union{AbstractVecOrMat, Tuple{AbstractVecOrMat, AbstractVecOrMat},
+            Tuple{AbstractVecOrMat, AbstractVecOrMat, AbstractVecOrMat}})
     @assert ndims(inp) == 2 || ndims(inp) == 3
     @assert typeof(state)==typeof(initialstates(rlayer)) """\n
        The layer $rlayer is calling states not supported by its

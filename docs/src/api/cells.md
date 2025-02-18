@@ -25,4 +25,5 @@ JANETCell
 CFNCell
 TRNNCell
 TGRUCell
+TLSTMCell
 ```
