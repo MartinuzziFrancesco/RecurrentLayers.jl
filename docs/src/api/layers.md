@@ -22,4 +22,7 @@ AntisymmetricRNN
 GatedAntisymmetricRNN
 JANET
 CFN
+TRNN
+TGRU
+TLSTM
 ```

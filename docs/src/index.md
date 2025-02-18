@@ -10,11 +10,14 @@ recurrent layers not available in base deep learning libraries.
 
 ## Features
 
-The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl):
+The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl).
+Currently there are 20+ cells implemented, together with multiple higher
+level implementations:
  - Modifications of vanilla RNNs:
    [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
-   [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753), and
-   [FastRNN](https://arxiv.org/pdf/1901.02358)
+   [Structurally constrained recurrent neural network](https://arxiv.org/pdf/1412.7753),
+   [FastRNN](https://arxiv.org/pdf/1901.02358), and
+   [Typed RNNs](https://arxiv.org/abs/1602.02218).
 
  - Variations over gated architectures:
    [Minimal gated unit](https://arxiv.org/abs/1603.09420),
@@ -25,8 +28,10 @@ The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.
    [Evolving recurrent neural networks](https://proceedings.mlr.press/v37/jozefowicz15.pdf),
    [Peephole long short term memory](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf),
    [FastGRNN](https://arxiv.org/pdf/1901.02358),
-   [Just another network](https://arxiv.org/abs/1804.04849), and
-   [Chaos free network](https://arxiv.org/abs/1612.06212).
+   [Just another network](https://arxiv.org/abs/1804.04849),
+   [Chaos free network](https://arxiv.org/abs/1612.06212),
+   [Typed gated recurrent unit](https://arxiv.org/abs/1602.02218), and
+   [Typed long short term memory](https://arxiv.org/abs/1602.02218).
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 

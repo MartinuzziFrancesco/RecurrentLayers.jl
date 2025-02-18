@@ -3,7 +3,7 @@ import Flux: initialstates
 
 layers = [MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
     SCRN, PeepholeLSTM, FastRNN, FastGRNN, LEM, coRNN, AntisymmetricRNN,
-    GatedAntisymmetricRNN, JANET, CFN]
+    GatedAntisymmetricRNN, JANET, CFN, TRNN, TGRU, TLSTM]
 #IndRNN handles internal states diffrently
 #RHN should be checked more for consistency for initialstates
 
@@ -16,7 +16,11 @@ layers = [MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
         @test state ≈ zeros(Float32, 4)
     else
         @test state[1] ≈ zeros(Float32, 4)
-        @test state[2] ≈ zeros(Float32, 4)
+        if layer == TGRU
+            @test state[2] ≈ zeros(Float32, 2)
+        else
+            @test state[2] ≈ zeros(Float32, 4)
+        end
     end
 
     inp = rand(Float32, 2, 3, 1)
