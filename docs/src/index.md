@@ -35,9 +35,10 @@ level implementations:
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 
-   [Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951), and
+   [Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951),
    [Antisymmetric recurrent neural network](https://arxiv.org/abs/1902.09689)
-   with its gated version
+   with its gated version, and
+   [Undamped independent controlled oscillatory recurrent neural network](https://arxiv.org/abs/2010.00951).
 
  - Additional more complex architectures:
    [Recurrent highway networks](https://arxiv.org/pdf/1607.03474),
