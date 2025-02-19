@@ -1,6 +1,6 @@
 #https://arxiv.org/abs/2010.00951
 @doc raw"""
-    coRNNCell(input_size => hidden_size, [dt], [gamma], [epsilon];
+    coRNNCell(input_size => hidden_size, [dt];
         gamma=0.0, epsilon=0.0,
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
@@ -40,7 +40,7 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 ## Arguments
 - `inp`: The input to the cornncell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the coRNNCell.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).

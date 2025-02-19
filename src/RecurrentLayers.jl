@@ -11,10 +11,11 @@ using NNlib: fast_act
 export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
        RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
        FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell, coRNNCell, AntisymmetricRNNCell,
-       GatedAntisymmetricRNNCell, JANETCell, CFNCell, TRNNCell, TGRUCell, TLSTMCell
+       GatedAntisymmetricRNNCell, JANETCell, CFNCell, TRNNCell, TGRUCell, TLSTMCell,
+       UnICORNNCell
 export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
        SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM, coRNN, AntisymmetricRNN,
-       GatedAntisymmetricRNN, JANET, CFN, TRNN, TGRU, TLSTM
+       GatedAntisymmetricRNN, JANET, CFN, TRNN, TGRU, TLSTM, UnICORNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -39,18 +40,19 @@ include("cells/antisymmetricrnn_cell.jl")
 include("cells/janet_cell.jl")
 include("cells/cfn_cell.jl")
 include("cells/trnn_cell.jl")
+include("cells/unicornn_cell.jl")
 
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
 rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
     :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN, :LEM, :coRNN,
-    :AntisymmetricRNN, :JANET, :CFN, :TRNN, :TGRU, :TLSTM)
+    :AntisymmetricRNN, :JANET, :CFN, :TRNN, :TGRU, :TLSTM, :UnICORNN)
 
 rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
     :RANCell, :SCRNCell, :FSRNNCell, :LEMCell, :coRNNCell, :AntisymmetricRNNCell,
-    :JANETCell, :CFNCell, :TRNNCell, :TGRUCell, :TLSTMCell)
+    :JANETCell, :CFNCell, :TRNNCell, :TGRUCell, :TLSTMCell, :UnICORNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin

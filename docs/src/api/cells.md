@@ -26,4 +26,5 @@ CFNCell
 TRNNCell
 TGRUCell
 TLSTMCell
+UnICORNNCell
 ```
