@@ -7,10 +7,13 @@
 
 | **Documentation** | **Build Status** | **Julia** | **Testing** |
 |:-----------------:|:----------------:|:---------:|:-----------:|
-| [![docs][docs-img]][docs-url] | [![CI][ci-img]][ci-url] [![codecov][cc-img]][cc-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
+| [![docsstbl][docs-stbl]][docsstbl-url] [![docsdev][docs-dev]][docsdev-url] | [![CI][ci-img]][ci-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![codecov][cc-img]][cc-url] |
 
-[docs-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/
+[docs-stbl]: https://img.shields.io/badge/docs-stable-blue.svg
+[docsstbl-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/
+
+[docs-dev]: https://img.shields.io/badge/docs-dev-blue.svg
+[docsdev-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/dev/
 
 [ci-img]: https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml/badge.svg?branch=main
 [ci-url]: https://github.com/MartinuzziFrancesco/RecurrentLayers.jl/actions/workflows/CI.yml?query=branch%3Amain
@@ -109,7 +112,7 @@ This project is licensed under the MIT License, except for `nas_cell.jl`, which 
 
 ## See also
 
-[LuxRecurrentLayers.jl](https://github.com/MartinuzziFrancesco/LuxRecurrentLayersRecurrentLayers.jl):
+[LuxRecurrentLayers.jl](https://github.com/MartinuzziFrancesco/LuxRecurrentLayers.jl):
 Equivalent library, providing recurrent layers for Lux.jl.
 
 [ReservoirComputing.jl](https://github.com/SciML/ReservoirComputing.jl):

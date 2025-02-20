@@ -309,6 +309,6 @@ function Base.show(io::IO, asymrnn::GatedAntisymmetricRNN)
     print(io, ")")
 end
 
-function compute_asym_recurrent(Wh, gamma)
+function compute_asym_recurrent(Wh::AbstractArray, gamma::AbstractFloat)
     return Wh .- transpose(Wh) .- gamma .* Matrix{eltype(Wh)}(I, size(Wh, 1), size(Wh, 1))
 end
