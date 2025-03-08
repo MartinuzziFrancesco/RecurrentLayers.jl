@@ -74,7 +74,7 @@ function (ran::RANCell)(inp::AbstractVecOrMat, (state, c_state))
     input_gate = @. sigmoid_fast(gxs[2] + ghs[1])
     forget_gate = @. sigmoid_fast(gxs[3] + ghs[2])
     candidate_state = @. input_gate * gxs[1] + forget_gate * c_state
-    new_state = tanh_fast(candidate_state)
+    new_state = @. tanh_fast(candidate_state)
     return new_state, (new_state, candidate_state)
 end
 

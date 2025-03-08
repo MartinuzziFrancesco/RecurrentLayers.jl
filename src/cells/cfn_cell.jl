@@ -70,9 +70,9 @@ function (cfn::CFNCell)(inp::AbstractVecOrMat, state)
     gxs = chunk(Wi * inp, 3; dims=1)
     ghs = chunk(Wh * state .+ b, 2; dims=1)
 
-    horizontal_gate = sigmoid_fast.(gxs[1] .+ ghs[1])
-    vertical_gate = sigmoid_fast.(gxs[2] .+ ghs[2])
-    new_state = horizontal_gate .* tanh_fast.(state) .+ vertical_gate .* tanh_fast.(gxs[3])
+    horizontal_gate = @. sigmoid_fast(gxs[1] + ghs[1])
+    vertical_gate = @. sigmoid_fast(gxs[2] + ghs[2])
+    new_state = @. horizontal_gate * tanh_fast(state) + vertical_gate * tanh_fast(gxs[3])
     return new_state, new_state
 end
 

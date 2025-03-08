@@ -78,12 +78,12 @@ function (lem::LEMCell)(inp::AbstractVecOrMat, (state, z_state))
     #split
     gxs = chunk(Wi * inp .+ b, 4; dims=1)
     ghs = chunk(Wh * state, 3; dims=1)
+    gz = Wz * z_state
 
-    msdt_bar = lem.dt .* sigmoid_fast.(gxs[1] .+ ghs[1])
-    ms_dt = lem.dt .* sigmoid_fast.(gxs[2] .+ ghs[2])
-    new_zstate = (T(1.0f0) .- ms_dt) .* z_state .+ ms_dt .* tanh_fast(gxs[3] .+ ghs[3])
-    new_state = (T(1.0f0) .- msdt_bar) .* state .+
-                msdt_bar .* tanh_fast(gxs[4] .+ Wz * z_state)
+    msdt_bar = @. lem.dt * sigmoid_fast(gxs[1] + ghs[1])
+    ms_dt = @. lem.dt * sigmoid_fast(gxs[2] + ghs[2])
+    new_zstate = @. (T(1.0f0) - ms_dt) * z_state + ms_dt * tanh_fast(gxs[3] + ghs[3])
+    new_state = @. (T(1.0f0) - msdt_bar) * state + msdt_bar * tanh_fast(gxs[4] + gz)
     return new_state, (new_state, new_zstate)
 end
 

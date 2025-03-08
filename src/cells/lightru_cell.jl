@@ -69,10 +69,11 @@ function (lightru::LightRUCell)(inp::AbstractVecOrMat, state)
 
     #split
     gxs = chunk(Wi * inp, 2; dims=1)
+    gh = Wh * state
 
     #compute
     candidate_state = @. tanh_fast(gxs[1])
-    forget_gate = sigmoid_fast(gxs[2] .+ Wh * state .+ b)
+    forget_gate = @. sigmoid_fast(gxs[2] + gh + b)
     new_state = @. (1 - forget_gate) * state + forget_gate * candidate_state
     return new_state, new_state
 end

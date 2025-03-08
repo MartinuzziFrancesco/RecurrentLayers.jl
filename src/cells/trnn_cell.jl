@@ -66,7 +66,7 @@ function (trnn::TRNNCell)(inp::AbstractVecOrMat, state)
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
 
     forget_gate = activation.(gxs[2])
-    new_state = forget_gate .* state .+ (1 .- forget_gate) .* gxs[1]
+    new_state = @. forget_gate * state + (eltype(Wi)(1.0f0) - forget_gate) * gxs[1]
     return new_state, new_state
 end
 
@@ -220,10 +220,10 @@ function (tgru::TGRUCell)(inp::AbstractVecOrMat, (state, prev_inp))
     gxs = chunk(Wi * inp .+ b, 3; dims=1)
     ghs = chunk(Wh * prev_inp, 3; dims=1)
     #equations
-    reset_gate = gxs[1] .+ ghs[1]
-    update_gate = sigmoid_fast.(gxs[2] .+ ghs[2])
-    candidate_state = tanh_fast.(gxs[3] .+ ghs[3])
-    new_state = update_gate .* state .+ reset_gate .* candidate_state
+    reset_gate = @. gxs[1] + ghs[1]
+    update_gate = @. sigmoid_fast(gxs[2] + ghs[2])
+    candidate_state = @. tanh_fast(gxs[3] + ghs[3])
+    new_state = @. update_gate * state + reset_gate * candidate_state
     return new_state, (new_state, inp)
 end
 
@@ -381,11 +381,11 @@ function (tlstm::TLSTMCell)(inp::AbstractVecOrMat, (state, c_state, prev_inp))
     gxs = chunk(Wi * inp .+ b, 3; dims=1)
     ghs = chunk(Wh * prev_inp, 3; dims=1)
     #equations
-    reset_gate = gxs[1] .+ ghs[1]
-    update_gate = sigmoid_fast.(gxs[2] .+ ghs[2])
-    candidate_state = tanh_fast.(gxs[3] .+ ghs[3])
-    new_cstate = update_gate .* c_state .+ (1 .- update_gate) .* reset_gate
-    new_state = new_cstate .* candidate_state
+    reset_gate = @. gxs[1] + ghs[1]
+    update_gate = @. sigmoid_fast(gxs[2] + ghs[2])
+    candidate_state = @. tanh_fast(gxs[3] + ghs[3])
+    new_cstate = @. update_gate * c_state + (eltype(Wi)(1.0f0) - update_gate) * reset_gate
+    new_state = @. new_cstate * candidate_state
     return new_state, (new_state, new_cstate, inp)
 end
 

@@ -82,7 +82,7 @@ function (cornn::coRNNCell)(inp::AbstractVecOrMat, (state, c_state))
     new_cstate = c_state .+ dt .* tanh_fast.(Wi * inp .+ Wh * state .+
                                              Wz * c_state .+ b) .- dt .* gamma .* state .-
                  dt .* epsilon .* c_state
-    new_state = state .+ dt .* new_cstate
+    new_state = @. state + dt * new_cstate
     return new_state, (new_state, new_cstate)
 end
 

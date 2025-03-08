@@ -130,10 +130,10 @@ function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
 
         # Highway component
         if rhn.couple_carry
-            current_state = (hidden_gate .- current_state) .* transform_gate .+
+            current_state = @. (hidden_gate - current_state) * transform_gate +
                             current_state
         else
-            current_state = hidden_gate .* transform_gate .+ current_state .* carry_gate
+            current_state = @. hidden_gate * transform_gate + current_state * carry_gate
         end
     end
 

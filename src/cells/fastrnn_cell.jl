@@ -77,7 +77,7 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
 
     # perform computations
     candidate_state = fastrnn.activation.(Wi * inp .+ Wh * state .+ b)
-    new_state = alpha .* candidate_state .+ beta .* state
+    new_state = @. alpha * candidate_state + beta * state
 
     return new_state, new_state
 end
@@ -237,10 +237,10 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     partial_gate = Wi * inp .+ Wh * state
 
     # perform computations
-    gate = fastgrnn.activation.(partial_gate .+ bz)
-    candidate_state = tanh_fast.(partial_gate .+ bh)
-    new_state = (zeta .* (ones(Float32, size(gate)) .- gate) .+ nu) .* candidate_state .+
-                gate .* state
+    gate = @. fastgrnn.activation(partial_gate + bz)
+    candidate_state = @. tanh_fast(partial_gate + bh)
+    new_state = @. (zeta * (ones(Float32, size(gate)) - gate) + nu) * candidate_state +
+                gate * state
 
     return new_state, new_state
 end
