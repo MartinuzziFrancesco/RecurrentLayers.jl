@@ -54,13 +54,14 @@ See [`RHN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `depth`: depth of the recurrence. Default is 3
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `depth`: depth of the recurrence. Default is 3.
 
 # Keyword arguments
 
 - `couple_carry`: couples the carry gate and the transform gate. Default `true`
-- `init_kernel`: initializer for the input to hidden weights
+- `init_kernel`: initializer for the input to hidden weights.
+  Default is `glorot_uniform`
 - `bias`: include a bias or not. Default is `true`
 
 # Equations

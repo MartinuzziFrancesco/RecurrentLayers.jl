@@ -10,14 +10,16 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -95,16 +97,18 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -167,14 +171,16 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -258,7 +264,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `activation`: the activation function, defaults to `tanh_fast`
 
 # Keyword arguments
@@ -266,8 +272,10 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math

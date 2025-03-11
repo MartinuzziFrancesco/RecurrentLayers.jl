@@ -89,7 +89,7 @@ end
 See [`FSRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `fast_cells`: a vector of the fast cells. Must be minimum of length 2.
 - `slow_cell`: the chosen slow cell.
 - `return_state`: option to return the last state. Default is `false`.
