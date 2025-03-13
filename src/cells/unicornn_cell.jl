@@ -79,7 +79,7 @@ function (unicornn::UnICORNNCell)(inp::AbstractVecOrMat, (state, c_state))
     new_cstate = c_state .-
                  dt .* sigmoid_fast.(c) .*
                  (tanh_fast.(Wh .* state .+ Wi * inp .+ b) .+ alpha .* state)
-    new_state = @. state + dt * sigmoid_fast(c) * new_cstate
+    new_state = state .+ dt .* sigmoid_fast.(c) .* new_cstate
     return new_state, (new_state, new_cstate)
 end
 

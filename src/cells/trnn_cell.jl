@@ -69,7 +69,8 @@ function (trnn::TRNNCell)(inp::AbstractVecOrMat, state)
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
 
     forget_gate = activation.(gxs[2])
-    new_state = @. forget_gate * state + (eltype(Wi)(1.0f0) - forget_gate) * gxs[1]
+    one_vec = eltype(Wi)(1.0f0)
+    new_state = @. forget_gate * state + (one_vec - forget_gate) * gxs[1]
     return new_state, new_state
 end
 
@@ -392,10 +393,11 @@ function (tlstm::TLSTMCell)(inp::AbstractVecOrMat, (state, c_state, prev_inp))
     gxs = chunk(Wi * inp .+ b, 3; dims=1)
     ghs = chunk(Wh * prev_inp, 3; dims=1)
     #equations
+    one_vec = eltype(Wi)(1.0f0)
     reset_gate = @. gxs[1] + ghs[1]
     update_gate = @. sigmoid_fast(gxs[2] + ghs[2])
     candidate_state = @. tanh_fast(gxs[3] + ghs[3])
-    new_cstate = @. update_gate * c_state + (eltype(Wi)(1.0f0) - update_gate) * reset_gate
+    new_cstate = @. update_gate * c_state + (one_vec - update_gate) * reset_gate
     new_state = @. new_cstate * candidate_state
     return new_state, (new_state, new_cstate, inp)
 end

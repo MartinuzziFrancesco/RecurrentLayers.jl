@@ -70,10 +70,11 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     #split
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
     ghs = chunk(Wh, 2; dims=1)
+    one_vec = eltype(Wi)(1.0f0)
 
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
     candidate_state = tanh_fast.(gxs[2] .+ ghs[2] * (forget_gate .* state))
-    new_state = @. forget_gate * state + (eltype(Wi)(1.0f0) - forget_gate) * candidate_state
+    new_state = @. forget_gate * state + (one_vec - forget_gate) * candidate_state
     return new_state, new_state
 end
 

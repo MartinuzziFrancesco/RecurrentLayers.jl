@@ -245,7 +245,8 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     # perform computations
     gate = @. fastgrnn.activation(partial_gate + bz)
     candidate_state = @. tanh_fast(partial_gate + bh)
-    new_state = @. (zeta * (ones(Float32, size(gate)) - gate) + nu) * candidate_state +
+    ones_arr = ones(eltype(gate), size(gate))
+    new_state = @. (zeta * (ones_arr - gate) + nu) * candidate_state +
                 gate * state
 
     return new_state, new_state
