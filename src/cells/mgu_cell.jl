@@ -10,13 +10,15 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -68,10 +70,11 @@ function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
     #split
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
     ghs = chunk(Wh, 2; dims=1)
+    one_vec = eltype(Wi)(1.0f0)
 
     forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
     candidate_state = tanh_fast.(gxs[2] .+ ghs[2] * (forget_gate .* state))
-    new_state = forget_gate .* state .+ (1 .- forget_gate) .* candidate_state
+    new_state = @. forget_gate * state + (one_vec - forget_gate) * candidate_state
     return new_state, new_state
 end
 
@@ -88,15 +91,17 @@ See [`MGUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math

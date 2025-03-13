@@ -11,16 +11,18 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `dt`: time step. Default is 1.0.
 
 # Keyword arguments
 
 - `gamma`: damping for state. Default is 0.0.
 - `epsilon`: damping for candidate state. Default is 0.0.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -82,7 +84,7 @@ function (cornn::coRNNCell)(inp::AbstractVecOrMat, (state, c_state))
     new_cstate = c_state .+ dt .* tanh_fast.(Wi * inp .+ Wh * state .+
                                              Wz * c_state .+ b) .- dt .* gamma .* state .-
                  dt .* epsilon .* c_state
-    new_state = state .+ dt .* new_cstate
+    new_state = @. state + dt * new_cstate
     return new_state, (new_state, new_cstate)
 end
 
@@ -101,16 +103,18 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `dt`: time step. Default is 1.0.
 
 # Keyword arguments
 
 - `gamma`: damping for state. Default is 0.0.
 - `epsilon`: damping for candidate state. Default is 0.0.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
   

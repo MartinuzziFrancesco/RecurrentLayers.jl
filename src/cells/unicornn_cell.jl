@@ -9,15 +9,17 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `dt`: time step. Default is 1.0.
 
 # Keyword arguments
 
 - `alpha`: Control parameter. Default is 0.0.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -101,15 +103,17 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `dt`: time step. Default is 1.0.
 
 # Keyword arguments
 
 - `alpha`: Control parameter. Default is 0.0.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
   

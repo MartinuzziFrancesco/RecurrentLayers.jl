@@ -11,14 +11,16 @@ See [`SCRN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
-- `alpha`: structural contraint. Default is 0.0
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
+- `alpha`: structural contraint. Default is 0.0.
 
 # Equations
 ```math
@@ -78,9 +80,10 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     gcs = chunk(Wc * c_state .+ b, 2; dims=1)
 
     #compute
-    context_layer = (eltype(Wi)(1.0f0) .- scrn.alpha) .* gxs[1] .+ scrn.alpha .* c_state
-    hidden_layer = sigmoid_fast(gxs[2] .+ ghs[1] * state .+ gcs[1])
-    new_state = tanh_fast(ghs[2] * hidden_layer .+ gcs[2])
+    one_vec = eltype(Wi)(1.0f0)
+    context_layer = @. (one_vec - scrn.alpha) * gxs[1] + scrn.alpha * c_state
+    hidden_layer = sigmoid_fast.(gxs[2] .+ ghs[1] * state .+ gcs[1])
+    new_state = tanh_fast.(ghs[2] * hidden_layer .+ gcs[2])
     return new_state, (new_state, context_layer)
 end
 
@@ -100,14 +103,16 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
-- `alpha`: structural contraint. Default is 0.0
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
+- `alpha`: structural contraint. Default is 0.0.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 

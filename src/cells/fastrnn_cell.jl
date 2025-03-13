@@ -10,14 +10,16 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -77,7 +79,7 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
 
     # perform computations
     candidate_state = fastrnn.activation.(Wi * inp .+ Wh * state .+ b)
-    new_state = alpha .* candidate_state .+ beta .* state
+    new_state = @. alpha * candidate_state + beta * state
 
     return new_state, new_state
 end
@@ -95,16 +97,18 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -167,14 +171,16 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `activation`: the activation function, defaults to `tanh_fast`
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `activation`: the activation function, defaults to `tanh_fast`.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -237,10 +243,11 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     partial_gate = Wi * inp .+ Wh * state
 
     # perform computations
-    gate = fastgrnn.activation.(partial_gate .+ bz)
-    candidate_state = tanh_fast.(partial_gate .+ bh)
-    new_state = (zeta .* (ones(Float32, size(gate)) .- gate) .+ nu) .* candidate_state .+
-                gate .* state
+    gate = @. fastgrnn.activation(partial_gate + bz)
+    candidate_state = @. tanh_fast(partial_gate + bh)
+    ones_arr = ones(eltype(gate), size(gate))
+    new_state = @. (zeta * (ones_arr - gate) + nu) * candidate_state +
+                   gate * state
 
     return new_state, new_state
 end
@@ -258,7 +265,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 - `activation`: the activation function, defaults to `tanh_fast`
 
 # Keyword arguments
@@ -266,8 +273,10 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 - `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math

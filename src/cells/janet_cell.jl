@@ -10,15 +10,17 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 - `beta_value`: control over the input data flow.
-  Default is 1.0
+  Default is 1.0.
 
 # Equations
 ```math
@@ -76,11 +78,12 @@ function (janet::JANETCell)(inp::AbstractVecOrMat, (state, c_state))
     ghs = chunk(Wh * state, 2; dims=1)
 
     linear_gate = gxs[1] .+ ghs[1]
-    candidate_state = tanh_fast.(gxs[2] .+ ghs[2])
-    new_cstate = sigmoid_fast.(linear_gate) .* c_state .+
-                 (fill(eltype(Wi)(1.0), size(Wh, 2)) .-
-                  sigmoid_fast.(linear_gate .- beta)) .*
-                 candidate_state
+    candidate_state = @. tanh_fast(gxs[2] + ghs[2])
+    ones_vec = eltype(candidate_state)(1.0)
+    new_cstate = @. sigmoid_fast(linear_gate) * c_state +
+                    (ones_vec -
+                     sigmoid_fast(linear_gate - beta)) *
+                    candidate_state
     new_state = new_cstate
 
     return new_state, (new_state, new_cstate)
@@ -99,17 +102,19 @@ See [`JANETCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
+- `input_size => hidden_size`: input and inner dimension of the layer.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 - `beta_value`: control over the input data flow.
-  Default is 1.0
+  Default is 1.0.
 
 # Equations
 ```math

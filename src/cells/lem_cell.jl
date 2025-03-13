@@ -9,14 +9,16 @@ See [`LEM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `dt`: timestep. Defaul is 1.0
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `dt`: timestep. Defaul is 1.0.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 ```math
@@ -78,12 +80,12 @@ function (lem::LEMCell)(inp::AbstractVecOrMat, (state, z_state))
     #split
     gxs = chunk(Wi * inp .+ b, 4; dims=1)
     ghs = chunk(Wh * state, 3; dims=1)
+    gz = Wz * z_state
 
-    msdt_bar = lem.dt .* sigmoid_fast.(gxs[1] .+ ghs[1])
-    ms_dt = lem.dt .* sigmoid_fast.(gxs[2] .+ ghs[2])
-    new_zstate = (T(1.0f0) .- ms_dt) .* z_state .+ ms_dt .* tanh_fast(gxs[3] .+ ghs[3])
-    new_state = (T(1.0f0) .- msdt_bar) .* state .+
-                msdt_bar .* tanh_fast(gxs[4] .+ Wz * z_state)
+    msdt_bar = @. lem.dt * sigmoid_fast(gxs[1] + ghs[1])
+    ms_dt = @. lem.dt * sigmoid_fast(gxs[2] + ghs[2])
+    new_zstate = @. (T(1.0f0) - ms_dt) * z_state + ms_dt * tanh_fast(gxs[3] + ghs[3])
+    new_state = @. (T(1.0f0) - msdt_bar) * state + msdt_bar * tanh_fast(gxs[4] + gz)
     return new_state, (new_state, new_zstate)
 end
 
@@ -101,14 +103,16 @@ See [`LEMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
-- `input_size => hidden_size`: input and inner dimension of the layer
-- `dt`: timestep. Defaul is 1.0
+- `input_size => hidden_size`: input and inner dimension of the layer.
+- `dt`: timestep. Defaul is 1.0.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights
-- `init_recurrent_kernel`: initializer for the hidden to hidden weights
-- `bias`: include a bias or not. Default is `true`
+- `init_kernel`: initializer for the input to hidden weights.
+    Default is `glorot_uniform`.
+- `init_recurrent_kernel`: initializer for the hidden to hidden weights.
+    Default is `glorot_uniform`.
+- `bias`: include a bias or not. Default is `true`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
