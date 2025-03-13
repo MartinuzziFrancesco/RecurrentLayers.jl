@@ -247,7 +247,7 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     candidate_state = @. tanh_fast(partial_gate + bh)
     ones_arr = ones(eltype(gate), size(gate))
     new_state = @. (zeta * (ones_arr - gate) + nu) * candidate_state +
-                gate * state
+                   gate * state
 
     return new_state, new_state
 end
