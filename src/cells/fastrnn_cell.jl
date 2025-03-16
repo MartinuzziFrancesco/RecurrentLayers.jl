@@ -64,13 +64,14 @@ end
 
 function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_alpha = 3.0, init_beta = -3.0,
+        init_alpha=3.0, init_beta=-3.0,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
-    alpha = T(init_alpha) .* ones(Float32, 1)
-    beta = T(init_beta) .* randn(Float32, 1)
+    T = eltype(Wi)
+    alpha = T(init_alpha) .* ones(T, 1)
+    beta = T(init_beta) .* ones(T, 1)
     return FastRNNCell(Wi, Wh, b, alpha, beta, activation)
 end
 
@@ -233,13 +234,14 @@ end
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_zeta = 1.0, init_nu = - 4.0,
+        init_zeta=1.0, init_nu=-4.0,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     b = create_bias(Wi, bias, 2 * size(Wi, 1))
-    zeta = init_zeta .* ones(Float32)
-    nu = init_nu .* ones(Float32)
+    T = eltype(Wi)
+    zeta = T(init_zeta) .* ones(T, 1)
+    nu = T(init_nu) .* ones(T, 1)
     return FastGRNNCell(Wi, Wh, b, zeta, nu, activation)
 end
 
