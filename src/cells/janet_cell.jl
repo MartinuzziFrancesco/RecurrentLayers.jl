@@ -25,9 +25,12 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
 # Equations
 ```math
 \begin{aligned}
-    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f \\
-    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c \mathbf{x}_t + \mathbf{b}_c) \\
-    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
+    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f \\
+    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c
+        \mathbf{x}_t + \mathbf{b}_c) \\
+    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma
+        (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
     \mathbf{h}_t &= \mathbf{c}_t.
 \end{aligned}
 ```
@@ -119,9 +122,12 @@ See [`JANETCell`](@ref) for a layer that processes a single sequence.
 # Equations
 ```math
 \begin{aligned}
-    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f \\
-    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c \mathbf{x}_t + \mathbf{b}_c) \\
-    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
+    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f \\
+    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c
+        \mathbf{x}_t + \mathbf{b}_c) \\
+    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma
+        (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
     \mathbf{h}_t &= \mathbf{c}_t.
 \end{aligned}
 ```
