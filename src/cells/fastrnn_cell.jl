@@ -64,7 +64,7 @@ end
 
 function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_alpha = 3.0, init_beta = -3.0,
+        init_alpha=3.0, init_beta=-3.0,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
@@ -234,7 +234,7 @@ end
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_zeta = 1.0, init_nu = - 4.0,
+        init_zeta=1.0, init_nu=-4.0,
         bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
