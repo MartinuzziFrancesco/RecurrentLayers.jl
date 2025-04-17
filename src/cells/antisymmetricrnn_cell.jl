@@ -26,7 +26,7 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 
 # Equations
 ```math
-h_t = h_{t-1} + \epsilon \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h \right),
+h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
 ```
 
 # Forward
@@ -109,7 +109,7 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Equations
 ```math
-h_t = h_{t-1} + \epsilon \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h \right),
+h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
 ```
 
 # Forward
@@ -182,8 +182,9 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 # Equations
 ```math
 \begin{aligned}
-    z_t &= \sigma \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z \right), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h \right).
+    z_t &= \sigma ( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z ), \\
+    h_t &= h_{t-1} + \epsilon z_t \odot \tanh ( (W_h - W_h^T - \gamma I) h_{t-1}
+        + V_h x_t + b_h ).
 \end{aligned}
 ```
 
@@ -270,7 +271,8 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 ```math
 \begin{aligned}
     z_t &= \sigma \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z \right), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h \right).
+    h_t &= h_{t-1} + \epsilon z_t \odot \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1}
+        + V_h x_t + b_h \right).
 \end{aligned}
 ```
 

@@ -25,7 +25,8 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 
 # Equations
 ```math
-\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} + \mathbf{b})
+\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} +
+    \mathbf{b})
 ```
 
 # Forward
@@ -100,7 +101,8 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Equations
 ```math
-\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} + \mathbf{b})
+\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} +
+    \mathbf{b})
 ```
 # Forward
 

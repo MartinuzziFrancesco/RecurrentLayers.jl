@@ -179,7 +179,8 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 ```math
 \begin{aligned}
     z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f) \\
     o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
     h_t &= f_t \odot h_{t-1} + z_t \odot o_t
 \end{aligned}
@@ -270,7 +271,8 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 ```math
 \begin{aligned}
     z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f) \\
     o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
     h_t &= f_t \odot h_{t-1} + z_t \odot o_t
 \end{aligned}
@@ -342,7 +344,8 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
 ```math
 \begin{aligned}
     z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f) \\
     o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
     c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
     h_t &= c_t \odot o_t
@@ -438,7 +441,8 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 ```math
 \begin{aligned}
     z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t + \mathbf{b}_f) \\
+    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
+        \mathbf{b}_f) \\
     o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
     c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
     h_t &= c_t \odot o_t

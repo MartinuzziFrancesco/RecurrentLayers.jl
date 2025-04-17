@@ -67,11 +67,15 @@ See [`RHN`](@ref) for a layer that processes entire sequences.
 # Equations
 ```math
 \begin{aligned}
-s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]} \odot c_{\ell}^{[t]}, \\
+s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]}
+    \odot c_{\ell}^{[t]}, \\
 \text{where} \\
-h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}} s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
-t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}} s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
-c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell-1}^{[t]} + b_{c_{\ell}})
+h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}}
+    s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
+t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}}
+    s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
+c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}}
+    s_{\ell-1}^{[t]} + b_{c_{\ell}})
 \end{aligned}
 ```
 
@@ -167,11 +171,15 @@ See [`RHNCell`](@ref) for a layer that processes a single sequence.
 # Equations
 ```math
 \begin{aligned}
-s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]} \odot c_{\ell}^{[t]}, \\
+s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]}
+    \odot c_{\ell}^{[t]}, \\
 \text{where} \\
-h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}} s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
-t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}} s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
-c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}} s_{\ell-1}^{[t]} + b_{c_{\ell}})
+h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}}
+    s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
+t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}}
+    s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
+c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}}
+    s_{\ell-1}^{[t]} + b_{c_{\ell}})
 \end{aligned}
 ```
 """
