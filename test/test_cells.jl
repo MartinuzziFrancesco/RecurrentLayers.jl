@@ -1,16 +1,15 @@
 using RecurrentLayers, Flux, Test
 
 #cells returning a single hidden state
-single_cells = [MGUCell, LiGRUCell, IndRNNCell,
-    LightRUCell, MUT1Cell, MUT2Cell,
-    MUT3Cell, AntisymmetricRNNCell, GatedAntisymmetricRNNCell,
-    CFNCell, STARCell]
+single_cells = [AntisymmetricRNNCell, CFNCell, GatedAntisymmetricRNNCell,
+    IndRNNCell, LiGRUCell, LightRUCell, MGUCell, MUT1Cell, MUT2Cell,
+    MUT3Cell, STARCell]
 
 #cells returning hidden state as a tuple
-double_cells = [RANCell, NASCell, PeepholeLSTMCell, JANETCell]
+double_cells = [JANETCell, NASCell, PeepholeLSTMCell, RANCell]
 
 #cells with a little more complexity to them
-different_cells = [SCRNCell, RHNCell, FastRNNCell, FastGRNNCell]
+different_cells = [FastGRNNCell, FastRNNCell, RHNCell, SCRNCell]
 
 @testset "Single return cell: cell = $cell" for cell in single_cells
     rnncell = cell(3 => 5)

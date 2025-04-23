@@ -1,31 +1,31 @@
 # Cells
 
 ```@docs
-RANCell
-IndRNNCell
-LightRUCell
-LiGRUCell
-MGUCell
-NASCell
-RHNCell
-RHNCellUnit
-MUT1Cell
-MUT2Cell
-MUT3Cell
-SCRNCell
-PeepholeLSTMCell
-FastRNNCell
-FastGRNNCell
-FSRNNCell
-LEMCell
-coRNNCell
-AntisymmetricRNNCell
-GatedAntisymmetricRNNCell
-JANETCell
-CFNCell
-TRNNCell
-TGRUCell
-TLSTMCell
-UnICORNNCell
-STARCell
+    AntisymmetricRNNCell
+    CFNCell
+    coRNNCell
+    FastGRNNCell
+    FastRNNCell
+    FSRNNCell
+    GatedAntisymmetricRNNCell
+    IndRNNCell
+    JANETCell
+    LEMCell
+    LiGRUCell
+    LightRUCell
+    MGUCell
+    MUT1Cell
+    MUT2Cell
+    MUT3Cell
+    NASCell
+    PeepholeLSTMCell
+    RANCell
+    RHNCell
+    RHNCellUnit
+    SCRNCell
+    STARCell
+    TGRUCell
+    TLSTMCell
+    TRNNCell
+    UnICORNNCell
 ```

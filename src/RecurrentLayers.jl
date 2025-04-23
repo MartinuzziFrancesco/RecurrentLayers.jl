@@ -8,52 +8,53 @@ import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
-export MGUCell, LiGRUCell, IndRNNCell, RANCell, LightRUCell, RHNCell,
-       RHNCellUnit, NASCell, MUT1Cell, MUT2Cell, MUT3Cell, SCRNCell, PeepholeLSTMCell,
-       FastRNNCell, FastGRNNCell, FSRNNCell, LEMCell, coRNNCell, AntisymmetricRNNCell,
-       GatedAntisymmetricRNNCell, JANETCell, CFNCell, TRNNCell, TGRUCell, TLSTMCell,
-       UnICORNNCell, STARCell
-export MGU, LiGRU, IndRNN, RAN, LightRU, NAS, RHN, MUT1, MUT2, MUT3,
-       SCRN, PeepholeLSTM, FastRNN, FastGRNN, FSRNN, LEM, coRNN, AntisymmetricRNN,
-       GatedAntisymmetricRNN, JANET, CFN, TRNN, TGRU, TLSTM, UnICORNN, STAR
+export AntisymmetricRNNCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell, FSRNNCell,
+       GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+       LightRUCell, MGUCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell, PeepholeLSTMCell,
+       RANCell, RHNCell, RHNCellUnit, SCRNCell, STARCell, TGRUCell, TLSTMCell,
+       TRNNCell, UnICORNNCell
+export AntisymmetricRNN, CFN, coRNN, FastGRNN, FastRNN, FSRNN, GatedAntisymmetricRNN,
+       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MUT1, MUT2, MUT3, NAS,
+       PeepholeLSTM, RAN, RHN, SCRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
 export StackedRNN
 
 @compat(public, (initialstates))
 
 include("generics.jl")
 
-include("cells/mgu_cell.jl")
-include("cells/ligru_cell.jl")
-include("cells/indrnn_cell.jl")
-include("cells/ran_cell.jl")
-include("cells/lightru_cell.jl")
-include("cells/rhn_cell.jl")
-include("cells/nas_cell.jl")
-include("cells/mut_cell.jl")
-include("cells/scrn_cell.jl")
-include("cells/peepholelstm_cell.jl")
+include("cells/antisymmetricrnn_cell.jl")
+include("cells/cfn_cell.jl")
+include("cells/cornn_cell.jl")
 include("cells/fastrnn_cell.jl")
 include("cells/fsrnn_cell.jl")
-include("cells/lem_cell.jl")
-include("cells/cornn_cell.jl")
-include("cells/antisymmetricrnn_cell.jl")
+include("cells/indrnn_cell.jl")
 include("cells/janet_cell.jl")
-include("cells/cfn_cell.jl")
+include("cells/lem_cell.jl")
+include("cells/lightru_cell.jl")
+include("cells/ligru_cell.jl")
+include("cells/mgu_cell.jl")
+include("cells/mut_cell.jl")
+include("cells/nas_cell.jl")
+include("cells/peepholelstm_cell.jl")
+include("cells/ran_cell.jl")
+include("cells/rhn_cell.jl")
+include("cells/scrn_cell.jl")
+include("cells/star_cell.jl")
 include("cells/trnn_cell.jl")
 include("cells/unicornn_cell.jl")
-include("cells/star_cell.jl")
 
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
-rlayers = (:FastRNN, :FastGRNN, :IndRNN, :LightRU, :LiGRU, :MGU, :MUT1,
-    :MUT2, :MUT3, :NAS, :PeepholeLSTM, :RAN, :SCRN, :FSRNN, :LEM, :coRNN,
-    :AntisymmetricRNN, :JANET, :CFN, :TRNN, :TGRU, :TLSTM, :UnICORNN, :STAR)
+rlayers = (:AntisymmetricRNN, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
+    :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MUT1, :MUT2, :MUT3, :NAS,
+    :PeepholeLSTM, :RAN, :SCRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
 
-rcells = (:FastRNNCell, :FastGRNNCell, :IndRNNCell, :LightRUCell, :LiGRUCell,
+rcells = (:AntisymmetricRNNCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
+    :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MGUCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :PeepholeLSTMCell,
-    :RANCell, :SCRNCell, :FSRNNCell, :LEMCell, :coRNNCell, :AntisymmetricRNNCell,
-    :JANETCell, :CFNCell, :TRNNCell, :TGRUCell, :TLSTMCell, :UnICORNNCell, :STARCell)
+    :RANCell, :SCRNCell, :STARCell, :TGRUCell, :TLSTMCell, :TRNNCell,
+    :UnICORNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
