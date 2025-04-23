@@ -1,9 +1,9 @@
 using RecurrentLayers, Flux, Test
 import Flux: initialstates
 
-layers = [MGU, LiGRU, RAN, LightRU, NAS, MUT1, MUT2, MUT3,
-    SCRN, PeepholeLSTM, FastRNN, FastGRNN, LEM, coRNN, AntisymmetricRNN,
-    GatedAntisymmetricRNN, JANET, CFN, TRNN, TGRU, TLSTM, UnICORNN, STAR]
+layers = [AntisymmetricRNN, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN,
+    JANET, LEM, LiGRU, LightRU, MGU, MUT1, MUT2, MUT3, NAS, PeepholeLSTM,
+    RAN, SCRN, STAR, TGRU, TLSTM, TRNN, UnICORNN]
 #IndRNN handles internal states diffrently
 #RHN should be checked more for consistency for initialstates
 
