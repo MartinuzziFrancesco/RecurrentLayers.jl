@@ -11,7 +11,7 @@ recurrent layers not available in base deep learning libraries.
 ## Features
 
 The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl).
-Currently there are 20+ cells implemented, together with multiple higher
+Currently there are 25+ cells implemented, together with multiple higher
 level implementations:
  - Modifications of vanilla RNNs:
    [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
@@ -30,8 +30,9 @@ level implementations:
    [FastGRNN](https://arxiv.org/pdf/1901.02358),
    [Just another network](https://arxiv.org/abs/1804.04849),
    [Chaos free network](https://arxiv.org/abs/1612.06212),
-   [Typed gated recurrent unit](https://arxiv.org/abs/1602.02218), and
-   [Typed long short term memory](https://arxiv.org/abs/1602.02218).
+   [Typed gated recurrent unit](https://arxiv.org/abs/1602.02218),
+   [Typed long short term memory](https://arxiv.org/abs/1602.02218), and
+   [Stackable recurrent network](https://arxiv.org/abs/1911.11033).
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 
