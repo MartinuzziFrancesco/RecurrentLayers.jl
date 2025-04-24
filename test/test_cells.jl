@@ -9,7 +9,7 @@ single_cells = [AntisymmetricRNNCell, CFNCell, GatedAntisymmetricRNNCell,
 double_cells = [JANETCell, NASCell, PeepholeLSTMCell, RANCell]
 
 #cells with a little more complexity to them
-different_cells = [FastGRNNCell, FastRNNCell, RHNCell, SCRNCell]
+different_cells = [FastGRNNCell, FastRNNCell, RHNCell, SCRNCell, MinimalRNNCell]
 
 @testset "Single return cell: cell = $cell" for cell in single_cells
     rnncell = cell(3 => 5)
@@ -148,6 +148,26 @@ end
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
 
     rnncell = UnICORNNCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+end
+
+@testset "MinimalRNNCell" begin
+    rnncell = MinimalRNNCell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 5
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = MinimalRNNCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 4
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = MinimalRNNCell(3 => 5; bias=false, encoder_bias=false)
     @test length(Flux.trainables(rnncell)) == 3
 
     inp = rand(Float32, 3)

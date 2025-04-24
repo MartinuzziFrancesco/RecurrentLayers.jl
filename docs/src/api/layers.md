@@ -14,6 +14,7 @@
     LiGRU
     LightRU
     MGU
+    MinimalRNN
     MUT1
     MUT2
     MUT3
