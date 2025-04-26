@@ -2,6 +2,7 @@
 
 ```@docs
     AntisymmetricRNNCell
+    ATRCell
     CFNCell
     coRNNCell
     FastGRNNCell

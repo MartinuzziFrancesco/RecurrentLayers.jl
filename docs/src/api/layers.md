@@ -2,6 +2,7 @@
 
 ```@docs
     AntisymmetricRNN
+    ATR
     CFN
     coRNN
     FastGRNN

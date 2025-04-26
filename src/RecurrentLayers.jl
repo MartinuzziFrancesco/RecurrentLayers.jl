@@ -8,12 +8,13 @@ import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
-export AntisymmetricRNNCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell, FSRNNCell,
+export AntisymmetricRNNCell, ATRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
+       FSRNNCell,
        GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
        LightRUCell, MGUCell, MinimalRNNCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell,
        PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, STARCell, TGRUCell,
        TLSTMCell, TRNNCell, UnICORNNCell
-export AntisymmetricRNN, CFN, coRNN, FastGRNN, FastRNN, FSRNN, GatedAntisymmetricRNN,
+export AntisymmetricRNN, ATR, CFN, coRNN, FastGRNN, FastRNN, FSRNN, GatedAntisymmetricRNN,
        IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MUT1, MUT2, MUT3, NAS,
        PeepholeLSTM, RAN, RHN, SCRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
 export StackedRNN
@@ -23,6 +24,7 @@ export StackedRNN
 include("generics.jl")
 
 include("cells/antisymmetricrnn_cell.jl")
+include("cells/atr_cell.jl")
 include("cells/cfn_cell.jl")
 include("cells/cornn_cell.jl")
 include("cells/fastrnn_cell.jl")
@@ -47,11 +49,12 @@ include("cells/unicornn_cell.jl")
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
-rlayers = (:AntisymmetricRNN, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
+rlayers = (:AntisymmetricRNN, :ATR, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
     :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MUT1, :MUT2, :MUT3, :NAS,
     :PeepholeLSTM, :RAN, :SCRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
 
-rcells = (:AntisymmetricRNNCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
+rcells = (
+    :AntisymmetricRNNCell, :ATRCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
     :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MGUCell, :MinimalRNNCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :STARCell, :TGRUCell, :TLSTMCell,

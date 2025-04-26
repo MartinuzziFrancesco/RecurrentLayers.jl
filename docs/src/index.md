@@ -32,8 +32,10 @@ level implementations:
    [Chaos free network](https://arxiv.org/abs/1612.06212),
    [Typed gated recurrent unit](https://arxiv.org/abs/1602.02218),
    [Typed long short term memory](https://arxiv.org/abs/1602.02218),
-   [Stackable recurrent network](https://arxiv.org/abs/1911.11033), and
-   [Minimal recurrent neural network](https://arxiv.org/abs/1711.06788).
+   [Stackable recurrent network](https://arxiv.org/abs/1911.11033),
+   [Minimal recurrent neural network](https://arxiv.org/abs/1711.06788), and
+   [Addition-subtraction twin-gated recurrent cell](https://arxiv.org/abs/1810.12546).
+
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 
