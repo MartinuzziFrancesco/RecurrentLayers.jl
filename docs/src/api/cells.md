@@ -25,6 +25,7 @@
     RHNCell
     RHNCellUnit
     SCRNCell
+    SGRNCell
     STARCell
     TGRUCell
     TLSTMCell
