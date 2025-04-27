@@ -9,14 +9,13 @@ using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
-       FSRNNCell,
-       GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+       FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
        LightRUCell, MGUCell, MinimalRNNCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell,
-       PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, STARCell, TGRUCell,
+       PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell, TGRUCell,
        TLSTMCell, TRNNCell, UnICORNNCell
 export AntisymmetricRNN, ATR, CFN, coRNN, FastGRNN, FastRNN, FSRNN, GatedAntisymmetricRNN,
        IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MUT1, MUT2, MUT3, NAS,
-       PeepholeLSTM, RAN, RHN, SCRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
+       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -42,6 +41,7 @@ include("cells/peepholelstm_cell.jl")
 include("cells/ran_cell.jl")
 include("cells/rhn_cell.jl")
 include("cells/scrn_cell.jl")
+include("cells/sgrn_cell.jl")
 include("cells/star_cell.jl")
 include("cells/trnn_cell.jl")
 include("cells/unicornn_cell.jl")
@@ -51,13 +51,13 @@ include("wrappers/stackedrnn.jl")
 ### fallbacks for functors ###
 rlayers = (:AntisymmetricRNN, :ATR, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
     :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MUT1, :MUT2, :MUT3, :NAS,
-    :PeepholeLSTM, :RAN, :SCRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
+    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
     :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MGUCell, :MinimalRNNCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell,
-    :PeepholeLSTMCell, :RANCell, :SCRNCell, :STARCell, :TGRUCell, :TLSTMCell,
+    :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
     :TRNNCell, :UnICORNNCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)

@@ -24,6 +24,7 @@
     RAN
     RHN
     SCRN
+    SGRN
     STAR
     TGRU
     TLSTM
