@@ -1,7 +1,7 @@
 using RecurrentLayers, Flux, Test
 
 #cells returning a single hidden state
-single_cells = [AntisymmetricRNNCell, ATRCell, CFNCell, GatedAntisymmetricRNNCell,
+single_cells = [AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, GatedAntisymmetricRNNCell,
     IndRNNCell, LiGRUCell, LightRUCell, MGUCell, MUT1Cell, MUT2Cell,
     MUT3Cell, SGRNCell, STARCell]
 
