@@ -35,9 +35,9 @@ level implementations:
    [Stackable recurrent network](https://arxiv.org/abs/1911.11033),
    [Minimal recurrent neural network](https://arxiv.org/abs/1711.06788),
    [Addition-subtraction twin-gated recurrent cell](https://arxiv.org/abs/1810.12546),
-   [Simple gated recurrent network](https://doi.org/10.1049/gtd2.12056), and
-   [Bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676).
-
+   [Simple gated recurrent network](https://doi.org/10.1049/gtd2.12056),
+   [Bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676), and
+   [Recurrently neuromodulated bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676).
 
  - Discretized ordinary differential equation formulations of RNNs:
    [Long expressive memory networks](https://arxiv.org/pdf/2110.04744), 

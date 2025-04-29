@@ -145,7 +145,7 @@ end
 
 function functor(atr::ATR{S}) where {S}
     params = (cell=atr.cell,)
-    reconstruct = p -> AntisymmetricRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> ATR{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

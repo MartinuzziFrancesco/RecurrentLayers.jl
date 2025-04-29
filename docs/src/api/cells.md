@@ -21,6 +21,7 @@
     MUT2Cell
     MUT3Cell
     NASCell
+    NBRCell
     PeepholeLSTMCell
     RANCell
     RHNCell

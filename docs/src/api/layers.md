@@ -21,6 +21,7 @@
     MUT2
     MUT3
     NAS
+    NBR
     PeepholeLSTM
     RAN
     RHN
