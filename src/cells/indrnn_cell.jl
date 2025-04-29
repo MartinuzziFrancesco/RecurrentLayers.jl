@@ -67,8 +67,12 @@ end
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
     activation = fast_act(indrnn.activation, inp)
-    state = activation.(indrnn.Wi * inp .+ indrnn.Wh .* state .+ indrnn.b)
+    state = activation.(indrnn.Wi * inp .+ vec(indrnn.Wh) .* state .+ indrnn.b)
     return state, state
+end
+
+function initialstates(indrnn::IndRNNCell)
+    return zeros_like(indrnn.Wh, size(indrnn.Wh, 1))
 end
 
 function Base.show(io::IO, indrnn::IndRNNCell)
@@ -128,7 +132,7 @@ end
 
 @layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
+function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
         return_state::Bool=false, kwargs...)
     cell = IndRNNCell(input_size => hidden_size, activation; kwargs...)
     return IndRNN{return_state, typeof(cell)}(cell)
