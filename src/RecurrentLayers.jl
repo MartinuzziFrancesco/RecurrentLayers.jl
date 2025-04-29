@@ -8,13 +8,15 @@ import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
-export AntisymmetricRNNCell, ATRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
+export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
        FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
-       LightRUCell, MGUCell, MinimalRNNCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell,
-       PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell, TGRUCell,
+       LightRUCell, MGUCell, MinimalRNNCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell, NBRCell,
+       PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell,
+       TGRUCell,
        TLSTMCell, TRNNCell, UnICORNNCell
-export AntisymmetricRNN, ATR, CFN, coRNN, FastGRNN, FastRNN, FSRNN, GatedAntisymmetricRNN,
-       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MUT1, MUT2, MUT3, NAS,
+export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
+       GatedAntisymmetricRNN,
+       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MUT1, MUT2, MUT3, NAS, NBR,
        PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
 export StackedRNN
 
@@ -24,6 +26,7 @@ include("generics.jl")
 
 include("cells/antisymmetricrnn_cell.jl")
 include("cells/atr_cell.jl")
+include("cells/br_cell.jl")
 include("cells/cfn_cell.jl")
 include("cells/cornn_cell.jl")
 include("cells/fastrnn_cell.jl")
@@ -49,14 +52,15 @@ include("cells/unicornn_cell.jl")
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
-rlayers = (:AntisymmetricRNN, :ATR, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
-    :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MUT1, :MUT2, :MUT3, :NAS,
+rlayers = (
+    :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
+    :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MUT1, :MUT2, :MUT3, :NAS, :NBR,
     :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
 
 rcells = (
-    :AntisymmetricRNNCell, :ATRCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
+    :AntisymmetricRNNCell, :ATRCell, :BR, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
     :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
-    :MGUCell, :MinimalRNNCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell,
+    :MGUCell, :MinimalRNNCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :NBRCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
     :TRNNCell, :UnICORNNCell)
 

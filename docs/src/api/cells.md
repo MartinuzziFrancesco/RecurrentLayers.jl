@@ -3,6 +3,7 @@
 ```@docs
     AntisymmetricRNNCell
     ATRCell
+    BRCell
     CFNCell
     coRNNCell
     FastGRNNCell
@@ -20,6 +21,7 @@
     MUT2Cell
     MUT3Cell
     NASCell
+    NBRCell
     PeepholeLSTMCell
     RANCell
     RHNCell
