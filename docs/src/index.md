@@ -11,7 +11,7 @@ recurrent layers not available in base deep learning libraries.
 ## Features
 
 The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl).
-Currently there are 25+ cells implemented, together with multiple higher
+Currently there are 30+ cells implemented, together with multiple higher
 level implementations:
  - Modifications of vanilla RNNs:
    [Independently recurrent neural networks](https://arxiv.org/abs/1803.04831),
