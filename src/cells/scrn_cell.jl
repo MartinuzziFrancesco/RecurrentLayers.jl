@@ -80,8 +80,8 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     gcs = chunk(Wc * c_state .+ b, 2; dims=1)
 
     #compute
-    one_vec = eltype(Wi)(1.0f0)
-    context_layer = @. (one_vec - scrn.alpha) * gxs[1] + scrn.alpha * c_state
+    t_ones = eltype(Wi)(1.0f0)
+    context_layer = @. (t_ones - scrn.alpha) * gxs[1] + scrn.alpha * c_state
     hidden_layer = sigmoid_fast.(gxs[2] .+ ghs[1] * state .+ gcs[1])
     new_state = tanh_fast.(ghs[2] * hidden_layer .+ gcs[2])
     return new_state, (new_state, context_layer)
