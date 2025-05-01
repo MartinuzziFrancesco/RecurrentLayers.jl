@@ -82,9 +82,9 @@ function (janet::JANETCell)(inp::AbstractVecOrMat, (state, c_state))
 
     linear_gate = gxs[1] .+ ghs[1]
     candidate_state = @. tanh_fast(gxs[2] + ghs[2])
-    ones_vec = eltype(candidate_state)(1.0)
+    t_ones = eltype(candidate_state)(1.0f0)
     new_cstate = @. sigmoid_fast(linear_gate) * c_state +
-                    (ones_vec -
+                    (t_ones -
                      sigmoid_fast(linear_gate - beta)) *
                     candidate_state
     new_state = new_cstate

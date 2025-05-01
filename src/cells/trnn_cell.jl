@@ -69,8 +69,8 @@ function (trnn::TRNNCell)(inp::AbstractVecOrMat, state)
     gxs = chunk(Wi * inp .+ b, 2; dims=1)
 
     forget_gate = activation.(gxs[2])
-    one_vec = eltype(Wi)(1.0f0)
-    new_state = @. forget_gate * state + (one_vec - forget_gate) * gxs[1]
+    t_ones = eltype(Wi)(1.0f0)
+    new_state = @. forget_gate * state + (t_ones - forget_gate) * gxs[1]
     return new_state, new_state
 end
 
