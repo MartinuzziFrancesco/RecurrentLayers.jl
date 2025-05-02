@@ -17,6 +17,7 @@
     LightRU
     MGU
     MinimalRNN
+    MultiplicativeLSTM
     MUT1
     MUT2
     MUT3

@@ -10,13 +10,15 @@ using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
        FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
-       LightRUCell, MGUCell, MinimalRNNCell, MUT1Cell, MUT2Cell, MUT3Cell, NASCell, NBRCell,
+       LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
+       MUT3Cell, NASCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
        TLSTMCell, TRNNCell, UnICORNNCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
        GatedAntisymmetricRNN,
-       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MUT1, MUT2, MUT3, NAS, NBR,
+       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
+       MUT3, NAS, NBR,
        PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
 export StackedRNN
 
@@ -38,6 +40,7 @@ include("cells/lightru_cell.jl")
 include("cells/ligru_cell.jl")
 include("cells/mgu_cell.jl")
 include("cells/minimalrnn_cell.jl")
+include("cells/multiplicativelstm_cell.jl")
 include("cells/mut_cell.jl")
 include("cells/nas_cell.jl")
 include("cells/peepholelstm_cell.jl")
@@ -54,13 +57,15 @@ include("wrappers/stackedrnn.jl")
 ### fallbacks for functors ###
 rlayers = (
     :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
-    :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MUT1, :MUT2, :MUT3, :NAS, :NBR,
+    :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN,
+    :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :NBR,
     :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :BR, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
     :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
-    :MGUCell, :MinimalRNNCell, :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :NBRCell,
+    :MGUCell, :MinimalRNNCell, :MultiplicativeLSTMCell,
+    :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :NBRCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
     :TRNNCell, :UnICORNNCell)
 
