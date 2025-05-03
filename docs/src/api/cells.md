@@ -34,4 +34,5 @@
     TLSTMCell
     TRNNCell
     UnICORNNCell
+    WMCLSTMCell
 ```

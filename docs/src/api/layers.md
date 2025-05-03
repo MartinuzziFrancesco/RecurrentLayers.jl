@@ -33,4 +33,5 @@
     TLSTM
     TRNN
     UnICORNN
+    WMCLSTM
 ```

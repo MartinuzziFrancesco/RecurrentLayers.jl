@@ -14,12 +14,12 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        MUT3Cell, NASCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
-       TLSTMCell, TRNNCell, UnICORNNCell
+       TLSTMCell, TRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
        GatedAntisymmetricRNN,
        IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, NBR,
-       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN
+       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN, WMCLSTM
 export StackedRNN
 
 @compat(public, (initialstates))
@@ -51,6 +51,7 @@ include("cells/sgrn_cell.jl")
 include("cells/star_cell.jl")
 include("cells/trnn_cell.jl")
 include("cells/unicornn_cell.jl")
+include("cells/wmclstm_cell.jl")
 
 include("wrappers/stackedrnn.jl")
 
@@ -59,7 +60,7 @@ rlayers = (
     :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
     :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :NBR,
-    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN)
+    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN, :WMCLSTM)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :BR, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
@@ -67,7 +68,7 @@ rcells = (
     :MGUCell, :MinimalRNNCell, :MultiplicativeLSTMCell,
     :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :NBRCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
-    :TRNNCell, :UnICORNNCell)
+    :TRNNCell, :UnICORNNCell, :WMCLSTMCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
