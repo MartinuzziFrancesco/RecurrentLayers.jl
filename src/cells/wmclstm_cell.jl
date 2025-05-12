@@ -83,13 +83,15 @@ end
 function (lstm::WMCLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(lstm, inp, 1 => size(lstm.Wi, 2))
     fused_gates = lstm.Wi * inp .+ lstm.Wh * c_state .+ lstm.bias
-    memory_gates = chunk(lstm.Wm * c_state, 3; dims=1)
+    memory_matrices = chunk(lstm.Wm, 3; dims=1)
+    memory_gates = memory_matrices[1] * c_state, memory_matrices[2] * c_state
     gates = chunk(fused_gates, 4; dims=1)
     input_gate = @. sigmoid_fast(gates[1] + tanh_fast(memory_gates[1]))
     forget_gate = @. sigmoid_fast(gates[2] + tanh_fast(memory_gates[2]))
-    output_gate = @. sigmoid_fast(gates[3] + tanh_fast(memory_gates[3]))
     cell_gate = @. tanh_fast(gates[4])
     new_cstate = @. forget_gate * c_state + input_gate * cell_gate
+    memory_gate = memory_matrices[3] * new_cstate
+    output_gate = @. sigmoid_fast(gates[3] + tanh_fast(memory_gate))
     new_state = @. output_gate * tanh_fast(new_cstate)
     return new_state, (new_state, new_cstate)
 end
