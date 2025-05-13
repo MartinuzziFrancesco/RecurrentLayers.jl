@@ -1,5 +1,6 @@
 # Wrappers
 
 ```@docs
-StackedRNN
+    Multiplicative
+    StackedRNN
 ```

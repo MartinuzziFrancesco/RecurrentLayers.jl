@@ -20,7 +20,7 @@ export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
        IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, NBR,
        PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN, WMCLSTM
-export StackedRNN
+export Multiplicative, StackedRNN
 
 @compat(public, (initialstates))
 
@@ -53,6 +53,7 @@ include("cells/trnn_cell.jl")
 include("cells/unicornn_cell.jl")
 include("cells/wmclstm_cell.jl")
 
+include("wrappers/multiplicative.jl")
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
