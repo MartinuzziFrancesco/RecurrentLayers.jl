@@ -1,4 +1,4 @@
-using RecurrentLayers, Documenter, DocumenterInterLinks
+using RecurrentLayers, Flux, Documenter, DocumenterInterLinks
 include("pages.jl")
 
 mathengine = Documenter.MathJax()

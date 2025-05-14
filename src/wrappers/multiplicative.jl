@@ -89,7 +89,7 @@ in a [`Flux.Recurrence`](@extref) layer.
 ```jldoctest
 julia> using RecurrentLayers, Flux
 
-julia> wrap = Recurrence(Multiplicative(cell, 2 => 4))
+julia> wrap = Recurrence(Multiplicative(AntisymmetricRNNCell, 2 => 4))
 Recurrence(
   Multiplicative(
     4×2 Matrix{Float32},                # 8 parameters
