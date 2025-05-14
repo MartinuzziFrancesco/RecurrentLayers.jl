@@ -3,7 +3,14 @@
     Multiplicative(cell, inp, state)
 
 [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf). Wraps
-a given `cell`, and performs the following forward pass
+a given `cell`, and performs the following forward pass.
+
+Currently this wrapper does not support the following cells:
+
+  - `RHNCell`
+  - `RHNCellUnit`
+  - `FSRNNCell`
+  - `TLSTMCell`
 
 ```math
 \begin{aligned}
@@ -61,6 +68,9 @@ Either of
 
 # Examples
 
+When used to wrap a cell, `Multiplicative` will behave as the cell wrapped, taking input
+data in the same format, and returning states like the `rcell` would.
+
 ```jldoctest
 julia> using RecurrentLayers
 
@@ -70,6 +80,23 @@ Multiplicative(
   5×5 Matrix{Float32},                  # 25 parameters
   MGUCell(3 => 5),                      # 90 parameters
 )                   # Total: 5 arrays, 130 parameters, 792 bytes.
+
+```
+
+In order to make `Multiplicative` act on a full sequence it is possible to wrap it
+in a [`Flux.Recurrence`](@extref) layer.
+
+```jldoctest
+julia> using RecurrentLayers, Flux
+
+julia> wrap = Recurrence(Multiplicative(cell, 2 => 4))
+Recurrence(
+  Multiplicative(
+    4×2 Matrix{Float32},                # 8 parameters
+    4×4 Matrix{Float32},                # 16 parameters
+    AntisymmetricRNNCell(2 => 4, tanh),  # 28 parameters
+  ),
+)                   # Total: 5 arrays, 52 parameters, 488 bytes.
 
 ```
 """
@@ -86,8 +113,8 @@ function initialstates(mrnn::Multiplicative)
 end
 
 function Multiplicative(rcell, (input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
-        init_multiplicative_kernel = glorot_uniform,
-        init_multiplicativerecurrent_kernel = glorot_uniform, kwargs...)
+        init_multiplicative_kernel=glorot_uniform,
+        init_multiplicativerecurrent_kernel=glorot_uniform, kwargs...)
     cell = rcell(input_size => hidden_size, args...; kwargs...)
     Wm = init_multiplicative_kernel(hidden_size, input_size)
     Wh = init_multiplicativerecurrent_kernel(hidden_size, hidden_size)
@@ -96,14 +123,12 @@ end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
-    new_state = mrnn.cell(inp, m_state)
-    return new_state, new_state
+    return mrnn.cell(inp, m_state)
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, (state, c_state))
     m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
-    new_state = mrnn.cell(inp, (m_state, c_state))
-    return new_state, (new_state, c_state)
+    return mrnn.cell(inp, (m_state, c_state))
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat)

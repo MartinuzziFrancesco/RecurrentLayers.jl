@@ -13,5 +13,6 @@ end
 end
 
 @safetestset "Wrappers" begin
-    include("test_wrappers.jl")
+    include("test_layer_wrappers.jl")
+    include("test_cell_wrappers.jl")
 end
