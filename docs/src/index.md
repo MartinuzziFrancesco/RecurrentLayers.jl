@@ -52,7 +52,8 @@ level implementations:
    [Recurrent highway networks](https://arxiv.org/pdf/1607.03474),
    and [FastSlow RNNs](https://arxiv.org/abs/1705.08639)
 
- - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026)
+ - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026), and
+ [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf).
 
 ## Installation
 

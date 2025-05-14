@@ -1,5 +1,13 @@
 # Wrappers
 
+## Wrappers for layers
+
 ```@docs
-StackedRNN
+    StackedRNN
+```
+
+## Wrappers for cells
+
+```@docs
+    Multiplicative
 ```
