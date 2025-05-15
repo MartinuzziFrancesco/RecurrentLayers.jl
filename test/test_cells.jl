@@ -6,7 +6,7 @@ single_cells = [AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, GatedAntisymmetr
     MUT3Cell, NBRCell, SGRNCell, STARCell]
 
 #cells returning hidden state as a tuple
-double_cells = [JANETCell, NASCell, PeepholeLSTMCell, RANCell]
+double_cells = [JANETCell, NASCell, RANCell]
 
 #cells with a little more complexity to them
 different_cells = [FastGRNNCell, FastRNNCell, RHNCell, SCRNCell, MinimalRNNCell]
@@ -196,6 +196,20 @@ end
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
 
     rnncell = WMCLSTMCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+end
+
+@testset "PeepholeLSTMCell" begin
+    rnncell = PeepholeLSTMCell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 4
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = PeepholeLSTMCell(3 => 5; bias=false)
     @test length(Flux.trainables(rnncell)) == 3
 
     inp = rand(Float32, 3)
