@@ -24,13 +24,13 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
     \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
         \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
     \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
         \mathbf{h}_{t-1}\right).
+    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
+        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
+        \mathbf{h}_{t-1}\right), \\
 \end{aligned}
 ```
 
@@ -63,7 +63,7 @@ function BRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true)
     Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3)
+    Wh = init_recurrent_kernel(hidden_size * 2)
     b = create_bias(Wi, bias, size(Wi, 1))
     return BRCell(Wi, Wh, b)
 end
@@ -72,19 +72,19 @@ function (br::BRCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(br, inp, 1 => size(br.Wi, 2))
     Wi, wh, b = br.Wi, vec(br.Wh), br.b
     gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ws = chunk(wh, 3; dims=1)
+    ws = chunk(wh, 2; dims=1)
     t_ones = eltype(Wi)(1.0)
     h1 = @. gxs[1] + ws[1] * state
     h2 = @. gxs[2] + ws[2] * state
-    h3 = @. gxs[3] + ws[3] * state
     modulation_gate = @. t_ones + tanh_fast(h1)
     candidate_state = @. sigmoid_fast(h2)
+    h3 = @. gxs[3] + modulation_gate * state
     new_state = @. candidate_state * state + (t_ones - candidate_state) * tanh_fast(h3)
     return new_state, new_state
 end
 
 function initialstates(br::BRCell)
-    return zeros_like(br.Wh, size(br.Wh, 1) ÷ 3)
+    return zeros_like(br.Wh, size(br.Wh, 1) ÷ 2)
 end
 
 function Base.show(io::IO, br::BRCell)
@@ -115,13 +115,13 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
     \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
         \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
     \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
         \mathbf{h}_{t-1}\right).
+    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
+        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
+        \mathbf{h}_{t-1}\right), \\
 \end{aligned}
 ```
 
@@ -192,9 +192,6 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
     \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
         \mathbf{h}_{t-1}\right), \\
     \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
@@ -234,7 +231,7 @@ function NBRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true)
     Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3, hidden_size)
+    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     b = create_bias(Wi, bias, size(Wi, 1))
     return NBRCell(Wi, Wh, b)
 end
@@ -243,13 +240,13 @@ function (nbr::NBRCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(nbr, inp, 1 => size(nbr.Wi, 2))
     Wi, Wh, b = nbr.Wi, nbr.Wh, nbr.b
     gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh * state, 3; dims=1)
+    ghs = chunk(Wh * state, 2; dims=1)
     t_ones = eltype(Wi)(1.0)
     h1 = @. gxs[1] + gxs[1]
     h2 = @. gxs[2] + gxs[2]
-    h3 = @. gxs[3] + gxs[3]
     modulation_gate = @. t_ones + tanh_fast(h1)
     candidate_state = @. sigmoid_fast(h2)
+    h3 = @. gxs[3] + modulation_gate * state
     new_state = @. candidate_state * state + (t_ones - candidate_state) * tanh_fast(h3)
     return new_state, new_state
 end
@@ -282,9 +279,6 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
     \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
         \mathbf{h}_{t-1}\right), \\
     \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
