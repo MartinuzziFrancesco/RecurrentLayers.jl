@@ -6,7 +6,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Light recurrent unit](https://www.mdpi.com/2079-9292/13/16/3204).
+Light recurrent unit.
 See [`LightRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments

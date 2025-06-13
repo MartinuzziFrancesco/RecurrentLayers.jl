@@ -1,0 +1,5 @@
+# LightRU
+
+```@docs
+    LightRU
+```

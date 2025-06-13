@@ -2,12 +2,9 @@
 
 ## Wrappers for layers
 
-```@docs
-    StackedRNN
-```
+- [StackedRNN](wrappers/stacked.md)
 
 ## Wrappers for cells
 
-```@docs
-    Multiplicative
-```
+- [Multiplicative](wrappers/multiplicative.md):
+  Multiplicative addition internal state

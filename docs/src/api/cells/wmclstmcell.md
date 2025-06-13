@@ -1,0 +1,5 @@
+# WMCLSTMCell
+
+```@docs
+    WMCLSTMCell
+```

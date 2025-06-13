@@ -1,0 +1,5 @@
+# Multiplicative
+
+```@docs
+    Multiplicative
+```

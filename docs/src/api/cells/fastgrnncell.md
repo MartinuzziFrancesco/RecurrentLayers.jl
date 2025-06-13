@@ -1,0 +1,5 @@
+# FastGRNNCell
+
+```@docs
+    FastGRNNCell
+```

@@ -1,0 +1,5 @@
+# MinimalRNN
+
+```@docs
+    MinimalRNN
+```

@@ -1,0 +1,5 @@
+# GatedAntisymmetricRNNCell
+
+```@docs
+    GatedAntisymmetricRNNCell
+```

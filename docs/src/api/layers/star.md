@@ -1,0 +1,5 @@
+# STAR
+
+```@docs
+    STAR
+```

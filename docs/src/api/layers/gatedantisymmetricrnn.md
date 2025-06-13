@@ -1,0 +1,5 @@
+# GatedAntisymmetricRNN
+
+```@docs
+    GatedAntisymmetricRNN
+```
