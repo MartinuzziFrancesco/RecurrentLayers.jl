@@ -21,12 +21,18 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \tanh\left(
+        \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{b}^{h} \right) +
+        \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -109,12 +115,18 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \tanh\left(
+        \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{b}^{h} \right) +
+        \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -181,12 +193,17 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z h_t + b_z), \\
-r &= \sigma(x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{x}(t) + \mathbf{W}^{r}_{hh}
+        \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -268,12 +285,17 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z h_t + b_z), \\
-r &= \sigma(x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{x}(t) + \mathbf{W}^{r}_{hh}
+        \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -340,12 +362,18 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z \tanh(h_t) + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \tanh\left( \mathbf{h}(t) \right) + \mathbf{b}^{z}
+        \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -425,12 +453,18 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z \tanh(h_t) + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \tanh\left( \mathbf{h}(t) \right) + \mathbf{b}^{z}
+        \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 

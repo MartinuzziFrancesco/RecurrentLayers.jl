@@ -21,13 +21,18 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{c}_t &= W_c x_t, \\
-i_t         &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \\
-f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
-c_t         &= i_t \odot \tilde{c}_t + f_t \odot c_{t-1}, \\
-h_t         &= g(c_t)
+    \tilde{\mathbf{c}}(t) &= \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{c}, \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{i} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{i}(t) \odot \tilde{\mathbf{c}}(t) +
+        \mathbf{f}(t) \odot \mathbf{c}(t-1), \\
+    \mathbf{h}(t) &= g\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -108,11 +113,15 @@ See [`RANCell`](@ref) for a layer that processes a single sequence.
 # Equations
 ```math
 \begin{aligned}
-\tilde{c}_t &= W_c x_t, \\
-i_t         &= \sigma(W_i x_t + U_i h_{t-1} + b_i), \\
-f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
-c_t         &= i_t \odot \tilde{c}_t + f_t \odot c_{t-1}, \\
-h_t         &= g(c_t)
+    \tilde{\mathbf{c}}(t) &= \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{c} \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{i} \right) \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{c}(t) &= \mathbf{i}(t) \odot \tilde{\mathbf{c}}(t) +
+        \mathbf{f}(t) \odot \mathbf{c}(t-1) \\
+    \mathbf{h}(t) &= g\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 

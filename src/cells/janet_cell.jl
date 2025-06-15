@@ -23,15 +23,17 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
   Default is 1.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f \\
-    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c
-        \mathbf{x}_t + \mathbf{b}_c) \\
-    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma
-        (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
-    \mathbf{h}_t &= \mathbf{c}_t.
+    \mathbf{s}(t) &= \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{f}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{f}, \\
+    \tilde{\mathbf{c}}(t) &= \tanh\left( \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) +
+        \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{s}(t) \right) \odot \mathbf{c}(t-1) +
+        \left( 1 - \sigma\left( \mathbf{s}(t) - \beta \right) \right) \odot
+        \tilde{\mathbf{c}}(t), \\
+    \mathbf{h}(t) &= \mathbf{c}(t).
 \end{aligned}
 ```
 
@@ -120,15 +122,17 @@ See [`JANETCell`](@ref) for a layer that processes a single sequence.
   Default is 1.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    \mathbf{s}_t &= \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f \\
-    \tilde{\mathbf{c}}_t &= \tanh (\mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{W}_c
-        \mathbf{x}_t + \mathbf{b}_c) \\
-    \mathbf{c}_t &= \sigma(\mathbf{s}_t) \odot \mathbf{c}_{t-1} + (1 - \sigma
-        (\mathbf{s}_t - \beta)) \odot \tilde{\mathbf{c}}_t \\
-    \mathbf{h}_t &= \mathbf{c}_t.
+    \mathbf{s}(t) &= \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{f}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{f}, \\
+    \tilde{\mathbf{c}}(t) &= \tanh\left( \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) +
+        \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{s}(t) \right) \odot \mathbf{c}(t-1) +
+        \left( 1 - \sigma\left( \mathbf{s}(t) - \beta \right) \right) \odot
+        \tilde{\mathbf{c}}(t), \\
+    \mathbf{h}(t) &= \mathbf{c}(t).
 \end{aligned}
 ```
 

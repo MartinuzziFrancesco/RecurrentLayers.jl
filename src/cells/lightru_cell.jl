@@ -22,11 +22,14 @@ See [`LightRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \tanh(W_h x_t), \\
-f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}_{ih}^{h} \mathbf{x}(t) \right), \\
+    \mathbf{f}(t) &= \delta\left( \mathbf{W}_{ih}^{f} \mathbf{x}(t) +
+        \mathbf{W}_{hh}^{f} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \mathbf{f}(t) \right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -106,11 +109,14 @@ See [`LightRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \tanh(W_h x_t), \\
-f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}_{ih}^{h} \mathbf{x}(t) \right), \\
+    \mathbf{f}(t) &= \delta\left( \mathbf{W}_{ih}^{f} \mathbf{x}(t) +
+        \mathbf{W}_{hh}^{f} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \mathbf{f}(t) \right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 

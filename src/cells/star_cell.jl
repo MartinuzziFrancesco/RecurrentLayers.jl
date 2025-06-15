@@ -21,11 +21,15 @@ See [`STAR`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \tanh(W_z x_t + b_z), \\
-    k_t &= \sigma(W_x x_t + W_h h_{t-1} + b_k), \\
-    h_t &= \tanh\left((1 - k_t) \circ h_{t-1} + k_t \circ z_t\right).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right) \\
+    \mathbf{k}(t) &= \sigma\left( \mathbf{W}^{k}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{k}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{k} \right) \\
+    \mathbf{h}(t) &= \tanh\left( \left(1 - \mathbf{k}(t)\right) \circ
+        \mathbf{h}(t-1) + \mathbf{k}(t) \circ \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -103,11 +107,15 @@ See [`STARCell`](@ref) for a layer that processes a single sequence.
 
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \tanh(W_z x_t + b_z), \\
-    k_t &= \sigma(W_x x_t + W_h h_{t-1} + b_k), \\
-    h_t &= \tanh\left((1 - k_t) \circ h_{t-1} + k_t \circ z_t\right).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right) \\
+    \mathbf{k}(t) &= \sigma\left( \mathbf{W}^{k}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{k}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{k} \right) \\
+    \mathbf{h}(t) &= \tanh\left( \left(1 - \mathbf{k}(t)\right) \circ
+        \mathbf{h}(t-1) + \mathbf{k}(t) \circ \mathbf{z}(t) \right)
 \end{aligned}
 ```
 

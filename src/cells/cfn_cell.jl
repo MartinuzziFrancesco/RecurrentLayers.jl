@@ -24,9 +24,15 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    h_t &= \theta_t \odot \tanh(h_{t-1}) + \eta_t \odot \tanh(W x_t), \\
-    \theta_t &:= \sigma (U_\theta h_{t-1} + V_\theta x_t + b_\theta), \\
-    \eta_t &:= \sigma (U_\eta h_{t-1} + V_\eta x_t + b_\eta).
+    \mathbf{h}(t) &= \boldsymbol{\theta}(t) \odot \tanh\left( \mathbf{h}(t-1)
+        \right) + \boldsymbol{\eta}(t) \odot \tanh\left( \mathbf{W}_{ih}
+        \mathbf{x}(t) \right), \\
+    \boldsymbol{\theta}(t) &= \sigma\left( \mathbf{W}^{\theta}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}^{\theta}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{\theta} \right), \\
+    \boldsymbol{\eta}(t) &= \sigma\left( \mathbf{W}^{\eta}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}^{\eta}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{\eta} \right).
 \end{aligned}
 ```
 
@@ -107,9 +113,15 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    h_t &= \theta_t \odot \tanh(h_{t-1}) + \eta_t \odot \tanh(W x_t), \\
-    \theta_t &:= \sigma (U_\theta h_{t-1} + V_\theta x_t + b_\theta), \\
-    \eta_t &:= \sigma (U_\eta h_{t-1} + V_\eta x_t + b_\eta).
+    \mathbf{h}(t) &= \boldsymbol{\theta}(t) \odot \tanh\left( \mathbf{h}(t-1)
+        \right) + \boldsymbol{\eta}(t) \odot \tanh\left( \mathbf{W}_{ih}
+        \mathbf{x}(t) \right), \\
+    \boldsymbol{\theta}(t) &= \sigma\left( \mathbf{W}^{\theta}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}^{\theta}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{\theta} \right), \\
+    \boldsymbol{\eta}(t) &= \sigma\left( \mathbf{W}^{\eta}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}^{\eta}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{\eta} \right).
 \end{aligned}
 ```
 

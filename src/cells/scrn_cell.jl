@@ -23,11 +23,15 @@ See [`SCRN`](@ref) for a layer that processes entire sequences.
 - `alpha`: structural contraint. Default is 0.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-s_t &= (1 - \alpha) W_s x_t + \alpha s_{t-1}, \\
-h_t &= \sigma(W_h s_t + U_h h_{t-1} + b_h), \\
-y_t &= f(U_y h_t + W_y s_t)
+    \mathbf{s}(t) &= (1 - \alpha) \, \mathbf{W}_{ih}^{s} \mathbf{x}(t) +
+        \alpha \, \mathbf{s}(t-1) \\
+    \mathbf{h}(t) &= \sigma\left( \mathbf{W}_{ih}^{h} \mathbf{s}(t) +
+        \mathbf{W}_{hh}^{h} \mathbf{h}(t-1) + \mathbf{b}^{h} \right) \\
+    \mathbf{y}(t) &= f\left( \mathbf{W}_{hh}^{y} \mathbf{h}(t) +
+        \mathbf{W}_{ih}^{y} \mathbf{s}(t) + \mathbf{b}^{y} \right)
 \end{aligned}
 ```
 
@@ -117,11 +121,15 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-s_t &= (1 - \alpha) W_s x_t + \alpha s_{t-1}, \\
-h_t &= \sigma(W_h s_t + U_h h_{t-1} + b_h), \\
-y_t &= f(U_y h_t + W_y s_t)
+    \mathbf{s}(t) &= (1 - \alpha) \, \mathbf{W}_{ih}^{s} \mathbf{x}(t) +
+        \alpha \, \mathbf{s}(t-1) \\
+    \mathbf{h}(t) &= \sigma\left( \mathbf{W}_{ih}^{h} \mathbf{s}(t) +
+        \mathbf{W}_{hh}^{h} \mathbf{h}(t-1) + \mathbf{b}^{h} \right) \\
+    \mathbf{y}(t) &= f\left( \mathbf{W}_{hh}^{y} \mathbf{h}(t) +
+        \mathbf{W}_{ih}^{y} \mathbf{s}(t) + \mathbf{b}^{y} \right)
 \end{aligned}
 ```
 

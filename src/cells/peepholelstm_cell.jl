@@ -27,12 +27,20 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    z_t &= \tanh(W_z x_t + U_z h_{t-1} + b_z), \\
-    i_t &= \sigma(W_i x_t + U_i h_{t-1} + p_i \odot c_{t-1} + b_i), \\
-    f_t &= \sigma(W_f x_t + U_f h_{t-1} + p_f \odot c_{t-1} + b_f), \\
-    c_t &= f_t \odot c_{t-1} + i_t \odot z_t, \\
-    o_t &= \sigma(W_o x_t + U_o h_{t-1} + p_o \odot c_t + b_o), \\
-    h_t &= o_t \odot \tanh(c_t).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{i}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{i} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{f}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) + \mathbf{i}(t)
+        \odot \mathbf{z}(t), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{o}_{ph} \odot
+        \mathbf{c}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \odot \tanh\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -116,11 +124,20 @@ See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-f_t &= \sigma_g(W_f x_t + U_f c_{t-1} + b_f), \\
-i_t &= \sigma_g(W_i x_t + U_i c_{t-1} + b_i), \\
-o_t &= \sigma_g(W_o x_t + U_o c_{t-1} + b_o), \\
-c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
-h_t &= o_t \odot \sigma_h(c_t).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{i}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{i} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{f}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) + \mathbf{i}(t)
+        \odot \mathbf{z}(t), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{o}_{ph} \odot
+        \mathbf{c}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \odot \tanh\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 

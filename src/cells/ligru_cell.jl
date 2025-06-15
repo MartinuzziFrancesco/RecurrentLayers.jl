@@ -23,11 +23,16 @@ See [`LiGRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
-\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
-h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \text{ReLU}\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h}
+        \right), \\
+    \mathbf{h}(t) &= \mathbf{z}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{z}(t)\right) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -107,11 +112,16 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
-\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
-h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \text{ReLU}\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h}
+        \right), \\
+    \mathbf{h}(t) &= \mathbf{z}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{z}(t)\right) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 

@@ -22,11 +22,14 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{W} x_t \\
-    f_t &= \sigma (\mathbf{V} x_t + b) \\
-    h_t &= f_t \odot h_{t-1} + (1 - f_t) \odot z_t
+    \mathbf{z}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{fh} \mathbf{x}(t) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{f}(t)\right) \odot \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -105,11 +108,14 @@ See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{W} x_t \\
-    f_t &= \sigma (\mathbf{V} x_t + b) \\
-    h_t &= f_t \odot h_{t-1} + (1 - f_t) \odot z_t
+    \mathbf{z}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{fh} \mathbf{x}(t) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{f}(t)\right) \odot \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -176,13 +182,17 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    h_t &= f_t \odot h_{t-1} + z_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) +
+        \mathbf{z}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -268,13 +278,17 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    h_t &= f_t \odot h_{t-1} + z_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) +
+        \mathbf{z}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -341,14 +355,18 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
-    h_t &= c_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) +
+        \left(1 - \mathbf{f}(t)\right) \odot \mathbf{z}(t) \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -438,14 +456,18 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
-    h_t &= c_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) +
+        \left(1 - \mathbf{f}(t)\right) \odot \mathbf{z}(t) \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 

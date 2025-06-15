@@ -25,8 +25,11 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
-h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
+    \mathbf{h}(t) = \mathbf{h}(t-1) + \epsilon \tanh \left( \mathbf{W}_{ih}
+        \mathbf{x}(t) + \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
 
 # Forward
@@ -108,8 +111,11 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
-h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
+    \mathbf{h}(t) = \mathbf{h}(t-1) + \epsilon \tanh \left( \mathbf{W}_{ih}
+        \mathbf{x}(t) + \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
 
 # Forward
@@ -180,11 +186,16 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \sigma ( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z ), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh ( (W_h - W_h^T - \gamma I) h_{t-1}
-        + V_h x_t + b_h ).
+    \mathbf{z}(t) &= \sigma\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top -
+        \gamma \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \epsilon \, \mathbf{z}(t) \odot
+        \tanh\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right).
 \end{aligned}
 ```
 
@@ -268,11 +279,16 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \sigma \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z \right), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1}
-        + V_h x_t + b_h \right).
+    \mathbf{z}(t) &= \sigma\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top -
+        \gamma \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \epsilon \, \mathbf{z}(t) \odot
+        \tanh\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right).
 \end{aligned}
 ```
 

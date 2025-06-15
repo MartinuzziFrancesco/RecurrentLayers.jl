@@ -21,11 +21,16 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
-\tilde{h}_t &= \tanh(W_h x_t + U_h (f_t \odot h_{t-1}) + b_h), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{hh} \left( \mathbf{f}(t) \odot \mathbf{h}(t-1) \right) +
+        \mathbf{b}^{h} \right), \\
+    \mathbf{h}(t) &= \left(1 - \mathbf{f}(t)\right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -106,9 +111,13 @@ See [`MGUCell`](@ref) for a layer that processes a single sequence.
 # Equations
 ```math
 \begin{aligned}
-f_t         &= \sigma(W_f x_t + U_f h_{t-1} + b_f), \\
-\tilde{h}_t &= \tanh(W_h x_t + U_h (f_t \odot h_{t-1}) + b_h), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{hh} \left( \mathbf{f}(t) \odot \mathbf{h}(t-1) \right) +
+        \mathbf{b}^{h} \right), \\
+    \mathbf{h}(t) &= \left(1 - \mathbf{f}(t)\right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 

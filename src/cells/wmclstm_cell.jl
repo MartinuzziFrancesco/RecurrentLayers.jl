@@ -28,17 +28,21 @@ See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{i}_t &= \sigma\left(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{ih}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{ic} \mathbf{c}_{t-1}) +
-        \mathbf{b}_i\right), \\
-    \mathbf{f}_t &= \sigma\left(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{fc} \mathbf{c}_{t-1}) +
-        \mathbf{b}_f\right), \\
-    \mathbf{o}_t &= \sigma\left(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{oh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{oc} \mathbf{c}_t) + \mathbf{b}_o\right), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \sigma_c(\mathbf{W}_{c} \mathbf{x}_t + \mathbf{b}_c), \\
-    \mathbf{h}_t &= \mathbf{o}_t \circ \sigma_h(\mathbf{c}_t).
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{i}_{ch} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{i} \right) \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W^{f}_{ch}} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{o}_{ch} \mathbf{c}(t) \right) +
+        \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t) \circ
+        \sigma_{c}\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right) \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \circ \sigma_{h}\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -129,17 +133,21 @@ See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{i}_t &= \sigma\left(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{ih}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{ic} \mathbf{c}_{t-1}) +
-        \mathbf{b}_i\right), \\
-    \mathbf{f}_t &= \sigma\left(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{fc} \mathbf{c}_{t-1}) +
-        \mathbf{b}_f\right), \\
-    \mathbf{o}_t &= \sigma\left(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{oh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{oc} \mathbf{c}_t) + \mathbf{b}_o\right), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \sigma_c(\mathbf{W}_{c} \mathbf{x}_t + \mathbf{b}_c), \\
-    \mathbf{h}_t &= \mathbf{o}_t \circ \sigma_h(\mathbf{c}_t).
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{i}_{ch} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{i} \right) \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W^{f}_{ch}} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{o}_{ch} \mathbf{c}(t) \right) +
+        \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t) \circ
+        \sigma_{c}\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right) \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \circ \sigma_{h}\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 

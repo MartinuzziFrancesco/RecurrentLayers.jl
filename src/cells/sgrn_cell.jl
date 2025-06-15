@@ -24,11 +24,12 @@ See [`SGRN`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-        \mathbf{f}_t &= \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{U} \mathbf{h}_{t-1} +
-            \mathbf{b}), \\
-    \mathbf{i}_t &= 1 - \mathbf{f}_t, \\
-    \mathbf{h}_t &= \tanh\left(\mathbf{i}_t \circ (\mathbf{W} \mathbf{x}_t) +
-        \mathbf{f}_t \circ \mathbf{h}_{t-1}\right).
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
+        \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right) \\
+    \mathbf{i}(t) &= 1 - \mathbf{f}(t) \\
+    \mathbf{h}(t) &= \tanh\left( \mathbf{i}(t) \circ \left(
+        \mathbf{W}_{ih} \mathbf{x}(t) \right) + \mathbf{f}(t) \circ
+        \mathbf{h}(t-1) \right)
 \end{aligned}
 ```
 
@@ -105,11 +106,12 @@ See [`SGRNCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-            \mathbf{f}_t &= \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{U} \mathbf{h}_{t-1} +
-            \mathbf{b}), \\
-    \mathbf{i}_t &= 1 - \mathbf{f}_t, \\
-    \mathbf{h}_t &= \tanh\left(\mathbf{i}_t \circ (\mathbf{W} \mathbf{x}_t) +
-        \mathbf{f}_t \circ \mathbf{h}_{t-1}\right).
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
+        \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right) \\
+    \mathbf{i}(t) &= 1 - \mathbf{f}(t) \\
+    \mathbf{h}(t) &= \tanh\left( \mathbf{i}(t) \circ \left(
+        \mathbf{W}_{ih} \mathbf{x}(t) \right) + \mathbf{f}(t) \circ
+        \mathbf{h}(t-1) \right)
 \end{aligned}
 ```
 

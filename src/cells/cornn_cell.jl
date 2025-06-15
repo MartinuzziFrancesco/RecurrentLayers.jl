@@ -25,12 +25,14 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\mathbf{y}_n &= y_{n-1} + \Delta t \mathbf{z}_n, \\
-\mathbf{z}_n &= z_{n-1} + \Delta t \sigma \left( \mathbf{W} y_{n-1} +
-    \mathcal{W} z_{n-1} + \mathbf{V} u_n + \mathbf{b} \right) -
-    \Delta t \gamma y_{n-1} - \Delta t \epsilon \mathbf{z}_n,
+    \mathbf{z}(t) &= \mathbf{z}(t-1) + \Delta t \, \sigma \left( \mathbf{W}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}_{zh} \mathbf{z}(t-1) + \mathbf{W}_{ih}
+        \mathbf{x}(t) + \mathbf{b} \right) - \Delta t \, \gamma \mathbf{h}(t-1)
+        - \Delta t \, \epsilon \mathbf{z}(t), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \Delta t \, \mathbf{z}(t),
 \end{aligned}
 ```
 
@@ -119,12 +121,14 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
   
 # Equations
+
 ```math
 \begin{aligned}
-\mathbf{y}_n &= y_{n-1} + \Delta t \mathbf{z}_n, \\
-\mathbf{z}_n &= z_{n-1} + \Delta t \sigma \left( \mathbf{W} y_{n-1} +
-    \mathcal{W} z_{n-1} + \mathbf{V} u_n + \mathbf{b} \right) -
-    \Delta t \gamma y_{n-1} - \Delta t \epsilon \mathbf{z}_n,
+    \mathbf{z}(t) &= \mathbf{z}(t-1) + \Delta t \, \sigma \left( \mathbf{W}_{hh}
+        \mathbf{h}(t-1) + \mathbf{W}_{zh} \mathbf{z}(t-1) + \mathbf{W}_{ih}
+        \mathbf{x}(t) + \mathbf{b} \right) - \Delta t \, \gamma \mathbf{h}(t-1)
+        - \Delta t \, \epsilon \mathbf{z}(t), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \Delta t \, \mathbf{z}(t),
 \end{aligned}
 ```
 

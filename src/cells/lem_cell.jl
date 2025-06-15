@@ -21,16 +21,23 @@ See [`LEM`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\boldsymbol{\Delta t_n} &= \Delta \hat{t} \hat{\sigma}
-    (W_1 y_{n-1} + V_1 u_n + b_1) \\
-\overline{\boldsymbol{\Delta t_n}} &= \Delta \hat{t}
-    \hat{\sigma} (W_2 y_{n-1} + V_2 u_n + b_2) \\
-z_n &= (1 - \boldsymbol{\Delta t_n}) \odot z_{n-1} +
-    \boldsymbol{\Delta t_n} \odot \sigma (W_z y_{n-1} + V_z u_n + b_z) \\
-y_n &= (1 - \boldsymbol{\Delta t_n}) \odot y_{n-1} +
-    \boldsymbol{\Delta t_n} \odot \sigma (W_y z_n + V_y u_n + b_y)
+    \boldsymbol{\Delta t}(t) &= \Delta \hat{t} \, \hat{\sigma} \left(
+        \mathbf{W}^{1}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{1}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{1} \right), \\
+    \overline{\boldsymbol{\Delta t}}(t) &= \Delta \hat{t} \, \hat{\sigma}
+        \left( \mathbf{W}^{2}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{2}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{2} \right), \\
+    \mathbf{z}(t) &= \left( 1 - \boldsymbol{\Delta t}(t) \right) \odot
+        \mathbf{z}(t-1) + \boldsymbol{\Delta t}(t) \odot \sigma \left(
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih} \mathbf{x}(t)
+        + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \boldsymbol{\Delta t}(t) \right) \odot
+        \mathbf{h}(t-1) + \boldsymbol{\Delta t}(t) \odot \sigma \left(
+        \mathbf{W}^{h}_{zh} \mathbf{z}(t) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right)
 \end{aligned}
 ```
 
@@ -120,14 +127,20 @@ See [`LEMCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-\boldsymbol{\Delta t_n} &= \Delta \hat{t} \hat{\sigma}
-    (W_1 y_{n-1} + V_1 u_n + b_1) \\
-\overline{\boldsymbol{\Delta t_n}} &= \Delta \hat{t}
-    \hat{\sigma} (W_2 y_{n-1} + V_2 u_n + b_2) \\
-z_n &= (1 - \boldsymbol{\Delta t_n}) \odot z_{n-1} +
-    \boldsymbol{\Delta t_n} \odot \sigma (W_z y_{n-1} + V_z u_n + b_z) \\
-y_n &= (1 - \boldsymbol{\Delta t_n}) \odot y_{n-1} +
-    \boldsymbol{\Delta t_n} \odot \sigma (W_y z_n + V_y u_n + b_y)
+    \boldsymbol{\Delta t}(t) &= \Delta \hat{t} \, \hat{\sigma} \left(
+        \mathbf{W}^{1}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{1}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{1} \right), \\
+    \overline{\boldsymbol{\Delta t}}(t) &= \Delta \hat{t} \, \hat{\sigma}
+        \left( \mathbf{W}^{2}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{2}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{2} \right), \\
+    \mathbf{z}(t) &= \left( 1 - \boldsymbol{\Delta t}(t) \right) \odot
+        \mathbf{z}(t-1) + \boldsymbol{\Delta t}(t) \odot \sigma \left(
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih} \mathbf{x}(t)
+        + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \boldsymbol{\Delta t}(t) \right) \odot
+        \mathbf{h}(t-1) + \boldsymbol{\Delta t}(t) \odot \sigma \left(
+        \mathbf{W}^{h}_{zh} \mathbf{z}(t) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right)
 \end{aligned}
 ```
 

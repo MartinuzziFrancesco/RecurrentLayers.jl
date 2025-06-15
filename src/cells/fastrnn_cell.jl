@@ -27,10 +27,12 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \sigma(W_h x_t + U_h h_{t-1} + b), \\
-h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
+    \tilde{\mathbf{h}}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
+        \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right), \\
+    \mathbf{h}(t) &= \alpha \, \tilde{\mathbf{h}}(t) + \beta \, \mathbf{h}(t-1)
 \end{aligned}
 ```
 
@@ -119,10 +121,12 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \sigma(W_h x_t + U_h h_{t-1} + b), \\
-h_t &= \alpha \tilde{h}_t + \beta h_{t-1}
+    \tilde{\mathbf{h}}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
+        \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right), \\
+    \mathbf{h}(t) &= \alpha \, \tilde{\mathbf{h}}(t) + \beta \, \mathbf{h}(t-1)
 \end{aligned}
 ```
 
@@ -195,11 +199,15 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W x_t + U h_{t-1} + b_z), \\
-\tilde{h}_t &= \tanh(W x_t + U h_{t-1} + b_h), \\
-h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
+    \mathbf{h}(t) &= \left( \left( \zeta (1 - \mathbf{z}(t)) + \nu \right)
+        \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```
 
@@ -294,11 +302,15 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1} + b_z), \\
-\tilde{h}_t &= \tanh(W_h x_t + U_h h_{t-1} + b_h), \\
-h_t &= \big((\zeta (1 - z_t) + \nu) \odot \tilde{h}_t\big) + z_t \odot h_{t-1}
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
+    \mathbf{h}(t) &= \left( \left( \zeta (1 - \mathbf{z}(t)) + \nu \right)
+        \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```
 

@@ -12,12 +12,17 @@ See [`FSRNN`](@ref) for a layer that processes entire sequences.
 - `slow_cell`: the chosen slow cell.
 
 # Equations
+
 ```math
 \begin{aligned}
-    h_t^{F_1} &= f^{F_1}\left(h_{t-1}^{F_k}, x_t\right) \\
-    h_t^S &= f^S\left(h_{t-1}^S, h_t^{F_1}\right) \\
-    h_t^{F_2} &= f^{F_2}\left(h_t^{F_1}, h_t^S\right) \\
-    h_t^{F_i} &= f^{F_i}\left(h_t^{F_{i-1}}\right) \quad \text{for } 3 \leq i \leq k
+    \mathbf{h}^{F_1}(t) &= f^{F_1}\left( \mathbf{h}^{F_k}(t-1), \mathbf{x}(t)
+        \right), \\
+    \mathbf{h}^{S}(t) &= f^{S}\left( \mathbf{h}^{S}(t-1), \mathbf{h}^{F_1}(t)
+        \right), \\
+    \mathbf{h}^{F_2}(t) &= f^{F_2}\left( \mathbf{h}^{F_1}(t), \mathbf{h}^{S}(t)
+        \right), \\
+    \mathbf{h}^{F_i}(t) &= f^{F_i}\left( \mathbf{h}^{F_{i-1}}(t) \right) \quad
+        \text{for } 3 \leq i \leq k
 \end{aligned}
 ```
 
@@ -95,12 +100,17 @@ See [`FSRNNCell`](@ref) for a layer that processes a single sequence.
 - `return_state`: option to return the last state. Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    h_t^{F_1} &= f^{F_1}\left(h_{t-1}^{F_k}, x_t\right) \\
-    h_t^S &= f^S\left(h_{t-1}^S, h_t^{F_1}\right) \\
-    h_t^{F_2} &= f^{F_2}\left(h_t^{F_1}, h_t^S\right) \\
-    h_t^{F_i} &= f^{F_i}\left(h_t^{F_{i-1}}\right) \quad \text{for } 3 \leq i \leq k
+    \mathbf{h}^{F_1}(t) &= f^{F_1}\left( \mathbf{h}^{F_k}(t-1), \mathbf{x}(t)
+        \right), \\
+    \mathbf{h}^{S}(t) &= f^{S}\left( \mathbf{h}^{S}(t-1), \mathbf{h}^{F_1}(t)
+        \right), \\
+    \mathbf{h}^{F_2}(t) &= f^{F_2}\left( \mathbf{h}^{F_1}(t), \mathbf{h}^{S}(t)
+        \right), \\
+    \mathbf{h}^{F_i}(t) &= f^{F_i}\left( \mathbf{h}^{F_{i-1}}(t) \right) \quad
+        \text{for } 3 \leq i \leq k
 \end{aligned}
 ```
 

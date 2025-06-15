@@ -24,12 +24,14 @@ See [`ATR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{p}_t &= \mathbf{W} \mathbf{x}_t, \\
-    \mathbf{q}_t &= \mathbf{U} \mathbf{h}_{t-1}, \\
-    \mathbf{i}_t &= \sigma(\mathbf{p}_t + \mathbf{q}_t), \\
-    \mathbf{f}_t &= \sigma(\mathbf{p}_t - \mathbf{q}_t), \\
-    \mathbf{h}_t &= \mathbf{i}_t \circ \mathbf{p}_t + \mathbf{f}_t \circ \mathbf{h}_{t-1}.
+    \mathbf{p}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}, \\
+    \mathbf{q}(t) &= \mathbf{W}_{hh} \mathbf{h}(t-1), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{p}(t) + \mathbf{q}(t) \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{p}(t) - \mathbf{q}(t) \right), \\
+    \mathbf{h}(t) &= \mathbf{i}(t) \circ \mathbf{p}(t) + \mathbf{f}(t) \circ
+        \mathbf{h}(t-1).
 \end{aligned}
+
 ```
 
 # Forward
@@ -105,12 +107,14 @@ See [`ATRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{p}_t &= \mathbf{W} \mathbf{x}_t, \\
-    \mathbf{q}_t &= \mathbf{U} \mathbf{h}_{t-1}, \\
-    \mathbf{i}_t &= \sigma(\mathbf{p}_t + \mathbf{q}_t), \\
-    \mathbf{f}_t &= \sigma(\mathbf{p}_t - \mathbf{q}_t), \\
-    \mathbf{h}_t &= \mathbf{i}_t \circ \mathbf{p}_t + \mathbf{f}_t \circ \mathbf{h}_{t-1}.
+    \mathbf{p}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}, \\
+    \mathbf{q}(t) &= \mathbf{W}_{hh} \mathbf{h}(t-1), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{p}(t) + \mathbf{q}(t) \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{p}(t) - \mathbf{q}(t) \right), \\
+    \mathbf{h}(t) &= \mathbf{i}(t) \circ \mathbf{p}(t) + \mathbf{f}(t) \circ
+        \mathbf{h}(t-1).
 \end{aligned}
+
 ```
 
 # Forward

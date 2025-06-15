@@ -22,12 +22,15 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    y_n &= y_{n-1} + \Delta t \, \hat{\sigma}(c) \odot z_n, \\
-    z_n &= z_{n-1} - \Delta t \, \hat{\sigma}(c) \odot \left[ 
-        \sigma \left( w \odot y_{n-1} + V y_{n-1} + b \right) + 
-        \alpha y_{n-1} \right].
+    \mathbf{z}(t) &= \mathbf{z}(t-1) - \Delta t \, \hat{\sigma}(\mathbf{c}) \odot \left[
+        \sigma\left( \mathbf{w} \odot \mathbf{h}(t-1) +
+        \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b} \right) +
+        \alpha \, \mathbf{h}(t-1) \right] \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \Delta t \, \hat{\sigma}(\mathbf{c}) \odot
+        \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -118,12 +121,15 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
   
 # Equations
+
 ```math
 \begin{aligned}
-    y_n &= y_{n-1} + \Delta t \, \hat{\sigma}(c) \odot z_n, \\
-    z_n &= z_{n-1} - \Delta t \, \hat{\sigma}(c) \odot \left[ 
-        \sigma \left( w \odot y_{n-1} + V y_{n-1} + b \right) + 
-        \alpha y_{n-1} \right].
+    \mathbf{z}(t) &= \mathbf{z}(t-1) - \Delta t \, \hat{\sigma}(\mathbf{c}) \odot \left[
+        \sigma\left( \mathbf{w} \odot \mathbf{h}(t-1) +
+        \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b} \right) +
+        \alpha \, \mathbf{h}(t-1) \right] \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \Delta t \, \hat{\sigma}(\mathbf{c}) \odot
+        \mathbf{z}(t)
 \end{aligned}
 ```
 

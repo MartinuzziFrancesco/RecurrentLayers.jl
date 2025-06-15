@@ -24,13 +24,13 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
-        \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
-        \mathbf{h}_{t-1}\right).
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{a} \circ \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{c} \circ \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 - \mathbf{c}(t)\right)
+        \circ \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{a}(t) \circ
+        \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -115,13 +115,13 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
-        \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
-        \mathbf{h}_{t-1}\right).
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{a} \circ \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{c} \circ \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 - \mathbf{c}(t)\right)
+        \circ \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{a}(t) \circ
+        \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -192,13 +192,13 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right).
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{a}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{c}(t)\right) \circ \tanh\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{a}(t) \circ \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -279,13 +279,13 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right).
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{a}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{c}(t)\right) \circ \tanh\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{a}(t) \circ \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 

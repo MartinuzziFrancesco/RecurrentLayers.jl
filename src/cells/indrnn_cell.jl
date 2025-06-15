@@ -24,9 +24,10 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
-\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} +
-    \mathbf{b})
+    \mathbf{h}(t) = \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{u}
+        \odot \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
 
 # Forward
@@ -104,10 +105,12 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
-\mathbf{h}_{t} = \sigma(\mathbf{W} \mathbf{x}_t + \mathbf{u} \odot \mathbf{h}_{t-1} +
-    \mathbf{b})
+    \mathbf{h}(t) = \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{u}
+        \odot \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
+
 # Forward
 
     indrnn(inp, state)
