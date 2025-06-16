@@ -91,7 +91,7 @@ end
     LightRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Light recurrent unit network](https://www.mdpi.com/2079-9292/13/16/3204).
+Light recurrent unit network.
 See [`LightRUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
