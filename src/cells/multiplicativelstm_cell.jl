@@ -6,7 +6,7 @@
         init_multiplicative_kernel=glorot_uniform,
         bias = true)
 
-[Multiplicative long short term memory cell](https://arxiv.org/abs/1609.07959).
+Multiplicative long short term memory cell [^Krause2017].
 See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -61,6 +61,10 @@ See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Krause2017]: Krause, B. et al.  
+    _Multiplicative LSTM for sequence modelling_  
+    Workshop ICLR 2017.
 """
 struct MultiplicativeLSTMCell{I, H, M, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -105,7 +109,7 @@ end
         return_state=false,
         kwargs...)
 
-[Multiplicative long short term memory network](https://arxiv.org/abs/1609.07959).
+Multiplicative long short term memory network [^Krause2017].
 See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -161,6 +165,10 @@ See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequenc
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Krause2017]: Krause, B. et al.  
+    _Multiplicative LSTM for sequence modelling_  
+    Workshop ICLR 2017.
 """
 struct MultiplicativeLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

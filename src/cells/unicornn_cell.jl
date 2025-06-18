@@ -4,7 +4,7 @@
         alpha=0.0, init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform, bias = true)
 
-[Undamped independent controlled oscillatory recurrent neural unit](https://arxiv.org/abs/2103.05487).
+Undamped independent controlled oscillatory recurrent neural unit [^Rusch2021].
 See [`coRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -51,6 +51,10 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Rusch2021]: Rusch, T. K. et al.  
+    _UnICORNN: A recurrent model for learning very long time dependencies_  
+    ICML 2021.
 """
 struct UnICORNNCell{I, H, Z, V, D, A} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -101,7 +105,7 @@ end
         alpha=0.0, return_state=false, init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform, bias = true)
 
-[Undamped independent controlled oscillatory recurrent neural network](https://arxiv.org/abs/2010.00951).
+Undamped independent controlled oscillatory recurrent neural network [^Rusch2021].
 See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -150,6 +154,10 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Rusch2021]: Rusch, T. K. et al.  
+    _UnICORNN: A recurrent model for learning very long time dependencies_  
+    ICML 2021.
 """
 struct UnICORNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform)
 
 
-[Simple gated recurrent network](https://doi.org/10.1049/gtd2.12056).
+Simple gated recurrent network [^Zu2020].
 See [`SGRN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -49,6 +49,10 @@ See [`SGRN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Zu2020]: Zu, X. et al.  
+    _ A simple gated recurrent network for detection of power quality disturbances_  
+    IET 2018.
 """
 struct SGRNCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -87,7 +91,7 @@ end
     SGRN(input_size, hidden_size;
         return_state = false, kwargs...)
 
-[Simple gated recurrent network](https://doi.org/10.1049/gtd2.12056).
+Simple gated recurrent network [^Zu2020].
 See [`SGRNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -132,6 +136,10 @@ See [`SGRNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Zu2020]: Zu, X. et al.  
+    _ A simple gated recurrent network for detection of power quality disturbances_  
+    IET 2018.
 """
 struct SGRN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

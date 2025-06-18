@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Chaos free network unit](https://arxiv.org/abs/1612.06212).
+Chaos free network unit [^Laurent2017].
 See [`CFN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -52,6 +52,10 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Laurent2017]: Laurent, T. et al.  
+    _A recurrent neural network without chaos_  
+    ICLR 2017.
 """
 struct CFNCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -92,7 +96,7 @@ end
     CFN(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Chaos free network unit](https://arxiv.org/abs/1612.06212).
+Chaos free network unit [^Laurent2017].
 See [`CFNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -142,6 +146,10 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Laurent2017]: Laurent, T. et al.  
+    _A recurrent neural network without chaos_  
+    ICLR 2017.
 """
 struct CFN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

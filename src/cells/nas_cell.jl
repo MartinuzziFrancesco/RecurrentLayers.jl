@@ -29,7 +29,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+Neural Architecture Search unit [^Zoph2016].
 See [`NAS`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -95,6 +95,10 @@ See [`NAS`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Zoph2016]: Zoph, B. et al.  
+    _Neural Architecture Search with Reinforcement Learning._  
+    arXiv 2016.
 """
 struct NASCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -159,7 +163,7 @@ end
         kwargs...)
 
 
-[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+Neural Architecture Search unit [^Zoph2016].
 See [`NASCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -226,6 +230,10 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Zoph2016]: Zoph, B. et al.  
+    _Neural Architecture Search with Reinforcement Learning._  
+    arXiv 2016.
 """
 struct NAS{S, M} <: AbstractRecurrentLayer{S}
     cell::M

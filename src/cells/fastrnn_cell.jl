@@ -6,7 +6,7 @@
         init_alpha = 3.0, init_beta = - 3.0,
         bias = true)
 
-[Fast recurrent neural network cell](https://arxiv.org/abs/1901.02358).
+Fast recurrent neural network cell [^Kusupati2018].
 See [`FastRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -52,6 +52,11 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Kusupati2018]: Kusupati, A. et al.  
+    _FastGRNN: A Fast, Accurate, Stable and Tiny Kilobyte Sized
+    Gated Recurrent Neural Network._  
+    NeurIPS 2018.
 """
 struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     Wi::I
@@ -97,7 +102,7 @@ end
     FastRNN(input_size => hidden_size, [activation];
         return_state = false, kwargs...)
 
-[Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
+Fast recurrent neural network [^Kusupati2018].
 See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
@@ -147,6 +152,11 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Kusupati2018]: Kusupati, A. et al.  
+    _FastGRNN: A Fast, Accurate, Stable and Tiny Kilobyte Sized
+    Gated Recurrent Neural Network._  
+    NeurIPS 2018.
 """
 struct FastRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -178,7 +188,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Fast gated recurrent neural network cell](https://arxiv.org/abs/1901.02358).
+Fast gated recurrent neural network cell [^Kusupati2018].
 See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -228,6 +238,11 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Kusupati2018]: Kusupati, A. et al.  
+    _FastGRNN: A Fast, Accurate, Stable and Tiny Kilobyte Sized
+    Gated Recurrent Neural Network._  
+    NeurIPS 2018.
 """
 struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
     Wi::I
@@ -278,7 +293,7 @@ end
     FastGRNN(input_size => hidden_size, [activation];
     return_state = false, kwargs...)
 
-[Fast recurrent neural network](https://arxiv.org/abs/1901.02358).
+Fast recurrent neural network [^Kusupati2018].
 See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 
 # Arguments
@@ -332,6 +347,11 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Kusupati2018]: Kusupati, A. et al.  
+    _FastGRNN: A Fast, Accurate, Stable and Tiny Kilobyte Sized
+    Gated Recurrent Neural Network._  
+    NeurIPS 2018.
 """
 struct FastGRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

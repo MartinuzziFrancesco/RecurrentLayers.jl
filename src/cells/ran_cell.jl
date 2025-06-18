@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Recurrent Additive Network cell](https://arxiv.org/pdf/1705.07393).
+Recurrent Additive Network cell [^Lee2017].
 See [`RAN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -53,6 +53,10 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Lee2017]: Lee, K. et al.  
+    _Recurrent Additive Networks._  
+    arXiv 2017.
 """
 struct RANCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -93,7 +97,7 @@ end
     RAN(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Recurrent Additive Network cell](https://arxiv.org/pdf/1705.07393).
+Recurrent Additive Network cell [^Lee2017].
 See [`RANCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -142,6 +146,10 @@ See [`RANCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Lee2017]: Lee, K. et al.  
+    _Recurrent Additive Networks._  
+    arXiv 2017.
 """
 struct RAN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

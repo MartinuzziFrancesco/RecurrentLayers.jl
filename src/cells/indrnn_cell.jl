@@ -7,7 +7,7 @@
         bias = true)
 
 
-[Independently recurrent cell](https://arxiv.org/pdf/1803.04831).
+Independently recurrent cell [^Li2018].
 See [`IndRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -46,6 +46,11 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Li2018]: Li, S. et al.  
+    _Independently Recurrent Neural Network (IndRNN):
+    Building A Longer and Deeper RNN._  
+    CVPR 2018.
 """
 struct IndRNNCell{F, I, H, V} <: AbstractRecurrentCell
     activation::F
@@ -86,7 +91,7 @@ end
     IndRNN(input_size, hidden_size, [activation];
         return_state = false, kwargs...)
 
-[Independently recurrent network](https://arxiv.org/pdf/1803.04831).
+Independently recurrent network [^Li2018].
 See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -128,6 +133,11 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Li2018]: Li, S. et al.  
+    _Independently Recurrent Neural Network (IndRNN):
+    Building A Longer and Deeper RNN._  
+    CVPR 2018.
 """
 struct IndRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

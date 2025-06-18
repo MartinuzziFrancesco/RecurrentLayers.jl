@@ -6,7 +6,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951).
+Coupled oscillatory recurrent neural unit [^Rusch2021].
 See [`coRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -53,6 +53,11 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Rusch2021]: Rusch, T. K. et al.  
+    _Coupled Oscillatory Recurrent Neural Network (coRNN):
+    An accurate and (gradient) stable architecture for learning long time dependencies_  
+    ICLR 2021.
 """
 struct coRNNCell{I, H, Z, V, D, G, E} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -100,7 +105,7 @@ end
         return_state=false, init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform, bias = true)
 
-[Coupled oscillatory recurrent neural unit](https://arxiv.org/abs/2010.00951).
+Coupled oscillatory recurrent neural unit [^Rusch2021].
 See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -149,6 +154,11 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Rusch2021]: Rusch, T. K. et al.  
+    _Coupled Oscillatory Recurrent Neural Network (coRNN):
+    An accurate and (gradient) stable architecture for learning long time dependencies_  
+    ICLR 2021.
 """
 struct coRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

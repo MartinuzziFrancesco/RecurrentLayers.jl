@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true, encoder_bias = true)
 
-[Minimal recurrent neural network unit](https://arxiv.org/abs/1711.06788).
+Minimal recurrent neural network unit [^Zhang2017].
 See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -51,6 +51,10 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Zhang2017]: Zhang, M. et al.  
+    _Minimal RNN: Toward more interpretable and trainable recurrent nets._  
+    NeurIPS 2017.
 """
 struct MinimalRNNCell{I, H, Z, V, E} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -92,7 +96,7 @@ end
     MinimalRNN(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Minimal recurrent neural network](https://arxiv.org/abs/1711.06788).
+Minimal recurrent neural network [^Zhang2017].
 See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -140,6 +144,10 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Zhang2017]: Zhang, M. et al.  
+    _Minimal RNN: Toward more interpretable and trainable recurrent nets._  
+    NeurIPS 2017.
 """
 struct MinimalRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

@@ -6,7 +6,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true, alpha = 0.0)
 
-[Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
+Structurally contraint recurrent unit [^Mikolov2015].
 See [`SCRN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -53,6 +53,11 @@ See [`SCRN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+
+[^Mikolov2015]: Mikolov, T. et al.  
+    _Learning longer memory in recurrent neural networks._  
+    ICLR 2015.
 """
 struct SCRNCell{I, H, C, V, A} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -102,7 +107,7 @@ end
         bias = true, alpha = 0.0,
         return_state = false)
 
-[Structurally contraint recurrent unit](https://arxiv.org/pdf/1412.7753).
+Structurally contraint recurrent unit [^Mikolov2015].
 See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -150,6 +155,11 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+
+[^Mikolov2015]: Mikolov, T. et al.  
+    _Learning longer memory in recurrent neural networks._  
+    ICLR 2015.
 """
 struct SCRN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

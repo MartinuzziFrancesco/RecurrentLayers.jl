@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent unit [^Balduzzi2016].
 See [`TRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -49,6 +49,10 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TRNNCell{I, V, A} <: AbstractRecurrentCell
     Wi::I
@@ -89,7 +93,7 @@ end
     TRNN(input_size => hidden_size, [activation];
         return_state = false, kwargs...)
 
-[Strongly typed recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent unit [^Balduzzi2016].
 See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -136,6 +140,10 @@ See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -166,7 +174,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed gated recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed gated recurrent unit [^Balduzzi2016].
 See [`TGRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -213,6 +221,10 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, inp)` is the new hidden state together with the current input. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TGRUCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -260,7 +272,7 @@ end
     TGRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Strongly typed recurrent gated unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent gated unit [^Balduzzi2016].
 See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -309,6 +321,10 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TGRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -339,7 +355,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed long short term memory cell](https://arxiv.org/abs/1602.02218).
+Strongly typed long short term memory cell [^Balduzzi2016].
 See [`TLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -388,6 +404,10 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate, inp)` is the new hidden and cell state, together
   with the current input. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -438,7 +458,7 @@ end
     TLSTM(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Strongly typed long short term memory](https://arxiv.org/abs/1602.02218).
+Strongly typed long short term memory [^Balduzzi2016].
 See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -488,6 +508,10 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden states `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

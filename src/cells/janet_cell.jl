@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true, beta_value=1.0)
 
-[Just another network unit](https://arxiv.org/abs/1804.04849).
+Just another network unit [^Westhuizen2018].
 See [`JANET`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -54,6 +54,11 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+
+[^Westhuizen2018]: van der Westhuizen, J. et al.  
+    _The unreasonable effectiveness of the forget gate_  
+    arXiv 2018.
 """
 struct JANETCell{I, H, B, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -102,7 +107,7 @@ end
     JANET(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Just another network](https://arxiv.org/abs/1804.04849).
+Just another network [^Westhuizen2018].
 See [`JANETCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -153,6 +158,11 @@ See [`JANETCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+
+[^Westhuizen2018]: van der Westhuizen, J. et al.  
+    _The unreasonable effectiveness of the forget gate_  
+    arXiv 2018.
 """
 struct JANET{S, M} <: AbstractRecurrentLayer{S}
     cell::M
