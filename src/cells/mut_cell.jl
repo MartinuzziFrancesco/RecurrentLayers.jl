@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Mutated unit 1 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 1 cell [^Jozefowicz2015].
 See [`MUT1`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -21,12 +21,18 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \tanh\left(
+        \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{b}^{h} \right) +
+        \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -46,6 +52,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -91,7 +101,7 @@ end
         return_state=false,
         kwargs...)
 
-[Mutated unit 1 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 1 network [^Jozefowicz2015].
 See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -109,12 +119,18 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \tanh\left(
+        \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{b}^{h} \right) +
+        \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -135,6 +151,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + \tanh(W_h x_t) + b_h) \odot z \\
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT1{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -165,7 +185,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Mutated unit 2 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 2 cell [^Jozefowicz2015].
 See [`MUT2`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -181,12 +201,17 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z h_t + b_z), \\
-r &= \sigma(x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{x}(t) + \mathbf{W}^{r}_{hh}
+        \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -206,6 +231,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT2Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -250,7 +279,7 @@ end
         return_state=false,
         kwargs...)
 
-[Mutated unit 2 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 2 network [^Jozefowicz2015].
 See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -268,12 +297,17 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z h_t + b_z), \\
-r &= \sigma(x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{x}(t) + \mathbf{W}^{r}_{hh}
+        \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -294,6 +328,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT2{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -324,7 +362,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Mutated unit 3 cell](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 3 cell [^Jozefowicz2015].
 See [`MUT3`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -340,12 +378,18 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z \tanh(h_t) + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \tanh\left( \mathbf{h}(t) \right) + \mathbf{b}^{z}
+        \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -365,6 +409,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -407,7 +455,7 @@ end
     MUT3(input_size => hidden_size;
     return_state = false, kwargs...)
 
-[Mutated unit 3 network](https://proceedings.mlr.press/v37/jozefowicz15.pdf).
+Mutated unit 3 network [^Jozefowicz2015].
 See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -425,12 +473,18 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z &= \sigma(W_z x_t + U_z \tanh(h_t) + b_z), \\
-r &= \sigma(W_r x_t + U_r h_t + b_r), \\
-h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
-&\quad + h_t \odot (1 - z).
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \tanh\left( \mathbf{h}(t) \right) + \mathbf{b}^{z}
+        \right), \\
+    \mathbf{r}(t) &= \sigma\left( \mathbf{W}^{r}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{r}_{hh} \mathbf{h}(t) + \mathbf{b}^{r} \right), \\
+    \mathbf{h}(t+1) &= \left[ \tanh\left( \mathbf{W}^{h}_{hh} \left(
+        \mathbf{r}(t) \odot \mathbf{h}(t) \right) + \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{h} \right) \right] \odot \mathbf{z}(t) \\
+        &\quad + \mathbf{h}(t) \odot \left( 1 - \mathbf{z}(t) \right)
 \end{aligned}
 ```
 
@@ -451,6 +505,10 @@ h_{t+1} &= \tanh(U_h (r \odot h_t) + W_h x_t + b_h) \odot z \\
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Jozefowicz2015]: Jozefowicz, R. et al.  
+    _An Empirical Exploration of Recurrent Network Architectures._  
+    ICML 2015.
 """
 struct MUT3{S, M} <: AbstractRecurrentLayer{S}
     cell::M

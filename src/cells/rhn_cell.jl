@@ -48,7 +48,7 @@ end
         couple_carry = true,
         cell_kwargs...)
 
-[Recurrent highway network](https://arxiv.org/pdf/1607.03474).
+Recurrent highway network [^Zilly2017].
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHN`](@ref) for a layer that processes entire sequences.
 
@@ -65,17 +65,20 @@ See [`RHN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`
 
 # Equations
+
 ```math
 \begin{aligned}
-s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]}
-    \odot c_{\ell}^{[t]}, \\
-\text{where} \\
-h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}}
-    s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
-t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}}
-    s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
-c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}}
-    s_{\ell-1}^{[t]} + b_{c_{\ell}})
+    \mathbf{s}_{\ell}(t) &= \mathbf{h}_{\ell}(t) \odot \mathbf{t}_{\ell}(t) +
+        \mathbf{s}_{\ell-1}(t) \odot \mathbf{c}_{\ell}(t) \\
+    \mathbf{h}_{\ell}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{h_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{h_{\ell}} \right) \\
+    \mathbf{t}_{\ell}(t) &= \sigma\left( \mathbf{W}^{t}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{t_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{t_{\ell}} \right) \\
+    \mathbf{c}_{\ell}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{c_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{c_{\ell}} \right)
 \end{aligned}
 ```
 
@@ -83,6 +86,9 @@ c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}}
 
     rnncell(inp, [state])
 
+[^Zilly2017]: Zilly, J. G. et al.  
+    _Recurrent Highway Networks._  
+    ICML 2017.
 """
 struct RHNCell{C}
     layers::C
@@ -151,7 +157,7 @@ end
         return_state = false,
         kwargs...)
 
-[Recurrent highway network](https://arxiv.org/pdf/1607.03474).
+Recurrent highway network [^Zilly2017].
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHNCell`](@ref) for a layer that processes a single sequence.
 
@@ -169,19 +175,26 @@ See [`RHNCell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-s_{\ell}^{[t]} &= h_{\ell}^{[t]} \odot t_{\ell}^{[t]} + s_{\ell-1}^{[t]}
-    \odot c_{\ell}^{[t]}, \\
-\text{where} \\
-h_{\ell}^{[t]} &= \tanh(W_h x^{[t]}\mathbb{I}_{\ell = 1} + U_{h_{\ell}}
-    s_{\ell-1}^{[t]} + b_{h_{\ell}}), \\
-t_{\ell}^{[t]} &= \sigma(W_t x^{[t]}\mathbb{I}_{\ell = 1} + U_{t_{\ell}}
-    s_{\ell-1}^{[t]} + b_{t_{\ell}}), \\
-c_{\ell}^{[t]} &= \sigma(W_c x^{[t]}\mathbb{I}_{\ell = 1} + U_{c_{\ell}}
-    s_{\ell-1}^{[t]} + b_{c_{\ell}})
+    \mathbf{s}_{\ell}(t) &= \mathbf{h}_{\ell}(t) \odot \mathbf{t}_{\ell}(t) +
+        \mathbf{s}_{\ell-1}(t) \odot \mathbf{c}_{\ell}(t) \\
+    \mathbf{h}_{\ell}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{h_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{h_{\ell}} \right) \\
+    \mathbf{t}_{\ell}(t) &= \sigma\left( \mathbf{W}^{t}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{t_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{t_{\ell}} \right) \\
+    \mathbf{c}_{\ell}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) \,
+        \mathbb{I}_{\ell = 1} + \mathbf{W}^{c_{\ell}}_{hh} \mathbf{s}_{\ell-1}(t)
+        + \mathbf{b}^{c_{\ell}} \right)
 \end{aligned}
 ```
+
+[^Zilly2017]: Zilly, J. G. et al.  
+    _Recurrent Highway Networks._  
+    ICML 2017.
 """
 struct RHN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

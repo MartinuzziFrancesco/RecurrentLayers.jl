@@ -6,7 +6,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Light recurrent unit](https://www.mdpi.com/2079-9292/13/16/3204).
+Light recurrent unit [^Ye2024].
 See [`LightRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -22,11 +22,14 @@ See [`LightRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \tanh(W_h x_t), \\
-f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}_{ih}^{h} \mathbf{x}(t) \right), \\
+    \mathbf{f}(t) &= \delta\left( \mathbf{W}_{ih}^{f} \mathbf{x}(t) +
+        \mathbf{W}_{hh}^{f} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \mathbf{f}(t) \right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -46,6 +49,11 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Ye2024]: Ye, H. et al.  
+    _ Light Recurrent Unit: Towards an Interpretable Recurrent Neural Network
+    for Modeling Long-Range Dependency_  
+    MDPI Electronics 2024.
 """
 struct LightRUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -88,7 +96,7 @@ end
     LightRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Light recurrent unit network](https://www.mdpi.com/2079-9292/13/16/3204).
+Light recurrent unit network [^Ye2024].
 See [`LightRUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -106,11 +114,14 @@ See [`LightRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\tilde{h}_t &= \tanh(W_h x_t), \\
-f_t         &= \delta(W_f x_t + U_f h_{t-1} + b_f), \\
-h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
+    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}_{ih}^{h} \mathbf{x}(t) \right), \\
+    \mathbf{f}(t) &= \delta\left( \mathbf{W}_{ih}^{f} \mathbf{x}(t) +
+        \mathbf{W}_{hh}^{f} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{h}(t) &= \left( 1 - \mathbf{f}(t) \right) \odot \mathbf{h}(t-1) +
+        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -131,6 +142,11 @@ h_t         &= (1 - f_t) \odot h_{t-1} + f_t \odot \tilde{h}_t.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Ye2024]: Ye, H. et al.  
+    _ Light Recurrent Unit: Towards an Interpretable Recurrent Neural Network
+    for Modeling Long-Range Dependency_  
+    MDPI Electronics 2024.
 """
 struct LightRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M

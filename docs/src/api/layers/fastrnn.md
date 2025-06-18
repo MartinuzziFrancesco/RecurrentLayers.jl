@@ -1,0 +1,5 @@
+# FastRNN
+
+```@docs
+    FastRNN
+```

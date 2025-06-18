@@ -1,0 +1,5 @@
+# FastRNNCell
+
+```@docs
+    FastRNNCell
+```

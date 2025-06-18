@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Light gated recurrent unit](https://arxiv.org/pdf/1803.10225).
+Light gated recurrent unit [^Ravanelli2018].
 The implementation does not include the batch normalization as
 described in the original paper.
 See [`LiGRU`](@ref) for a layer that processes entire sequences.
@@ -23,11 +23,16 @@ See [`LiGRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
-\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
-h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \text{ReLU}\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h}
+        \right), \\
+    \mathbf{h}(t) &= \mathbf{z}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{z}(t)\right) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -47,6 +52,11 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+
+[^Ravanelli2018]: Ravanelli, M. et al.  
+    _Light Gated Recurrent Units for Speech Recognition._  
+    IEEE Transactions on Emerging Topics in Computing 2018.
 """
 struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -87,7 +97,7 @@ end
     LiGRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Light gated recurrent network](https://arxiv.org/pdf/1803.10225).
+Light gated recurrent network [^Ravanelli2018].
 The implementation does not include the batch normalization as
 described in the original paper.
 See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
@@ -107,11 +117,16 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-z_t &= \sigma(W_z x_t + U_z h_{t-1}), \\
-\tilde{h}_t &= \text{ReLU}(W_h x_t + U_h h_{t-1}), \\
-h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
+    \mathbf{z}(t) &= \sigma\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \tilde{\mathbf{h}}(t) &= \text{ReLU}\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h}
+        \right), \\
+    \mathbf{h}(t) &= \mathbf{z}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{z}(t)\right) \odot \tilde{\mathbf{h}}(t)
 \end{aligned}
 ```
 
@@ -132,6 +147,11 @@ h_t &= z_t \odot h_{t-1} + (1 - z_t) \odot \tilde{h}_t
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+
+[^Ravanelli2018]: Ravanelli, M. et al.  
+    _Light Gated Recurrent Units for Speech Recognition._  
+    IEEE Transactions on Emerging Topics in Computing 2018.
 """
 struct LiGRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M

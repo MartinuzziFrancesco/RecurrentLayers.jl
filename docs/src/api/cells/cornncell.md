@@ -1,0 +1,5 @@
+# coRNNCell
+
+```@docs
+    coRNNCell
+```

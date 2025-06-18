@@ -1,0 +1,5 @@
+# MultiplicativeLSTM
+
+```@docs
+    MultiplicativeLSTM
+```

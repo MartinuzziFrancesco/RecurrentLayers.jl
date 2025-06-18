@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent unit [^Balduzzi2016].
 See [`TRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -22,11 +22,14 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{W} x_t \\
-    f_t &= \sigma (\mathbf{V} x_t + b) \\
-    h_t &= f_t \odot h_{t-1} + (1 - f_t) \odot z_t
+    \mathbf{z}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{fh} \mathbf{x}(t) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{f}(t)\right) \odot \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -46,6 +49,10 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TRNNCell{I, V, A} <: AbstractRecurrentCell
     Wi::I
@@ -86,7 +93,7 @@ end
     TRNN(input_size => hidden_size, [activation];
         return_state = false, kwargs...)
 
-[Strongly typed recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent unit [^Balduzzi2016].
 See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -105,11 +112,14 @@ See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{W} x_t \\
-    f_t &= \sigma (\mathbf{V} x_t + b) \\
-    h_t &= f_t \odot h_{t-1} + (1 - f_t) \odot z_t
+    \mathbf{z}(t) &= \mathbf{W}_{ih} \mathbf{x}(t) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}_{fh} \mathbf{x}(t) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) + \left(1 -
+        \mathbf{f}(t)\right) \odot \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -130,6 +140,10 @@ See [`TRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -160,7 +174,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed gated recurrent unit](https://arxiv.org/abs/1602.02218).
+Strongly typed gated recurrent unit [^Balduzzi2016].
 See [`TGRU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -176,13 +190,17 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    h_t &= f_t \odot h_{t-1} + z_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) +
+        \mathbf{z}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -203,6 +221,10 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, inp)` is the new hidden state together with the current input. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TGRUCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -250,7 +272,7 @@ end
     TGRU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Strongly typed recurrent gated unit](https://arxiv.org/abs/1602.02218).
+Strongly typed recurrent gated unit [^Balduzzi2016].
 See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -268,13 +290,17 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    h_t &= f_t \odot h_{t-1} + z_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{h}(t) &= \mathbf{f}(t) \odot \mathbf{h}(t-1) +
+        \mathbf{z}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -295,6 +321,10 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TGRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -325,7 +355,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Strongly typed long short term memory cell](https://arxiv.org/abs/1602.02218).
+Strongly typed long short term memory cell [^Balduzzi2016].
 See [`TLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -341,14 +371,18 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
-    h_t &= c_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) +
+        \left(1 - \mathbf{f}(t)\right) \odot \mathbf{z}(t) \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -370,6 +404,10 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate, inp)` is the new hidden and cell state, together
   with the current input. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -420,7 +458,7 @@ end
     TLSTM(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Strongly typed long short term memory](https://arxiv.org/abs/1602.02218).
+Strongly typed long short term memory [^Balduzzi2016].
 See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -438,14 +476,18 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \mathbf{V}_z \mathbf{x}_{t-1} + \mathbf{W}_z \mathbf{x}_t + \mathbf{b}_z \\
-    f_t &= \sigma (\mathbf{V}_f \mathbf{x}_{t-1} + \mathbf{W}_f \mathbf{x}_t +
-        \mathbf{b}_f) \\
-    o_t &= \tau (\mathbf{V}_o \mathbf{x}_{t-1} + \mathbf{W}_o \mathbf{x}_t + \mathbf{b}_o) \\
-    c_t &= f_t \odot c_{t-1} + (1 - f_t) \odot z_t \\
-    h_t &= c_t \odot o_t
+    \mathbf{z}(t) &= \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{z} \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \tau\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{x}(t-1) + \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) +
+        \left(1 - \mathbf{f}(t)\right) \odot \mathbf{z}(t) \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \odot \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -466,6 +508,10 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden states `new_states` and
   the last state of the iteration.
+
+[^Balduzzi2016]: Balduzzi, D. et al.  
+    _Strongly-Typed Recurrent Neural Networks_  
+    ICML 2016.
 """
 struct TLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

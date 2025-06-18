@@ -6,7 +6,7 @@
         bias = true, epsilon=1.0)
 
 
-[Antisymmetric recurrent cell](https://arxiv.org/abs/1902.09689).
+Antisymmetric recurrent cell [^Chang2019].
 See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -25,8 +25,11 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
-h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
+    \mathbf{h}(t) = \mathbf{h}(t-1) + \epsilon \tanh \left( \mathbf{W}_{ih}
+        \mathbf{x}(t) + \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
 
 # Forward
@@ -45,6 +48,10 @@ h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Chang2019]: Chang, B. et al.
+    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
+    ICLR 2019.
 """
 struct AntisymmetricRNNCell{F, I, H, V, E, G} <: AbstractRecurrentCell
     activation::F
@@ -89,7 +96,7 @@ end
     AntisymmetricRNN(input_size, hidden_size, [activation];
         return_state = false, kwargs...)
 
-[Antisymmetric recurrent neural network](https://arxiv.org/abs/1902.09689).
+Antisymmetric recurrent neural network [^Chang2019].
 See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -108,8 +115,11 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
-h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_h ),
+    \mathbf{h}(t) = \mathbf{h}(t-1) + \epsilon \tanh \left( \mathbf{W}_{ih}
+        \mathbf{x}(t) + \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{b} \right)
 ```
 
 # Forward
@@ -129,6 +139,10 @@ h_t = h_{t-1} + \epsilon \tanh ( (W_h - W_h^T - \gamma I) h_{t-1} + V_h x_t + b_
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Chang2019]: Chang, B. et al.
+    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
+    ICLR 2019.
 """
 struct AntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -162,7 +176,7 @@ end
         bias = true, epsilon=1.0)
 
 
-[Antisymmetric recurrent cell with gating](https://arxiv.org/abs/1902.09689).
+Antisymmetric recurrent cell with gating [^Chang2019].
 See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -180,11 +194,16 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \sigma ( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z ), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh ( (W_h - W_h^T - \gamma I) h_{t-1}
-        + V_h x_t + b_h ).
+    \mathbf{z}(t) &= \sigma\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top -
+        \gamma \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \epsilon \, \mathbf{z}(t) \odot
+        \tanh\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right).
 \end{aligned}
 ```
 
@@ -204,6 +223,10 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Chang2019]: Chang, B. et al.
+    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
+    ICLR 2019.
 """
 struct GatedAntisymmetricRNNCell{I, H, V, E, G} <: AbstractRecurrentCell
     Wi::I
@@ -250,7 +273,7 @@ end
     GatedAntisymmetricRNN(input_size, hidden_size;
         return_state = false, kwargs...)
 
-[Antisymmetric recurrent neural network with gating](https://arxiv.org/abs/1902.09689).
+Antisymmetric recurrent neural network with gating [^Chang2019].
 See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -268,11 +291,16 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - `gamma`: strength of diffusion. Default is 0.0.
 
 # Equations
+
 ```math
 \begin{aligned}
-    z_t &= \sigma \left( (W_h - W_h^T - \gamma I) h_{t-1} + V_z x_t + b_z \right), \\
-    h_t &= h_{t-1} + \epsilon z_t \odot \tanh \left( (W_h - W_h^T - \gamma I) h_{t-1}
-        + V_h x_t + b_h \right).
+    \mathbf{z}(t) &= \sigma\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top -
+        \gamma \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{z}_{ih}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{h}(t) &= \mathbf{h}(t-1) + \epsilon \, \mathbf{z}(t) \odot
+        \tanh\left( \left( \mathbf{W}_{hh} - \mathbf{W}_{hh}^\top - \gamma
+        \mathbf{I} \right) \mathbf{h}(t-1) + \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{b}^{h} \right).
 \end{aligned}
 ```
 
@@ -293,6 +321,10 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Chang2019]: Chang, B. et al.
+    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
+    ICLR 2019.
 """
 struct GatedAntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

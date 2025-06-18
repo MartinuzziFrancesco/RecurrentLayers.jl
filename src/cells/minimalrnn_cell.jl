@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true, encoder_bias = true)
 
-[Minimal recurrent neural network unit](https://arxiv.org/abs/1711.06788).
+Minimal recurrent neural network unit [^Zhang2017].
 See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -25,12 +25,12 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{z}_t &= \Phi(\mathbf{x}_t) = \tanh(\mathbf{W}_x \mathbf{x}_t +
-        \mathbf{b}_z), \\
-    \mathbf{u}_t &= \sigma(\mathbf{U}_h \mathbf{h}_{t-1} + \mathbf{U}_z \mathbf{z}_t +
-        \mathbf{b}_u), \\
-    \mathbf{h}_t &= \mathbf{u}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{u}_t) \circ
-        \mathbf{z}_t.
+    \mathbf{z}(t) &= \Phi(\mathbf{x}(t)) = \tanh\left( \mathbf{W}_{xz}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{u}(t) &= \sigma\left( \mathbf{W}_{hh}^{u} \mathbf{h}(t-1) +
+        \mathbf{W}_{zh}^{u} \mathbf{z}(t) + \mathbf{b}^{u} \right), \\
+    \mathbf{h}(t) &= \mathbf{u}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{u}(t)\right) \circ \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -51,6 +51,10 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Zhang2017]: Zhang, M. et al.  
+    _Minimal RNN: Toward more interpretable and trainable recurrent nets._  
+    NeurIPS 2017.
 """
 struct MinimalRNNCell{I, H, Z, V, E} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -92,7 +96,7 @@ end
     MinimalRNN(input_size => hidden_size;
         return_state = false, kwargs...)
 
-[Minimal recurrent neural network](https://arxiv.org/abs/1711.06788).
+Minimal recurrent neural network [^Zhang2017].
 See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -114,12 +118,12 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{z}_t &= \Phi(\mathbf{x}_t) = \tanh(\mathbf{W}_x \mathbf{x}_t +
-        \mathbf{b}_z), \\
-    \mathbf{u}_t &= \sigma(\mathbf{U}_h \mathbf{h}_{t-1} + \mathbf{U}_z \mathbf{z}_t +
-        \mathbf{b}_u), \\
-    \mathbf{h}_t &= \mathbf{u}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{u}_t) \circ
-        \mathbf{z}_t.
+    \mathbf{z}(t) &= \Phi(\mathbf{x}(t)) = \tanh\left( \mathbf{W}_{xz}
+        \mathbf{x}(t) + \mathbf{b}^{z} \right), \\
+    \mathbf{u}(t) &= \sigma\left( \mathbf{W}_{hh}^{u} \mathbf{h}(t-1) +
+        \mathbf{W}_{zh}^{u} \mathbf{z}(t) + \mathbf{b}^{u} \right), \\
+    \mathbf{h}(t) &= \mathbf{u}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{u}(t)\right) \circ \mathbf{z}(t)
 \end{aligned}
 ```
 
@@ -140,6 +144,10 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Zhang2017]: Zhang, M. et al.  
+    _Minimal RNN: Toward more interpretable and trainable recurrent nets._  
+    NeurIPS 2017.
 """
 struct MinimalRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

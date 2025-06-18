@@ -6,7 +6,7 @@
         init_multiplicative_kernel=glorot_uniform,
         bias = true)
 
-[Multiplicative long short term memory cell](https://arxiv.org/abs/1609.07959).
+Multiplicative long short term memory cell [^Krause2017].
 See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -27,19 +27,19 @@ See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{m}_t &= (\mathbf{W}_{mx} \mathbf{x}_t) \circ (\mathbf{W}_{mh}
-        \mathbf{h}_{t-1}), \\
-    \hat{\mathbf{h}}_t &= \mathbf{W}_{hx} \mathbf{x}_t + \mathbf{W}_{hm}
-        \mathbf{m}_t, \\
-    \mathbf{i}_t &= \sigma(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{im}
-        \mathbf{m}_t), \\
-    \mathbf{o}_t &= \sigma(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{om}
-        \mathbf{m}_t), \\
-    \mathbf{f}_t &= \sigma(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fm}
-        \mathbf{m}_t), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \tanh(\hat{\mathbf{h}}_t), \\
-    \mathbf{h}_t &= \tanh(\mathbf{c}_t) \circ \mathbf{o}_t.
+    \mathbf{m}(t) &= \left( \mathbf{W}^{m}_{ih} \mathbf{x}(t) \right) \circ
+        \left( \mathbf{W}^{m}_{hh} \mathbf{h}(t-1) \right), \\
+    \hat{\mathbf{h}}(t) &= \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{mh} \mathbf{m}(t) + \mathbf{b}^{h}, \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{mh} \mathbf{m}(t) + \mathbf{b}^{i} \right), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{mh} \mathbf{m}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{mh} \mathbf{m}(t) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t)
+        \circ \tanh\left( \hat{\mathbf{h}}(t) \right), \\
+    \mathbf{h}(t) &= \tanh\left( \mathbf{c}(t) \right) \circ \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -61,6 +61,10 @@ See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Krause2017]: Krause, B. et al.  
+    _Multiplicative LSTM for sequence modelling_  
+    Workshop ICLR 2017.
 """
 struct MultiplicativeLSTMCell{I, H, M, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -105,7 +109,7 @@ end
         return_state=false,
         kwargs...)
 
-[Multiplicative long short term memory network](https://arxiv.org/abs/1609.07959).
+Multiplicative long short term memory network [^Krause2017].
 See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -128,19 +132,19 @@ See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequenc
 
 ```math
 \begin{aligned}
-    \mathbf{m}_t &= (\mathbf{W}_{mx} \mathbf{x}_t) \circ (\mathbf{W}_{mh}
-        \mathbf{h}_{t-1}), \\
-    \hat{\mathbf{h}}_t &= \mathbf{W}_{hx} \mathbf{x}_t + \mathbf{W}_{hm}
-        \mathbf{m}_t, \\
-    \mathbf{i}_t &= \sigma(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{im}
-        \mathbf{m}_t), \\
-    \mathbf{o}_t &= \sigma(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{om}
-        \mathbf{m}_t), \\
-    \mathbf{f}_t &= \sigma(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fm}
-        \mathbf{m}_t), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \tanh(\hat{\mathbf{h}}_t), \\
-    \mathbf{h}_t &= \tanh(\mathbf{c}_t) \circ \mathbf{o}_t.
+    \mathbf{m}(t) &= \left( \mathbf{W}^{m}_{ih} \mathbf{x}(t) \right) \circ
+        \left( \mathbf{W}^{m}_{hh} \mathbf{h}(t-1) \right), \\
+    \hat{\mathbf{h}}(t) &= \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{h}_{mh} \mathbf{m}(t) + \mathbf{b}^{h}, \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{mh} \mathbf{m}(t) + \mathbf{b}^{i} \right), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{mh} \mathbf{m}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{mh} \mathbf{m}(t) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t)
+        \circ \tanh\left( \hat{\mathbf{h}}(t) \right), \\
+    \mathbf{h}(t) &= \tanh\left( \mathbf{c}(t) \right) \circ \mathbf{o}(t)
 \end{aligned}
 ```
 
@@ -161,6 +165,10 @@ See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequenc
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Krause2017]: Krause, B. et al.  
+    _Multiplicative LSTM for sequence modelling_  
+    Workshop ICLR 2017.
 """
 struct MultiplicativeLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

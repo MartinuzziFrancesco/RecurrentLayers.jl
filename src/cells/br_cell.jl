@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform)
 
 
-[Bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676).
+Bistable recurrent cell [^Vecoven2021].
 See [`BR`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -24,13 +24,13 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
-        \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
-        \mathbf{h}_{t-1}\right).
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{a} \circ \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{c} \circ \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 - \mathbf{c}(t)\right)
+        \circ \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{a}(t) \circ
+        \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -50,6 +50,10 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Vecoven2021]: Vecoven, N. et al.  
+    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
+    PLOS ONE 2021.
 """
 struct BRCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -96,7 +100,7 @@ end
     BR(input_size, hidden_size;
         return_state = false, kwargs...)
 
-[Bistable recurrent network](https://doi.org/10.1371/journal.pone.0252676).
+Bistable recurrent network [^Vecoven2021].
 See [`BRCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -115,13 +119,13 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t +
-        \mathbf{w}_a \circ \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{w}_c \circ
-        \mathbf{h}_{t-1}\right).
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right), \\
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{a} \circ \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{w}^{c} \circ \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 - \mathbf{c}(t)\right)
+        \circ \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) + \mathbf{a}(t) \circ
+        \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -142,6 +146,10 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Vecoven2021]: Vecoven, N. et al.  
+    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
+    PLOS ONE 2021.
 """
 struct BR{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -173,7 +181,7 @@ end
         init_recurrent_kernel = glorot_uniform)
 
 
-[Recurrently neuromodulated bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676).
+Recurrently neuromodulated bistable recurrent cell [^Vecoven2021].
 See [`NBR`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -192,13 +200,13 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right).
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{a}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{c}(t)\right) \circ \tanh\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{a}(t) \circ \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -218,6 +226,10 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Vecoven2021]: Vecoven, N. et al.  
+    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
+    PLOS ONE 2021.
 """
 struct NBRCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -260,7 +272,7 @@ end
     NBR(input_size, hidden_size;
         return_state = false, kwargs...)
 
-[Recurrently neuromodulated bistable recurrent cell](https://doi.org/10.1371/journal.pone.0252676).
+Recurrently neuromodulated bistable recurrent cell [^Vecoven2021].
 See [`NBRCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -279,13 +291,13 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{a}_t &= 1 + \tanh\left(\mathbf{U}_a \mathbf{x}_t + \mathbf{W}_a
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{c}_t &= \sigma\left(\mathbf{U}_c \mathbf{x}_t + \mathbf{W}_c
-        \mathbf{h}_{t-1}\right), \\
-    \mathbf{h}_t &= \mathbf{c}_t \circ \mathbf{h}_{t-1} + (1 - \mathbf{c}_t)
-        \circ \tanh\left(\mathbf{U}_x \mathbf{x}_t + \mathbf{a}_t \circ
-        \mathbf{h}_{t-1}\right).
+    \mathbf{a}(t) &= 1 + \tanh\left( \mathbf{W}^{a}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{a}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{a} \right), \\
+    \mathbf{c}(t) &= \sigma\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{c}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{c} \right), \\
+    \mathbf{h}(t) &= \mathbf{c}(t) \circ \mathbf{h}(t-1) + \left(1 -
+        \mathbf{c}(t)\right) \circ \tanh\left( \mathbf{W}^{h}_{ih}
+        \mathbf{x}(t) + \mathbf{a}(t) \circ \mathbf{h}(t-1) + \mathbf{b}^{h} \right),
 \end{aligned}
 ```
 
@@ -306,6 +318,10 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Vecoven2021]: Vecoven, N. et al.  
+    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
+    PLOS ONE 2021.
 """
 struct NBR{S, M} <: AbstractRecurrentLayer{S}
     cell::M

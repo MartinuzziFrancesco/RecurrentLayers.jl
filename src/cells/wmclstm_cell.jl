@@ -6,8 +6,7 @@
         init_memory_kernel = glorot_uniform,
         bias = true)
 
-[Long short term memory cell with working memory
-connections](https://arxiv.org/abs/2109.00020).
+Long short term memory cell with working memory connections [^Landi2021].
 See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -28,17 +27,21 @@ See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{i}_t &= \sigma\left(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{ih}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{ic} \mathbf{c}_{t-1}) +
-        \mathbf{b}_i\right), \\
-    \mathbf{f}_t &= \sigma\left(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{fc} \mathbf{c}_{t-1}) +
-        \mathbf{b}_f\right), \\
-    \mathbf{o}_t &= \sigma\left(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{oh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{oc} \mathbf{c}_t) + \mathbf{b}_o\right), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \sigma_c(\mathbf{W}_{c} \mathbf{x}_t + \mathbf{b}_c), \\
-    \mathbf{h}_t &= \mathbf{o}_t \circ \sigma_h(\mathbf{c}_t).
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{i}_{ch} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{i} \right) \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W^{f}_{ch}} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{o}_{ch} \mathbf{c}(t) \right) +
+        \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t) \circ
+        \sigma_{c}\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right) \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \circ \sigma_{h}\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -60,6 +63,10 @@ See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Landi2021]: Landi, F. et al.  
+    _Working Memory Connections for LSTM_  
+    Neural Networks 2021.
 """
 struct WMCLSTMCell{I, H, M, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -105,8 +112,7 @@ end
         return_state=false,
         kwargs...)
 
-[Long short term memory cell with working memory
-connections](https://arxiv.org/abs/2109.00020).
+Long short term memory cell with working memory connections [^Landi2021].
 See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -129,17 +135,21 @@ See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-    \mathbf{i}_t &= \sigma\left(\mathbf{W}_{ix} \mathbf{x}_t + \mathbf{W}_{ih}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{ic} \mathbf{c}_{t-1}) +
-        \mathbf{b}_i\right), \\
-    \mathbf{f}_t &= \sigma\left(\mathbf{W}_{fx} \mathbf{x}_t + \mathbf{W}_{fh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{fc} \mathbf{c}_{t-1}) +
-        \mathbf{b}_f\right), \\
-    \mathbf{o}_t &= \sigma\left(\mathbf{W}_{ox} \mathbf{x}_t + \mathbf{W}_{oh}
-        \mathbf{h}_{t-1} + \tanh(\mathbf{W}_{oc} \mathbf{c}_t) + \mathbf{b}_o\right), \\
-    \mathbf{c}_t &= \mathbf{f}_t \circ \mathbf{c}_{t-1} + \mathbf{i}_t \circ
-        \sigma_c(\mathbf{W}_{c} \mathbf{x}_t + \mathbf{b}_c), \\
-    \mathbf{h}_t &= \mathbf{o}_t \circ \sigma_h(\mathbf{c}_t).
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{i}_{ch} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{i} \right) \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W^{f}_{ch}} \mathbf{c}(t-1) \right) +
+        \mathbf{b}^{f} \right) \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) +
+        \tanh\left( \mathbf{W}^{o}_{ch} \mathbf{c}(t) \right) +
+        \mathbf{b}^{o} \right) \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \circ \mathbf{c}(t-1) + \mathbf{i}(t) \circ
+        \sigma_{c}\left( \mathbf{W}^{c}_{ih} \mathbf{x}(t) + \mathbf{b}^{c} \right) \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \circ \sigma_{h}\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -160,6 +170,10 @@ See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Landi2021]: Landi, F. et al.  
+    _Working Memory Connections for LSTM_  
+    Neural Networks 2021.
 """
 struct WMCLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

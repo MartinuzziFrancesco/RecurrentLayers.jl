@@ -29,7 +29,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+Neural Architecture Search unit [^Zoph2016].
 See [`NAS`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -45,31 +45,35 @@ See [`NAS`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\text{First Layer Outputs:} & \\
-o_1 &= \sigma(W_i^{(1)} x_t + W_h^{(1)} h_{t-1} + b^{(1)}), \\
-o_2 &= \text{ReLU}(W_i^{(2)} x_t + W_h^{(2)} h_{t-1} + b^{(2)}), \\
-o_3 &= \sigma(W_i^{(3)} x_t + W_h^{(3)} h_{t-1} + b^{(3)}), \\
-o_4 &= \text{ReLU}(W_i^{(4)} x_t \cdot W_h^{(4)} h_{t-1}), \\
-o_5 &= \tanh(W_i^{(5)} x_t + W_h^{(5)} h_{t-1} + b^{(5)}), \\
-o_6 &= \sigma(W_i^{(6)} x_t + W_h^{(6)} h_{t-1} + b^{(6)}), \\
-o_7 &= \tanh(W_i^{(7)} x_t + W_h^{(7)} h_{t-1} + b^{(7)}), \\
-o_8 &= \sigma(W_i^{(8)} x_t + W_h^{(8)} h_{t-1} + b^{(8)}). \\
-
-\text{Second Layer Computations:} & \\
-l_1 &= \tanh(o_1 \cdot o_2) \\
-l_2 &= \tanh(o_3 + o_4) \\
-l_3 &= \tanh(o_5 \cdot o_6) \\
-l_4 &= \sigma(o_7 + o_8) \\
-
-\text{Inject Cell State:} & \\
-l_1 &= \tanh(l_1 + c_{\text{state}}) \\
-
-\text{Final Layer Computations:} & \\
-c_{\text{new}} &= l_1 \cdot l_2 \\
-l_5 &= \tanh(l_3 + l_4) \\
-h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
+    \mathbf{o}_1 &= \sigma\left( \mathbf{W}^{(1)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(1)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(1)} \right), \\
+    \mathbf{o}_2 &= \text{ReLU}\left( \mathbf{W}^{(2)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(2)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(2)} \right), \\
+    \mathbf{o}_3 &= \sigma\left( \mathbf{W}^{(3)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(3)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(3)} \right), \\
+    \mathbf{o}_4 &= \text{ReLU}\left( \mathbf{W}^{(4)}_{ih} \mathbf{x}(t)
+        \cdot \mathbf{W}^{(4)}_{hh} \mathbf{h}(t-1) \right), \\
+    \mathbf{o}_5 &= \tanh\left( \mathbf{W}^{(5)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(5)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(5)} \right), \\
+    \mathbf{o}_6 &= \sigma\left( \mathbf{W}^{(6)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(6)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(6)} \right), \\
+    \mathbf{o}_7 &= \tanh\left( \mathbf{W}^{(7)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(7)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(7)} \right), \\
+    \mathbf{o}_8 &= \sigma\left( \mathbf{W}^{(8)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(8)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(8)} \right), \\[1ex]
+    \mathbf{l}_1 &= \tanh\left( \mathbf{o}_1 \cdot \mathbf{o}_2 \right), \\
+    \mathbf{l}_2 &= \tanh\left( \mathbf{o}_3 + \mathbf{o}_4 \right), \\
+    \mathbf{l}_3 &= \tanh\left( \mathbf{o}_5 \cdot \mathbf{o}_6 \right), \\
+    \mathbf{l}_4 &= \sigma\left( \mathbf{o}_7 + \mathbf{o}_8 \right), \\[1ex]
+    \mathbf{l}_1 &= \tanh\left( \mathbf{l}_1 + \mathbf{c}_{\text{state}}
+        \right), \\[1ex]
+    \mathbf{c}_{\text{new}} &= \mathbf{l}_1 \cdot \mathbf{l}_2, \\
+    \mathbf{l}_5 &= \tanh\left( \mathbf{l}_3 + \mathbf{l}_4 \right), \\
+    \mathbf{h}_{\text{new}} &= \tanh\left( \mathbf{c}_{\text{new}} \cdot
+        \mathbf{l}_5 \right)
 \end{aligned}
 ```
 
@@ -91,6 +95,10 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+[^Zoph2016]: Zoph, B. et al.  
+    _Neural Architecture Search with Reinforcement Learning._  
+    arXiv 2016.
 """
 struct NASCell{I, H, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -155,7 +163,7 @@ end
         kwargs...)
 
 
-[Neural Architecture Search unit](https://arxiv.org/pdf/1611.01578).
+Neural Architecture Search unit [^Zoph2016].
 See [`NASCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -173,31 +181,35 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
   Default is `false`.
 
 # Equations
+
 ```math
 \begin{aligned}
-\text{First Layer Outputs:} & \\
-o_1 &= \sigma(W_i^{(1)} x_t + W_h^{(1)} h_{t-1} + b^{(1)}), \\
-o_2 &= \text{ReLU}(W_i^{(2)} x_t + W_h^{(2)} h_{t-1} + b^{(2)}), \\
-o_3 &= \sigma(W_i^{(3)} x_t + W_h^{(3)} h_{t-1} + b^{(3)}), \\
-o_4 &= \text{ReLU}(W_i^{(4)} x_t \cdot W_h^{(4)} h_{t-1}), \\
-o_5 &= \tanh(W_i^{(5)} x_t + W_h^{(5)} h_{t-1} + b^{(5)}), \\
-o_6 &= \sigma(W_i^{(6)} x_t + W_h^{(6)} h_{t-1} + b^{(6)}), \\
-o_7 &= \tanh(W_i^{(7)} x_t + W_h^{(7)} h_{t-1} + b^{(7)}), \\
-o_8 &= \sigma(W_i^{(8)} x_t + W_h^{(8)} h_{t-1} + b^{(8)}). \\
-
-\text{Second Layer Computations:} & \\
-l_1 &= \tanh(o_1 \cdot o_2) \\
-l_2 &= \tanh(o_3 + o_4) \\
-l_3 &= \tanh(o_5 \cdot o_6) \\
-l_4 &= \sigma(o_7 + o_8) \\
-
-\text{Inject Cell State:} & \\
-l_1 &= \tanh(l_1 + c_{\text{state}}) \\
-
-\text{Final Layer Computations:} & \\
-c_{\text{new}} &= l_1 \cdot l_2 \\
-l_5 &= \tanh(l_3 + l_4) \\
-h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
+    \mathbf{o}_1 &= \sigma\left( \mathbf{W}^{(1)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(1)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(1)} \right), \\
+    \mathbf{o}_2 &= \text{ReLU}\left( \mathbf{W}^{(2)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(2)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(2)} \right), \\
+    \mathbf{o}_3 &= \sigma\left( \mathbf{W}^{(3)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(3)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(3)} \right), \\
+    \mathbf{o}_4 &= \text{ReLU}\left( \mathbf{W}^{(4)}_{ih} \mathbf{x}(t)
+        \cdot \mathbf{W}^{(4)}_{hh} \mathbf{h}(t-1) \right), \\
+    \mathbf{o}_5 &= \tanh\left( \mathbf{W}^{(5)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(5)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(5)} \right), \\
+    \mathbf{o}_6 &= \sigma\left( \mathbf{W}^{(6)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(6)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(6)} \right), \\
+    \mathbf{o}_7 &= \tanh\left( \mathbf{W}^{(7)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(7)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(7)} \right), \\
+    \mathbf{o}_8 &= \sigma\left( \mathbf{W}^{(8)}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{(8)}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{(8)} \right), \\[1ex]
+    \mathbf{l}_1 &= \tanh\left( \mathbf{o}_1 \cdot \mathbf{o}_2 \right), \\
+    \mathbf{l}_2 &= \tanh\left( \mathbf{o}_3 + \mathbf{o}_4 \right), \\
+    \mathbf{l}_3 &= \tanh\left( \mathbf{o}_5 \cdot \mathbf{o}_6 \right), \\
+    \mathbf{l}_4 &= \sigma\left( \mathbf{o}_7 + \mathbf{o}_8 \right), \\[1ex]
+    \mathbf{l}_1 &= \tanh\left( \mathbf{l}_1 + \mathbf{c}_{\text{state}}
+        \right), \\[1ex]
+    \mathbf{c}_{\text{new}} &= \mathbf{l}_1 \cdot \mathbf{l}_2, \\
+    \mathbf{l}_5 &= \tanh\left( \mathbf{l}_3 + \mathbf{l}_4 \right), \\
+    \mathbf{h}_{\text{new}} &= \tanh\left( \mathbf{c}_{\text{new}} \cdot
+        \mathbf{l}_5 \right)
 \end{aligned}
 ```
 
@@ -218,6 +230,10 @@ h_{\text{new}} &= \tanh(c_{\text{new}} \cdot l_5)
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+[^Zoph2016]: Zoph, B. et al.  
+    _Neural Architecture Search with Reinforcement Learning._  
+    arXiv 2016.
 """
 struct NAS{S, M} <: AbstractRecurrentLayer{S}
     cell::M

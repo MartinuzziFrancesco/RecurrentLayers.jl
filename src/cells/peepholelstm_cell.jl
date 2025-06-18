@@ -6,7 +6,7 @@
         init_peephole_kernel = glorot_uniform,
         bias = true)
 
-[Peephole long short term memory cell](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf).
+Peephole long short term memory cell [^Gers2002].
 See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -27,12 +27,20 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    z_t &= \tanh(W_z x_t + U_z h_{t-1} + b_z), \\
-    i_t &= \sigma(W_i x_t + U_i h_{t-1} + p_i \odot c_{t-1} + b_i), \\
-    f_t &= \sigma(W_f x_t + U_f h_{t-1} + p_f \odot c_{t-1} + b_f), \\
-    c_t &= f_t \odot c_{t-1} + i_t \odot z_t, \\
-    o_t &= \sigma(W_o x_t + U_o h_{t-1} + p_o \odot c_t + b_o), \\
-    h_t &= o_t \odot \tanh(c_t).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{i}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{i} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{f}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) + \mathbf{i}(t)
+        \odot \mathbf{z}(t), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{o}_{ph} \odot
+        \mathbf{c}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \odot \tanh\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -54,6 +62,11 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
+
+
+[^Gers2002]: Gers, F. A. et al.  
+    _Learning precise timing with LSTM recurrent networks._  
+    JMLR 2002.
 """
 struct PeepholeLSTMCell{I, H, P, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -95,7 +108,7 @@ end
         return_state=false,
         kwargs...)
 
-[Peephole long short term memory network](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf).
+Peephole long short term memory network [^Gers2002].
 See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -116,11 +129,20 @@ See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 ```math
 \begin{aligned}
-f_t &= \sigma_g(W_f x_t + U_f c_{t-1} + b_f), \\
-i_t &= \sigma_g(W_i x_t + U_i c_{t-1} + b_i), \\
-o_t &= \sigma_g(W_o x_t + U_o c_{t-1} + b_o), \\
-c_t &= f_t \odot c_{t-1} + i_t \odot \sigma_c(W_c x_t + b_c), \\
-h_t &= o_t \odot \sigma_h(c_t).
+    \mathbf{z}(t) &= \tanh\left( \mathbf{W}^{z}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
+    \mathbf{i}(t) &= \sigma\left( \mathbf{W}^{i}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{i}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{i}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{i} \right), \\
+    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{f}_{ph} \odot
+        \mathbf{c}(t-1) + \mathbf{b}^{f} \right), \\
+    \mathbf{c}(t) &= \mathbf{f}(t) \odot \mathbf{c}(t-1) + \mathbf{i}(t)
+        \odot \mathbf{z}(t), \\
+    \mathbf{o}(t) &= \sigma\left( \mathbf{W}^{o}_{ih} \mathbf{x}(t) +
+        \mathbf{W}^{o}_{hh} \mathbf{h}(t-1) + \mathbf{w}^{o}_{ph} \odot
+        \mathbf{c}(t) + \mathbf{b}^{o} \right), \\
+    \mathbf{h}(t) &= \mathbf{o}(t) \odot \tanh\left( \mathbf{c}(t) \right)
 \end{aligned}
 ```
 
@@ -141,6 +163,11 @@ h_t &= o_t \odot \sigma_h(c_t).
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
+
+
+[^Gers2002]: Gers, F. A. et al.  
+    _Learning precise timing with LSTM recurrent networks._  
+    JMLR 2002.
 """
 struct PeepholeLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
