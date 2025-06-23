@@ -13,6 +13,7 @@ recurrent layers not available in base deep learning libraries.
 The package offers multiple layers for [Flux.jl](https://github.com/FluxML/Flux.jl).
 Currently there are 30+ cells implemented, together with multiple higher
 level implementations:
+
 | Short name | Publication venue | Official implementation |
 |------------|-------------------|-----------------------------|
 | [**AntisymmetricRNN/GatedAntisymmetricRNN**](https://arxiv.org/abs/1902.09689) | ICLR 2019 | – |
@@ -26,7 +27,7 @@ level implementations:
 | [**JANET**](https://arxiv.org/abs/1804.04849) | arXiv 2018 | [JosvanderWesthuizen/janet](https://github.com/JosvanderWesthuizen/janet) |
 | [**LEM**](https://arxiv.org/pdf/2110.04744) | ICLR 2022 | [tk-rusch/LEM](https://github.com/tk-rusch/LEM) |
 | [**LiGRU**](https://arxiv.org/abs/1803.10225) | IEEE Transactions on Emerging Topics in Computing 2018 | [mravanelli/theano-kaldi-rnn](https://github.com/mravanelli/theano-kaldi-rnn/) |
-| [**LightRU**](https://www.mdpi.com/2079-9292/13/16/3204) | MDPI Electronics 2023 | – |
+| **LightRU** | MDPI Electronics 2023 | – |
 | [**MinimalRNN**](https://arxiv.org/abs/1711.06788) | NeurIPS 2017 | – |
 | [**MultiplicativeLSTM**](https://arxiv.org/abs/1609.07959) | Workshop ICLR 2017 | [benkrause/mLSTM](https://github.com/benkrause/mLSTM) |
 | [**MGU**](https://arxiv.org/abs/1603.09420) | International Journal of Automation and Computing 2016 | – |
@@ -42,8 +43,7 @@ level implementations:
 | [**UnICORNN**](https://arxiv.org/abs/2103.05487) | ICML 2021 | [tk-rusch/unicornn](https://github.com/tk-rusch/unicornn) |
 | [**WMCLSTM**](https://arxiv.org/abs/2109.00020) | Neural Networks 2021 | – |
 
- - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026), and
- [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf).
+ - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026), and [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf).
 
 ## Installation
 
