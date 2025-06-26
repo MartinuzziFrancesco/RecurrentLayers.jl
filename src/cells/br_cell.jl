@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform)
 
 
-Bistable recurrent cell [^Vecoven2021].
+Bistable recurrent cell [Vecoven2021](@cite).
 See [`BR`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -50,10 +50,6 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Vecoven2021]: Vecoven, N. et al.  
-    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
-    PLOS ONE 2021.
 """
 struct BRCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -100,7 +96,7 @@ end
     BR(input_size, hidden_size;
         return_state = false, kwargs...)
 
-Bistable recurrent network [^Vecoven2021].
+Bistable recurrent network [Vecoven2021](@cite).
 See [`BRCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -146,10 +142,6 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Vecoven2021]: Vecoven, N. et al.  
-    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
-    PLOS ONE 2021.
 """
 struct BR{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -181,7 +173,7 @@ end
         init_recurrent_kernel = glorot_uniform)
 
 
-Recurrently neuromodulated bistable recurrent cell [^Vecoven2021].
+Recurrently neuromodulated bistable recurrent cell [Vecoven2021](@cite).
 See [`NBR`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -226,10 +218,6 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Vecoven2021]: Vecoven, N. et al.  
-    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
-    PLOS ONE 2021.
 """
 struct NBRCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -272,7 +260,7 @@ end
     NBR(input_size, hidden_size;
         return_state = false, kwargs...)
 
-Recurrently neuromodulated bistable recurrent cell [^Vecoven2021].
+Recurrently neuromodulated bistable recurrent cell [Vecoven2021](@cite).
 See [`NBRCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -318,10 +306,6 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Vecoven2021]: Vecoven, N. et al.  
-    _A bio-inspired bistable recurrent cell allows for long-lasting memory_  
-    PLOS ONE 2021.
 """
 struct NBR{S, M} <: AbstractRecurrentLayer{S}
     cell::M

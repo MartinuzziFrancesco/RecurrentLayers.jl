@@ -2,7 +2,7 @@
 @doc raw"""
     Multiplicative(cell, inp, state)
 
-[Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf). Wraps
+Multiplicative RNN [Sutskever2011](@cite). Wraps
 a given `cell`, and performs the following forward pass.
 
 Currently this wrapper does not support the following cells:

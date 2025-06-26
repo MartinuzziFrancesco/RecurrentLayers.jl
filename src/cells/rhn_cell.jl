@@ -48,7 +48,7 @@ end
         couple_carry = true,
         cell_kwargs...)
 
-Recurrent highway network [^Zilly2017].
+Recurrent highway network [Zilly2017](@cite).
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHN`](@ref) for a layer that processes entire sequences.
 
@@ -85,10 +85,6 @@ See [`RHN`](@ref) for a layer that processes entire sequences.
 # Forward
 
     rnncell(inp, [state])
-
-[^Zilly2017]: Zilly, J. G. et al.  
-    _Recurrent Highway Networks._  
-    ICML 2017.
 """
 struct RHNCell{C}
     layers::C
@@ -157,7 +153,7 @@ end
         return_state = false,
         kwargs...)
 
-Recurrent highway network [^Zilly2017].
+Recurrent highway network [Zilly2017](@cite).
 See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHNCell`](@ref) for a layer that processes a single sequence.
 
@@ -191,10 +187,6 @@ See [`RHNCell`](@ref) for a layer that processes a single sequence.
         + \mathbf{b}^{c_{\ell}} \right)
 \end{aligned}
 ```
-
-[^Zilly2017]: Zilly, J. G. et al.  
-    _Recurrent Highway Networks._  
-    ICML 2017.
 """
 struct RHN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

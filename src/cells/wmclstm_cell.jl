@@ -6,7 +6,8 @@
         init_memory_kernel = glorot_uniform,
         bias = true)
 
-Long short term memory cell with working memory connections [^Landi2021].
+Long short term memory cell with working memory
+connections [Landi2021](@cite).
 See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -63,10 +64,6 @@ See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Landi2021]: Landi, F. et al.  
-    _Working Memory Connections for LSTM_  
-    Neural Networks 2021.
 """
 struct WMCLSTMCell{I, H, M, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -112,7 +109,8 @@ end
         return_state=false,
         kwargs...)
 
-Long short term memory cell with working memory connections [^Landi2021].
+Long short term memory cell with working memory
+connections [Landi2021](@cite).
 See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -170,10 +168,6 @@ See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Landi2021]: Landi, F. et al.  
-    _Working Memory Connections for LSTM_  
-    Neural Networks 2021.
 """
 struct WMCLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

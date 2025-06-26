@@ -6,7 +6,7 @@
         bias = true, epsilon=1.0)
 
 
-Antisymmetric recurrent cell [^Chang2019].
+Antisymmetric recurrent cell [Chang2019](@cite).
 See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -48,10 +48,6 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Chang2019]: Chang, B. et al.
-    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
-    ICLR 2019.
 """
 struct AntisymmetricRNNCell{F, I, H, V, E, G} <: AbstractRecurrentCell
     activation::F
@@ -96,7 +92,7 @@ end
     AntisymmetricRNN(input_size, hidden_size, [activation];
         return_state = false, kwargs...)
 
-Antisymmetric recurrent neural network [^Chang2019].
+Antisymmetric recurrent neural network [Chang2019](@cite).
 See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -139,10 +135,6 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Chang2019]: Chang, B. et al.
-    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
-    ICLR 2019.
 """
 struct AntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -176,7 +168,7 @@ end
         bias = true, epsilon=1.0)
 
 
-Antisymmetric recurrent cell with gating [^Chang2019].
+Antisymmetric recurrent cell with gating [Chang2019](@cite).
 See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -223,10 +215,6 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Chang2019]: Chang, B. et al.
-    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
-    ICLR 2019.
 """
 struct GatedAntisymmetricRNNCell{I, H, V, E, G} <: AbstractRecurrentCell
     Wi::I
@@ -273,7 +261,7 @@ end
     GatedAntisymmetricRNN(input_size, hidden_size;
         return_state = false, kwargs...)
 
-Antisymmetric recurrent neural network with gating [^Chang2019].
+Antisymmetric recurrent neural network with gating [Chang2019](@cite).
 See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -321,10 +309,6 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Chang2019]: Chang, B. et al.
-    _AntisymmetricRNN: A Dynamical System View on Recurrent Neural Networks._
-    ICLR 2019.
 """
 struct GatedAntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

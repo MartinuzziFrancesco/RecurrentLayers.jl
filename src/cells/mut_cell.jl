@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-Mutated unit 1 cell [^Jozefowicz2015].
+Mutated unit 1 cell [Jozefowicz2015](@cite).
 See [`MUT1`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -52,10 +52,6 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -101,7 +97,7 @@ end
         return_state=false,
         kwargs...)
 
-Mutated unit 1 network [^Jozefowicz2015].
+Mutated unit 1 network [Jozefowicz2015](@cite).
 See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -151,10 +147,6 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT1{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -185,7 +177,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-Mutated unit 2 cell [^Jozefowicz2015].
+Mutated unit 2 cell [Jozefowicz2015](@cite).
 See [`MUT2`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -231,10 +223,6 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT2Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -279,7 +267,7 @@ end
         return_state=false,
         kwargs...)
 
-Mutated unit 2 network [^Jozefowicz2015].
+Mutated unit 2 network [Jozefowicz2015](@cite).
 See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -328,10 +316,6 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT2{S, M} <: AbstractRecurrentLayer{S}
     cell::M
@@ -362,7 +346,7 @@ end
         init_recurrent_kernel = glorot_uniform,
         bias = true)
 
-Mutated unit 3 cell [^Jozefowicz2015].
+Mutated unit 3 cell [Jozefowicz2015](@cite).
 See [`MUT3`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -409,10 +393,6 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -455,7 +435,7 @@ end
     MUT3(input_size => hidden_size;
     return_state = false, kwargs...)
 
-Mutated unit 3 network [^Jozefowicz2015].
+Mutated unit 3 network [Jozefowicz2015](@cite).
 See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -505,10 +485,6 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Jozefowicz2015]: Jozefowicz, R. et al.  
-    _An Empirical Exploration of Recurrent Network Architectures._  
-    ICML 2015.
 """
 struct MUT3{S, M} <: AbstractRecurrentLayer{S}
     cell::M
