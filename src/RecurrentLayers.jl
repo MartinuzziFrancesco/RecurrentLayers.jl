@@ -12,7 +12,7 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
        LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
        MUT3Cell, NASCell, NBRCell,
-       PeepholeLSTMCell, RANCell, RHNCell, RHNCellUnit, SCRNCell, SGRNCell, STARCell,
+       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
        TLSTMCell, TRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,

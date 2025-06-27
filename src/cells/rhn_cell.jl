@@ -1,11 +1,6 @@
 #https://arxiv.org/pdf/1607.03474
 #https://github.com/jzilly/RecurrentHighwayNetworks/blob/master/rhn.py#L138C1-L180C60
 
-"""
-    RHNCellUnit(input_size => hidden_size;
-        init_kernel = glorot_uniform,
-        bias = true)
-"""
 struct RHNCellUnit{I, V}
     weights::I
     bias::V
@@ -49,7 +44,6 @@ end
         cell_kwargs...)
 
 Recurrent highway network [Zilly2017](@cite).
-See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -154,7 +148,6 @@ end
         kwargs...)
 
 Recurrent highway network [Zilly2017](@cite).
-See [`RHNCellUnit`](@ref) for a the unit component of this layer.
 See [`RHNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments

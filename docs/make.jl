@@ -19,6 +19,7 @@ makedocs(;
     sitename="RecurrentLayers.jl",
     clean=true, doctest=true,
     linkcheck=true,
+    plugins=[links, bib],
     format=Documenter.HTML(;
         mathengine,
         assets=["assets/favicon.ico"],
@@ -26,7 +27,6 @@ makedocs(;
         edit_link="main"
     ),
     pages=pages,
-    plugins=[links, bib]
 )
 
 deploydocs(;
