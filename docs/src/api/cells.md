@@ -54,8 +54,6 @@ from this list:
   Recurrent Additive Network Cell
 - [RHNCell](cells/rhncell.md):
   Recurrent Highway Network Cell
-- [RHNCellUnit](cells/rhncell.md):
-  Recurrent Highway Network Unit
 - [SCRNCell](cells/scrncell.md):
   Structurally Constrained Recurrent Network Cell
 - [SGRNCell](cells/sgrncell.md):
