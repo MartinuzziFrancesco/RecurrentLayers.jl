@@ -3,7 +3,7 @@
     FSRNNCell(input_size => hidden_size,
         fast_cells, slow_cell)
 
-Fast slow recurrent neural network cell [^Mujika2017].
+Fast slow recurrent neural network cell [Mujika2017](@cite).
 See [`FSRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -44,10 +44,6 @@ See [`FSRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (fast_state, slow_state)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Mujika2017]: Mujika, A. et al.  
-    _Fast-Slow Recurrent Neural Networks._  
-    NeurIPS 2017.
 """
 struct FSRNNCell{F, S} <: AbstractRecurrentCell
     fast_cells::F
@@ -94,7 +90,7 @@ end
         fast_cells, slow_cell;
         return_state=false)
 
-Fast slow recurrent neural network [^Mujika2017].
+Fast slow recurrent neural network [Mujika2017](@cite).
 See [`FSRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -136,10 +132,6 @@ See [`FSRNNCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Mujika2017]: Mujika, A. et al.  
-    _Fast-Slow Recurrent Neural Networks._  
-    NeurIPS 2017.
 """
 struct FSRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M

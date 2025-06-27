@@ -1,5 +1,5 @@
-# MultiplicativeLSTMCell
+# MinimalRNNCell
 
 ```@docs
-    MultiplicativeLSTMCell
+    MinimalRNNCell
 ```

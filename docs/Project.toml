@@ -1,5 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+DocumenterCitations = "daee34ce-89f3-4625-b898-19384cb65244"
 DocumenterInterLinks = "d12716ef-a0f6-4df4-a9f1-a5a34e75c656"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 RecurrentLayers = "78449bcf-6750-4b78-9e82-63d4a1ccdf8c"

@@ -5,7 +5,7 @@
         init_recurrent_kernel = glorot_uniform)
 
 
-Addition-subtraction twin-gated recurrent cell [^Zhang2018].
+Addition-subtraction twin-gated recurrent cell [Zhang2018](@cite).
 See [`ATR`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -50,10 +50,6 @@ See [`ATR`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
-
-[^Zhang2018]: Zhang, B. et al.  
-    _Simplifying Neural Machine Translation with Addition-Subtraction Twin-Gated Recurrent Networks_  
-    EMNLP 2018.
 """
 struct ATRCell{I, H, V} <: AbstractRecurrentCell
     Wi::I
@@ -92,7 +88,7 @@ end
     ATR(input_size, hidden_size;
         return_state = false, kwargs...)
 
-Addition-subtraction twin-gated recurrent cell [^Zhang2018].
+Addition-subtraction twin-gated recurrent cell [Zhang2018](@cite).
 See [`ATRCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -138,10 +134,6 @@ See [`ATRCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-[^Zhang2018]: Zhang, B. et al.  
-    _Simplifying Neural Machine Translation with Addition-Subtraction Twin-Gated Recurrent Networks_  
-    EMNLP 2018.
 """
 struct ATR{S, M} <: AbstractRecurrentLayer{S}
     cell::M

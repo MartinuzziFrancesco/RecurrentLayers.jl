@@ -5,5 +5,6 @@ pages = [
         "Layers" => "api/layers.md",
         "Wrappers" => "api/wrappers.md"
     ],
+    "References" => "references.md",
     "Roadmap" => "roadmap.md"
 ]

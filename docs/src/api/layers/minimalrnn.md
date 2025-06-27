@@ -1,5 +1,5 @@
-# MultiplicativeLSTM
+# MinimalRNN
 
 ```@docs
-    MultiplicativeLSTM
+    MinimalRNN
 ```

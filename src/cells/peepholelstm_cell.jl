@@ -6,7 +6,7 @@
         init_peephole_kernel = glorot_uniform,
         bias = true)
 
-Peephole long short term memory cell [^Gers2002].
+Peephole long short term memory cell [Gers2002](@cite).
 See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -62,11 +62,6 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate)` is the new hidden and cell state. 
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
-
-
-[^Gers2002]: Gers, F. A. et al.  
-    _Learning precise timing with LSTM recurrent networks._  
-    JMLR 2002.
 """
 struct PeepholeLSTMCell{I, H, P, V} <: AbstractDoubleRecurrentCell
     Wi::I
@@ -108,7 +103,7 @@ end
         return_state=false,
         kwargs...)
 
-Peephole long short term memory network [^Gers2002].
+Peephole long short term memory network [Gers2002](@cite).
 See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
@@ -163,11 +158,6 @@ See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
-
-
-[^Gers2002]: Gers, F. A. et al.  
-    _Learning precise timing with LSTM recurrent networks._  
-    JMLR 2002.
 """
 struct PeepholeLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M

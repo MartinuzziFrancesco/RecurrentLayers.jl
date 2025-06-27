@@ -1,4 +1,4 @@
-# AntysimmetricRNNCell
+# AntisymmetricRNNCell
 
 ```@docs
     AntisymmetricRNNCell
