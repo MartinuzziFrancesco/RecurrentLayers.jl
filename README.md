@@ -115,6 +115,9 @@ This project is licensed under the MIT License, except for `nas_cell.jl`, which 
 [LuxRecurrentLayers.jl](https://github.com/MartinuzziFrancesco/LuxRecurrentLayers.jl):
 Equivalent library, providing recurrent layers for Lux.jl.
 
+[torchrecurrent](https://github.com/MartinuzziFrancesco/torchrecurrent):
+Recurrent layers for Pytorch.
+
 [ReservoirComputing.jl](https://github.com/SciML/ReservoirComputing.jl):
 Reservoir computing utilities for scientific machine learning.
 Essentially gradient free trained neural networks.
