@@ -17,7 +17,7 @@ from this list:
 - [FastGRNNCell](cells/fastgrnncell.md):
   Fast  Gated Recurrent Neural Network Cell
 - [FastRNNCell](cells/fastrnncell.md):
-  Fast Recurrent Neural Network Cell  
+  Fast Recurrent Neural Network Cell
 - [FSRNNCell](cells/fsrnncell.md):
   FastSlow Recurrent Neural Network Cell
 - [GatedAntisymmetricRNNCell](cells/gatedantisymmetricrnncell.md):
@@ -48,6 +48,8 @@ from this list:
   Neural Architecture Search Cell
 - [NBRCell](cells/nbrcell.md):
   Neuromodulated Bistable Recurrent Cell
+- [OriginalLSTMCell](cells/originallstmcell.md):
+  Original Long Short Term Memory Cell
 - [PeepholeLSTMCell](cells/peepholelstmcell.md):
   Peephole Long Short-Term Memory Cell
 - [RANCell](cells/rancell.md):

@@ -10,7 +10,7 @@ links = InterLinks(
 
 bib = CitationBibliography(
     joinpath(@__DIR__, "src", "refs.bib");
-    style = :authoryear
+    style=:authoryear
 )
 
 makedocs(;
@@ -26,7 +26,7 @@ makedocs(;
         canonical="https://MartinuzziFrancesco.github.io/RecurrentLayers.jl",
         edit_link="main"
     ),
-    pages=pages,
+    pages=pages
 )
 
 deploydocs(;

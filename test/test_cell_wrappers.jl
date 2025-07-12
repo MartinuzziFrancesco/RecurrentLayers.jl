@@ -4,7 +4,7 @@ cells = [
     AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
     GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
     LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
-    MUT3Cell, NASCell, NBRCell,
+    MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
     PeepholeLSTMCell, RANCell, SCRNCell, SGRNCell, STARCell,
     TGRUCell,
     TRNNCell, UnICORNNCell, WMCLSTMCell]

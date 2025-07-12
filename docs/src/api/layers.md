@@ -44,6 +44,8 @@
   Neural Architecture Search Network
 - [NBR](layers/nbr.md):
   Neuromodulated Bistable Recurrent Network
+- [OriginalLSTM](layers/originallstm.md):
+  Original Long Short Term Memory
 - [PeepholeLSTM](layers/peepholelstm.md):
   Peephole Long Short-Term Memory
 - [RAN](layers/ran.md):

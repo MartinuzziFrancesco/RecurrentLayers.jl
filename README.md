@@ -69,6 +69,7 @@ level implementations:
 | [**MGU**](https://arxiv.org/abs/1603.09420) | International Journal of Automation and Computing 2016 | – |
 | [**MUT1/MUT2/MUT3**](https://proceedings.mlr.press/v37/jozefowicz15.pdf) | ICML 2015 | – |
 | [**NAS**](https://arxiv.org/abs/1611.01578) | arXiv 2016 | [tensorflow_addons/rnn](https://github.com/tensorflow/addons/blob/v0.20.0/tensorflow_addons/rnn/nas_cell.py#L29-L236) |
+| [**OriginalLSTM**](https://ieeexplore.ieee.org/abstract/document/6795963) | Neural Computation 1997 | - |
 | [**PeepholeLSTM**](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf) | JMLR 2002 | – |
 | [**RAN**](https://arxiv.org/abs/1705.07393) | arXiv 2017 | [kentonl/ran](https://github.com/kentonl/ran) |
 | [**RHN**](https://arxiv.org/abs/1607.03474) | ICML 2017 | [jzilly/RecurrentHighwayNetworks](https://github.com/jzilly/RecurrentHighwayNetworks) |
