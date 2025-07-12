@@ -3,7 +3,7 @@ using RecurrentLayers, Flux, Test
 layers = [
     AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN, IndRNN,
     JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM,
-    MUT1, MUT2, MUT3, NAS, NBR, PeepholeLSTM,
+    MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
     RAN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN, WMCLSTM]
 
 @testset "Sizes for StackedRNN with layer: $layer" for layer in layers
