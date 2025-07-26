@@ -64,6 +64,8 @@
   Typed Long Short-Term Memory
 - [TRNN](layers/trnn.md):
   Typed Recurrent Neural Network
+- [UGRNN](layers/ugrnn.md):
+  Update Gate Recurrent Neural Network
 - [UnICORNN](layers/unicornn.md):
   Undamped Independent Controlled Oscillatory Recurrent Neural Network
 - [WMCLSTM](layers/wmclstm.md):

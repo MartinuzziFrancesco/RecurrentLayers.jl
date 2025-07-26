@@ -77,6 +77,7 @@ level implementations:
 | [**SGRN**](https://doi.org/10.1049/gtd2.12056) | IET 2018 | – |
 | [**STAR**](https://arxiv.org/abs/1911.11033) | IEEE Transactions on Pattern Analysis and Machine Intelligence 2022 | [0zgur0/STAckable-Recurrent-network](https://github.com/0zgur0/STAckable-Recurrent-network) |
 | [**Typed RNN / GRU / LSTM**](https://arxiv.org/abs/1602.02218) | ICML 2016 | – |
+| [**UGRNN**](https://arxiv.org/abs/1611.09913) | ICLR 2017 | - |
 | [**UnICORNN**](https://arxiv.org/abs/2103.05487) | ICML 2021 | [tk-rusch/unicornn](https://github.com/tk-rusch/unicornn) |
 | [**WMCLSTM**](https://arxiv.org/abs/2109.00020) | Neural Networks 2021 | – |
 

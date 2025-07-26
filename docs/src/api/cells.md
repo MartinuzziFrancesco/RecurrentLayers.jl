@@ -68,6 +68,8 @@ from this list:
   Typed Long Short-Term Memory Cell
 - [TRNNCell](cells/trnncell.md):
   Typed Recurrent Neural Network Cell
+- [UGRNNCell](cells/ugrnncell.md):
+  Update Gate Recurrent Neural Network Cell
 - [UnICORNNCell](cells/unicornncell.md):
   Undamped Independent Controlled Oscillatory Recurrent Neural Network Cell
 - [WMCLSTMCell](cells/wmclstmcell.md):
