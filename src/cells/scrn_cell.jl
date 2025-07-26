@@ -54,7 +54,7 @@ See [`SCRN`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct SCRNCell{I,H,C,V,A} <: AbstractDoubleRecurrentCell
+struct SCRNCell{I, H, C, V, A} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     Wc::C
@@ -64,9 +64,9 @@ end
 
 @layer SCRNCell
 
-function SCRNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, alpha=0.0f0)
+function SCRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, alpha=0.0f0)
     Wi = init_kernel(2 * hidden_size, input_size)
     Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
     Wc = init_recurrent_kernel(2 * hidden_size, hidden_size)
@@ -151,21 +151,21 @@ See [`SCRNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct SCRN{S,M} <: AbstractRecurrentLayer{S}
+struct SCRN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand SCRN
 
-function SCRN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function SCRN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = SCRNCell(input_size => hidden_size; kwargs...)
-    return SCRN{return_state,typeof(cell)}(cell)
+    return SCRN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::SCRN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> SCRN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> SCRN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

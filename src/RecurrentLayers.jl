@@ -14,12 +14,12 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
-       TLSTMCell, TRNNCell, UnICORNNCell, WMCLSTMCell
+       TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
        GatedAntisymmetricRNN,
        IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, OriginalLSTM, NBR,
-       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UnICORNN, WMCLSTM
+       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
 export Multiplicative, StackedRNN
 
 @compat(public, (initialstates))
@@ -51,6 +51,7 @@ include("cells/scrn_cell.jl")
 include("cells/sgrn_cell.jl")
 include("cells/star_cell.jl")
 include("cells/trnn_cell.jl")
+include("cells/ugrnn_cell.jl")
 include("cells/unicornn_cell.jl")
 include("cells/wmclstm_cell.jl")
 
@@ -62,7 +63,7 @@ rlayers = (
     :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
     :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :OriginalLSTM, :NBR,
-    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UnICORNN, :WMCLSTM)
+    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :BR, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
@@ -70,7 +71,7 @@ rcells = (
     :MGUCell, :MinimalRNNCell, :MultiplicativeLSTMCell,
     :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :OriginalLSTMCell, :NBRCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
-    :TRNNCell, :UnICORNNCell, :WMCLSTMCell)
+    :TRNNCell, :UGRNNCell, :UnICORNNCell, :WMCLSTMCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin

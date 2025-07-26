@@ -7,7 +7,7 @@ cells = [
     MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
     PeepholeLSTMCell, RANCell, SCRNCell, SGRNCell, STARCell,
     TGRUCell,
-    TRNNCell, UnICORNNCell, WMCLSTMCell]
+    TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell]
 #RHNCell, RHNCellUnit, FSRNNCell, TLSTMCell
 
 @testset "Sizes for Multiplicative with cell: $cell" for cell in cells
