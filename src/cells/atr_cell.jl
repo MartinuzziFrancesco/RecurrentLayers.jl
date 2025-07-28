@@ -2,7 +2,9 @@
 @doc raw"""
     ATRCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
-        init_recurrent_kernel = glorot_uniform)
+        init_recurrent_kernel = glorot_uniform,
+        independent_recurrence = false, integration_fn = :addition,
+        bias = true, recurrent_bias = true,)
 
 
 Addition-subtraction twin-gated recurrent cell [Zhang2018](@cite).
@@ -19,6 +21,11 @@ See [`ATR`](@ref) for a layer that processes entire sequences.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
 - `bias`: include a bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_fn`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -51,36 +58,57 @@ See [`ATR`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct ATRCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    b::V
+struct ATRCell{I,H,V,W,A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer ATRCell
 
-function ATRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return ATRCell(Wi, Wh, b)
+function ATRCell((input_size, hidden_size)::Pair{<:Int,<:Int};
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    bias::Bool=true, recurrent_bias::Bool=true,
+    integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+        @warn """\n
+            multiplicative_integration removes the benefits of this architecture.
+            Defaulting to :addition
+            \n
+            """
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return ATRCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (atr::ATRCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(atr, inp, 1 => size(atr.Wi, 2))
-    Wi, Wh, b = atr.Wi, atr.Wh, atr.b
-    pt = Wi * inp .+ b
-    qt = Wh * state
-    it = @. sigmoid_fast(pt + qt)
-    ft = @. sigmoid_fast(pt - qt)
-    new_state = @. it * pt + ft * state
+    _size_check(atr, inp, 1 => size(atr.weight_ih, 2))
+    proj_ih = dense_proj(atr.weight_ih, inp, atr.bias_ih) #pt
+    proj_hh = dense_proj(atr.weight_hh, state, atr.bias_hh) #qt
+    it = @. sigmoid_fast(proj_ih + proj_hh)
+    ft = @. sigmoid_fast(proj_ih - proj_hh)
+    new_state = @. it * proj_ih + ft * state
     return new_state, new_state
 end
 
 function Base.show(io::IO, atr::ATRCell)
-    print(io, "ATRCell(", size(atr.Wi, 2), " => ", size(atr.Wi, 1))
+    print(io, "ATRCell(", size(atr.weight_ih, 2), " => ", size(atr.weight_ih, 1))
     print(io, ")")
 end
 
@@ -102,6 +130,11 @@ See [`ATRCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
 - `bias`: include a bias or not. Default is `true`
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_fn`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -135,26 +168,26 @@ See [`ATRCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct ATR{S, M} <: AbstractRecurrentLayer{S}
+struct ATR{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand ATR
 
-function ATR((input_size, hidden_size)::Pair{<:Int, <:Int};
-        return_state::Bool=false, kwargs...)
+function ATR((input_size, hidden_size)::Pair{<:Int,<:Int};
+    return_state::Bool=false, kwargs...)
     cell = ATRCell(input_size => hidden_size; kwargs...)
-    return ATR{return_state, typeof(cell)}(cell)
+    return ATR{return_state,typeof(cell)}(cell)
 end
 
 function functor(atr::ATR{S}) where {S}
     params = (cell=atr.cell,)
-    reconstruct = p -> ATR{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> ATR{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, atr::ATR)
     print(
-        io, "ATR(", size(atr.cell.Wi, 2), " => ", size(atr.cell.Wi, 1))
+        io, "ATR(", size(atr.cell.weight_ih, 2), " => ", size(atr.cell.weight_ih, 1))
     print(io, ")")
 end

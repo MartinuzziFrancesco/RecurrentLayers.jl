@@ -3,7 +3,8 @@
     CFNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_fn = :addition)
 
 Chaos free network unit [Laurent2017](@cite).
 See [`CFN`](@ref) for a layer that processes entire sequences.
@@ -18,7 +19,13 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_fn`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -53,39 +60,54 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct CFNCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct CFNCell{I,H,V,W,A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer CFNCell
 
-function CFNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    b = create_bias(Wi, bias, size(Wh, 1))
-
-    return CFNCell(Wi, Wh, b)
+function CFNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    bias::Bool=true, recurrent_bias::Bool=true,
+    integration_mode::Symbol=:addition, independent_recurrence::Bool=true)
+    weight_ih = init_kernel(hidden_size * 3, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size * 2))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size * 2, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return CFNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (cfn::CFNCell)(inp::AbstractVecOrMat, state)
-    _size_check(cfn, inp, 1 => size(cfn.Wi, 2))
-    Wi, Wh, b = cfn.Wi, cfn.Wh, cfn.bias
-    #split
-    gxs = chunk(Wi * inp, 3; dims=1)
-    ghs = chunk(Wh * state .+ b, 2; dims=1)
-
-    horizontal_gate = @. sigmoid_fast(gxs[1] + ghs[1])
-    vertical_gate = @. sigmoid_fast(gxs[2] + ghs[2])
+    _size_check(cfn, inp, 1 => size(cfn.weight_ih, 2))
+    proj_ih = dense_proj(cfn.weight_ih, inp, cfn.bias_ih)
+    proj_hh = dense_proj(cfn.weight_hh, state, cfn.bias_hh)
+    gxs = chunk(proj_ih, 3; dims=1)
+    ghs = chunk(proj_hh, 2; dims=1)
+    horizontal_gate = sigmoid_fast.(cfn.integration_fn(gxs[1], ghs[1]))
+    vertical_gate = sigmoid_fast.(cfn.integration_fn(gxs[2], ghs[2]))
     new_state = @. horizontal_gate * tanh_fast(state) + vertical_gate * tanh_fast(gxs[3])
     return new_state, new_state
 end
 
 function Base.show(io::IO, cfn::CFNCell)
-    print(io, "CFNCell(", size(cfn.Wi, 2), " => ", size(cfn.Wi, 1) ÷ 2, ")")
+    print(io, "CFNCell(", size(cfn.weight_ih, 2), " => ", size(cfn.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -107,7 +129,12 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_fn`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -143,25 +170,25 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct CFN{S, M} <: AbstractRecurrentLayer{S}
+struct CFN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand CFN
 
-function CFN((input_size, hidden_size)::Pair{<:Int, <:Int};
-        return_state::Bool=false, kwargs...)
+function CFN((input_size, hidden_size)::Pair{<:Int,<:Int};
+    return_state::Bool=false, kwargs...)
     cell = CFNCell(input_size => hidden_size; kwargs...)
-    return CFN{return_state, typeof(cell)}(cell)
+    return CFN{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::CFN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> CFN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> CFN{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, cfn::CFN)
-    print(io, "CFN(", size(cfn.cell.Wi, 2), " => ", size(cfn.cell.Wi, 1))
+    print(io, "CFN(", size(cfn.cell.weight_ih, 2), " => ", size(cfn.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end
