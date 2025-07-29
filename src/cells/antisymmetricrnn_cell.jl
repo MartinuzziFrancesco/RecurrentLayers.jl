@@ -3,7 +3,7 @@
     AntisymmetricRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        independent_recurrence = false, integration_fn = :addition,
+        independent_recurrence = false, integration_mode = :addition,
         bias = true, recurrent_bias = true,
         epsilon=1.0, gamma = 0.0)
 
@@ -26,7 +26,7 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
@@ -133,7 +133,7 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
@@ -193,7 +193,7 @@ end
     GatedAntisymmetricRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        independent_recurrence = false, integration_fn = :addition,
+        independent_recurrence = false, integration_mode = :addition,
         bias = true, recurrent_bias = true,
         epsilon=1.0, gamma = 0.0)
 
@@ -214,7 +214,7 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
@@ -329,7 +329,7 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.

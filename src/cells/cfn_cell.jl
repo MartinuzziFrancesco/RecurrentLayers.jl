@@ -4,7 +4,7 @@
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true, recurrent_bias = true,
-        independent_recurrence = false, integration_fn = :addition)
+        independent_recurrence = false, integration_mode = :addition)
 
 Chaos free network unit [Laurent2017](@cite).
 See [`CFN`](@ref) for a layer that processes entire sequences.
@@ -23,7 +23,7 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 
@@ -73,7 +73,7 @@ end
 function CFNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
     init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
     bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=true)
+    integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size * 3, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size * 2))
@@ -106,6 +106,10 @@ function (cfn::CFNCell)(inp::AbstractVecOrMat, state)
     return new_state, new_state
 end
 
+function initialstates(cfn::CFNCell)
+    return zeros_like(cfn.weight_hh, size(cfn.weight_hh, 1) ÷ 2)
+end
+
 function Base.show(io::IO, cfn::CFNCell)
     print(io, "CFNCell(", size(cfn.weight_ih, 2), " => ", size(cfn.weight_ih, 1) ÷ 3, ")")
 end
@@ -133,7 +137,7 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations

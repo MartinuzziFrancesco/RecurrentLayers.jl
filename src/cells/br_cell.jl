@@ -4,7 +4,7 @@
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform
         bias = true, recurrent_bias = true,
-        independent_recurrence = false, integration_fn = :addition)
+        independent_recurrence = false, integration_mode = :addition)
 
 
 Bistable recurrent cell [Vecoven2021](@cite).
@@ -24,7 +24,7 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `true` in this architecture. For the
   architecture without independent recurrence plese refer to [`NBRCell`](@ref)
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
@@ -139,7 +139,7 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `true` in this architecture. For the
   architecture without independent recurrence plese refer to [`NBR`](@ref)
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
@@ -203,7 +203,7 @@ end
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true, recurrent_bias = true,
-        independent_recurrence = false, integration_fn = :addition)
+        independent_recurrence = false, integration_mode = :addition)
 
 
 Recurrently neuromodulated bistable recurrent cell [Vecoven2021](@cite).
@@ -223,7 +223,7 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `false` in this architecture. For the
   architecture with independent recurrence plese refer to [`BRCell`](@ref)
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
@@ -328,7 +328,13 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`
+- `bias`: include a bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: hard-coded to `false` in this architecture. For the
+  architecture with independent recurrence plese refer to [`BR`](@ref)
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 

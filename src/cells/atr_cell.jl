@@ -3,7 +3,7 @@
     ATRCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        independent_recurrence = false, integration_fn = :addition,
+        independent_recurrence = false, integration_mode = :addition,
         bias = true, recurrent_bias = true,)
 
 
@@ -24,7 +24,7 @@ See [`ATR`](@ref) for a layer that processes entire sequences.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
@@ -107,6 +107,10 @@ function (atr::ATRCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     return new_state, new_state
 end
 
+function initialstates(atr::ATRCell)
+    return zeros_like(atr.weight_hh, size(atr.weight_hh, 1))
+end
+
 function Base.show(io::IO, atr::ATRCell)
     print(io, "ATRCell(", size(atr.weight_ih, 2), " => ", size(atr.weight_ih, 1))
     print(io, ")")
@@ -133,7 +137,7 @@ See [`ATRCell`](@ref) for a layer that processes a single sequence.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
-- `integration_fn`: determines how the input and hidden projections are combined. The
+- `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
