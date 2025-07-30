@@ -3,7 +3,8 @@
     MinimalRNNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true, encoder_bias = true)
+        bias = true, encoder_bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Minimal recurrent neural network unit [Chen2017](@cite).
 See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
@@ -18,8 +19,13 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
 - `encoder_bias`: include a bias in the encoder or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -49,10 +55,10 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MinimalRNNCell{I, H, Z, V, E} <: AbstractDoubleRecurrentCell
+struct MinimalRNNCell{I,H,Z,V,E} <: AbstractDoubleRecurrentCell
     Wi::I
     Wh::H
     Wz::Z
@@ -62,9 +68,9 @@ end
 
 @layer MinimalRNNCell
 
-function MinimalRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true, encoder_bias::Bool=true)
+function MinimalRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    bias::Bool=true, encoder_bias::Bool=true)
     Wi = init_kernel(hidden_size, input_size)
     Wh = init_recurrent_kernel(hidden_size, hidden_size)
     Wz = init_recurrent_kernel(hidden_size, hidden_size)
@@ -131,7 +137,7 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 ## Arguments
 - `inp`: The input to the `minimalrnn`. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the `MinimalRNN`. 
+- `(state, cstate)`: A tuple containing the hidden and cell states of the `MinimalRNN`.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -141,21 +147,21 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MinimalRNN{S, M} <: AbstractRecurrentLayer{S}
+struct MinimalRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand MinimalRNN
 
-function MinimalRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
-        return_state::Bool=false, kwargs...)
+function MinimalRNN((input_size, hidden_size)::Pair{<:Int,<:Int};
+    return_state::Bool=false, kwargs...)
     cell = MinimalRNNCell(input_size => hidden_size; kwargs...)
-    return MinimalRNN{return_state, typeof(cell)}(cell)
+    return MinimalRNN{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::MinimalRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MinimalRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> MinimalRNN{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
