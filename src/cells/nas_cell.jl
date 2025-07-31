@@ -27,7 +27,8 @@
     NASCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Neural Architecture Search unit [Zoph2017](@cite).
 See [`NAS`](@ref) for a layer that processes entire sequences.
@@ -42,7 +43,12 @@ See [`NAS`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -93,64 +99,81 @@ See [`NAS`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct NASCell{I, H, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct NASCell{I,H,V,W,A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer NASCell
 
-function NASCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(8 * hidden_size, input_size)
-    Wh = init_recurrent_kernel(8 * hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wh, 1))
-    return NASCell(Wi, Wh, b)
+function NASCell((input_size, hidden_size)::Pair{<:Int,<:Int};
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    bias::Bool=true, recurrent_bias::Bool=true,
+    integration_mode::Symbol=:addition,
+    independent_recurrence::Bool=false)
+    weight_ih = init_kernel(8 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(8 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return NASCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(nas, inp, 1 => size(nas.Wi, 2))
-    Wi, Wh, b = nas.Wi, nas.Wh, nas.bias
-
-    #matmul and split
-    im = chunk(Wi * inp, 8; dims=1)
-    mm = chunk(Wh * state .+ b, 8; dims=1)
-
+    _size_check(nas, inp, 1 => size(nas.weight_ih, 2))
+    proj_ih = dense_proj(nas.weight_ih, inp, nas.bias_ih)
+    proj_ih = dense_proj(nas.weight_hh, state, nas.bias_hh)
+    im = chunk(proj_ih, 8; dims=1)
+    mm = chunk(proj_hh .+ b, 8; dims=1)
     #first layer
-    layer1_1 = sigmoid_fast(im[1] .+ mm[1])
-    layer1_2 = relu(im[2] .+ mm[2])
-    layer1_3 = sigmoid_fast(im[3] .+ mm[3])
-    layer1_4 = relu(im[4] .* mm[4])
-    layer1_5 = tanh_fast(im[5] .+ mm[5])
-    layer1_6 = sigmoid_fast(im[6] .+ mm[6])
-    layer1_7 = tanh_fast(im[7] .+ mm[7])
-    layer1_8 = sigmoid_fast(im[8] .+ mm[8])
-
+    layer1_1 = sigmoid_fast.(nas.integration_fn(im[1], mm[1]))
+    layer1_2 = relu.(nas.integration_fn(im[2], mm[2]))
+    layer1_3 = sigmoid_fast.(nas.integration_fn(im[3], mm[3]))
+    layer1_4 = relu.(nas.integration_fn(im[4], mm[4]))
+    layer1_5 = tanh_fast.(nas.integration_fn(im[5], mm[5]))
+    layer1_6 = sigmoid_fast.(nas.integration_fn(im[6], mm[6]))
+    layer1_7 = tanh_fast.(nas.integration_fn(im[7], mm[7]))
+    layer1_8 = sigmoid_fast.(nas.integration_fn(im[8], mm[8]))
     #second layer
-    l2_1 = tanh_fast(layer1_1 .* layer1_2)
-    l2_2 = tanh_fast(layer1_3 .+ layer1_4)
-    l2_3 = tanh_fast(layer1_5 .* layer1_6)
-    l2_4 = sigmoid_fast(layer1_7 .+ layer1_8)
-
+    l2_1 = tanh_fast.(layer1_1 .* layer1_2)
+    l2_2 = tanh_fast.(layer1_3 .+ layer1_4)
+    l2_3 = tanh_fast.(layer1_5 .* layer1_6)
+    l2_4 = sigmoid_fast.(layer1_7 .+ layer1_8)
     #inject cell
-    l2_1 = tanh_fast(l2_1 .+ c_state)
-
+    l2_1 = tanh_fast.(l2_1 .+ c_state)
     # Third layer
     new_cstate = l2_1 .* l2_2
-    l3_2 = tanh_fast(l2_3 .+ l2_4)
-
-    new_state = tanh_fast(new_cstate .* l3_2)
-
+    l3_2 = tanh_fast.(l2_3 .+ l2_4)
+    new_state = tanh_fast.(new_cstate .* l3_2)
     return new_state, (new_state, new_cstate)
 end
 
+function initialstates(nas::NASCell)
+    state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1))
+    second_state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1))
+    return state, second_state
+end
+
 function Base.show(io::IO, nas::NASCell)
-    print(io, "NASCell(", size(nas.Wi, 2), " => ", size(nas.Wi, 1) ÷ 8, ")")
+    print(io, "NASCell(", size(nas.weight_ih, 2), " => ", size(nas.weight_ih, 1) ÷ 8, ")")
 end
 
 @doc raw"""
@@ -172,7 +195,12 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
@@ -217,7 +245,7 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
 ## Arguments
 - `inp`: The input to the nas. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the NAS. 
+- `(state, cstate)`: A tuple containing the hidden and cell states of the NAS.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -227,25 +255,25 @@ See [`NASCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct NAS{S, M} <: AbstractRecurrentLayer{S}
+struct NAS{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand NAS
 
-function NAS((input_size, hidden_size)::Pair{<:Int, <:Int};
-        return_state::Bool=false, kwargs...)
+function NAS((input_size, hidden_size)::Pair{<:Int,<:Int};
+    return_state::Bool=false, kwargs...)
     cell = NASCell(input_size => hidden_size; kwargs...)
-    return NAS{return_state, typeof(cell)}(cell)
+    return NAS{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::NAS{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> NAS{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> NAS{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, nas::NAS)
-    print(io, "NAS(", size(nas.cell.Wi, 2), " => ", size(nas.cell.Wi, 1))
+    print(io, "NAS(", size(nas.cell.weight_ih, 2), " => ", size(nas.cell.weight_ih, 1) ÷ 8)
     print(io, ")")
 end
