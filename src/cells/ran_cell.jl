@@ -135,7 +135,12 @@ See [`RANCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
