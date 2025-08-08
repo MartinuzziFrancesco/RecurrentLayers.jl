@@ -121,7 +121,7 @@ function NASCell((input_size, hidden_size)::Pair{<:Int,<:Int};
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(8 * hidden_size))
     else
-        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+        weight_hh = init_recurrent_kernel(8 * hidden_size, hidden_size)
     end
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
@@ -140,9 +140,9 @@ end
 function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(nas, inp, 1 => size(nas.weight_ih, 2))
     proj_ih = dense_proj(nas.weight_ih, inp, nas.bias_ih)
-    proj_ih = dense_proj(nas.weight_hh, state, nas.bias_hh)
+    proj_hh = dense_proj(nas.weight_hh, state, nas.bias_hh)
     im = chunk(proj_ih, 8; dims=1)
-    mm = chunk(proj_hh .+ b, 8; dims=1)
+    mm = chunk(proj_hh, 8; dims=1)
     #first layer
     layer1_1 = sigmoid_fast.(nas.integration_fn(im[1], mm[1]))
     layer1_2 = relu.(nas.integration_fn(im[2], mm[2]))
@@ -167,8 +167,8 @@ function (nas::NASCell)(inp::AbstractVecOrMat, (state, c_state))
 end
 
 function initialstates(nas::NASCell)
-    state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1))
-    second_state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1))
+    state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1) ÷ 8)
+    second_state = zeros_like(nas.weight_hh, size(nas.weight_hh, 1) ÷ 8)
     return state, second_state
 end
 
