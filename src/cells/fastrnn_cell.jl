@@ -4,7 +4,8 @@
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         init_alpha = 3.0, init_beta = - 3.0,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Fast recurrent neural network cell [Kusupati2018](@cite).
 See [`FastRNN`](@ref) for a layer that processes entire sequences.
@@ -24,7 +25,13 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
   Default is 3.0.
 - `init_beta`: Initializer for the beta parameter.
   Default is - 3.0.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -53,10 +60,12 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct FastRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct FastRNNCell{I,H,V,W,M,A,B,F} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::M
     alpha::A
     beta::B
     activation::F
@@ -64,33 +73,51 @@ end
 
 @layer FastRNNCell
 
-function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_alpha=3.0, init_beta=-3.0,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    T = eltype(Wi)
+function FastRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh_fast;
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    init_alpha=3.0, init_beta=-3.0,
+    bias::Bool=true, recurrent_bias::Bool=true,
+    integration_mode::Symbol=:addition,
+    independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    T = eltype(weight_ih)
     alpha = T(init_alpha) .* ones(T, 1)
     beta = T(init_beta) .* ones(T, 1)
-    return FastRNNCell(Wi, Wh, b, alpha, beta, activation)
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return FastRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn,
+        alpha, beta, activation)
 end
 
 function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
-    #checks
-    _size_check(fastrnn, inp, 1 => size(fastrnn.Wi, 2))
-    # get variables
-    Wi, Wh, b = fastrnn.Wi, fastrnn.Wh, fastrnn.bias
-    alpha, beta = fastrnn.alpha, fastrnn.beta
-    # perform computations
-    candidate_state = fastrnn.activation.(Wi * inp .+ Wh * state .+ b)
-    new_state = @. alpha * candidate_state + beta * state
+    _size_check(fastrnn, inp, 1 => size(fastrnn.weight_ih, 2))
+    proj_ih = dense_proj(fastrnn.weight_ih, inp, fastrnn.bias_ih)
+    proj_hh = dense_proj(fastrnn.weight_hh, state, fastrnn.bias_hh)
+    candidate_state = fastrnn.activation.(fastrnn.integration_fn(proj_ih, proj_hh))
+    new_state = @. fastrnn.alpha * candidate_state + fastrnn.beta * state
     return new_state, new_state
 end
 
+function initialstates(fastrnn::FastRNNCell)
+    return zeros_like(fastrnn.weight_hh, size(fastrnn.weight_hh, 1))
+end
+
 function Base.show(io::IO, fastrnn::FastRNNCell)
-    print(io, "FastRNNCell(", size(fastrnn.Wi, 2), " => ", size(fastrnn.Wi, 1) ÷ 2, ")")
+    print(io, "FastRNNCell(", size(fastrnn.weight_ih, 2), " => ", size(fastrnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -117,8 +144,13 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
   Default is 3.0.
 - `init_beta`: Initializer for the beta parameter.
   Default is - 3.0.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
-- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 
@@ -148,26 +180,26 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastRNN{S, M} <: AbstractRecurrentLayer{S}
+struct FastRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand FastRNN
 
-function FastRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
-        return_state::Bool=false, kwargs...)
+function FastRNN((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh_fast;
+    return_state::Bool=false, kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastRNN{return_state, typeof(cell)}(cell)
+    return FastRNN{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::FastRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> FastRNN{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, fastrnn::FastRNN)
-    print(io, "FastRNN(", size(fastrnn.cell.Wi, 2), " => ", size(fastrnn.cell.Wi, 1))
+    print(io, "FastRNN(", size(fastrnn.cell.weight_ih, 2), " => ", size(fastrnn.cell.weight_ih, 1))
     print(io, ", ", fastrnn.cell.activation)
     print(io, ")")
 end
@@ -176,7 +208,8 @@ end
     FastGRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true, alt_bias=true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Fast gated recurrent neural network cell [Kusupati2018](@cite).
 See [`FastGRNN`](@ref) for a layer that processes entire sequences.
@@ -196,7 +229,14 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
   Default is 1.0.
 - `init_nu`: Initializer for the nu parameter.
   Default is - 4.0.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `alt_bias`: include different bias for the two gates. Default is `true`
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -229,10 +269,13 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct FastGRNNCell{I, H, V, A, B, F} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct FastGRNNCell{I,H,V,W,L,M,A,B,F} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    bias_alt::L
+    integration_fn::M
     zeta::A
     nu::B
     activation::F
@@ -241,37 +284,56 @@ end
 @layer FastGRNNCell
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_zeta=1.0, init_nu=-4.0,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, 2 * size(Wi, 1))
-    T = eltype(Wi)
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    init_zeta=1.0, init_nu=-4.0,
+    bias::Bool=true, recurrent_bias::Bool=true, alt_bias::Bool=true,
+    integration_mode::Symbol=:addition,
+    independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    bias_alt = create_bias(weight_ih, alt_bias, 2 * size(weight_ih, 1))
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    T = eltype(weight_ih)
     zeta = T(init_zeta) .* ones(T, 1)
     nu = T(init_nu) .* ones(T, 1)
-    return FastGRNNCell(Wi, Wh, b, zeta, nu, activation)
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return FastGRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, bias_alt, integration_fn,
+        zeta, nu, activation)
 end
 
 function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
-    #checks
-    _size_check(fastgrnn, inp, 1 => size(fastgrnn.Wi, 2))
-    # get variables
-    Wi, Wh, b = fastgrnn.Wi, fastgrnn.Wh, fastgrnn.bias
-    zeta, nu = fastgrnn.zeta, fastgrnn.nu
-    bh, bz = chunk(b, 2)
-    partial_gate = Wi * inp .+ Wh * state
-    # perform computations
-    gate = @. fastgrnn.activation(partial_gate + bz)
-    candidate_state = @. tanh_fast(partial_gate + bh)
+    _size_check(fastgrnn, inp, 1 => size(fastgrnn.weight_ih, 2))
+    proj_ih = dense_proj(fastgrnn.weight_ih, inp, fastgrnn.bias_ih)
+    proj_hh = dense_proj(fastgrnn.weight_hh, state, fastgrnn.bias_hh)
+    partial_gate = fastgrnn.integration_fn(proj_ih, proj_hh)
+    bias_alt_1, bias_alt_2 = chunk(fastgrnn.bias_alt, 2)
+    gate = @. fastgrnn.activation(partial_gate + bias_alt_1)
+    candidate_state = @. tanh_fast(partial_gate + bias_alt_2)
     t_ones = eltype(gate)(1.0f0)
-    new_state = @. (zeta * (t_ones - gate) + nu) * candidate_state +
+    new_state = @. (fastgrnn.zeta * (t_ones - gate) + fastgrnn.nu) * candidate_state +
                    gate * state
     return new_state, new_state
 end
 
+function initialstates(fastgrnn::FastGRNNCell)
+    return zeros_like(fastgrnn.weight_hh, size(fastgrnn.weight_hh, 1))
+end
+
 function Base.show(io::IO, fastgrnn::FastGRNNCell)
-    print(io, "FastGRNNCell(", size(fastgrnn.Wi, 2), " => ", size(fastgrnn.Wi, 1) ÷ 2, ")")
+    print(io, "FastGRNNCell(", size(fastgrnn.weight_ih, 2), " => ", size(fastgrnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -298,8 +360,14 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
   Default is 1.0.
 - `init_nu`: Initializer for the nu parameter.
   Default is - 4.0.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `alt_bias`: include different bias for the two gates. Default is `true`
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
-- `bias`: include a bias or not. Default is `true`.
 
 # Equations
 
@@ -333,26 +401,26 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastGRNN{S, M} <: AbstractRecurrentLayer{S}
+struct FastGRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation=tanh_fast;
-        return_state::Bool=false, kwargs...)
+    return_state::Bool=false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastGRNN{return_state, typeof(cell)}(cell)
+    return FastGRNN{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::FastGRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> FastGRNN{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)
-    print(io, "FastGRNN(", size(fastgrnn.cell.Wi, 2), " => ", size(fastgrnn.cell.Wi, 1))
+    print(io, "FastGRNN(", size(fastgrnn.cell.weight_ih, 2), " => ", size(fastgrnn.cell.weight_ih, 1))
     print(io, ", ", fastgrnn.cell.activation)
     print(io, ")")
 end

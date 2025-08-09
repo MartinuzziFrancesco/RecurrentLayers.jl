@@ -4,7 +4,8 @@
     UGRNNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Update gate recurrent unit [Collins2017](@cite).
 See [`UGRNN`](@ref) for a layer that processes entire sequences.
@@ -19,7 +20,12 @@ See [`UGRNN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -51,38 +57,59 @@ See [`UGRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct UGRNNCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct UGRNNCell{I,H,V,W,A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer UGRNNCell
 
-function UGRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(2 * hidden_size, input_size)
-    Wh = init_recurrent_kernel(2 * hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wh, 1))
-
-    return UGRNNCell(Wi, Wh, b)
+function UGRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
+    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+    bias::Bool=true, recurrent_bias::Bool=true,
+    integration_mode::Symbol=:addition,
+    independent_recurrence::Bool=false)
+    weight_ih = init_kernel(2 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return UGRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (ugrnn::UGRNNCell)(inp::AbstractVecOrMat, state)
-    _size_check(ugrnn, inp, 1 => size(ugrnn.Wi, 2))
-    Wi, Wh, b = ugrnn.Wi, ugrnn.Wh, ugrnn.bias
-
-    gates = chunk(Wi * inp + Wh * state .+ b, 2; dims=1)
-
+    _size_check(ugrnn, inp, 1 => size(ugrnn.weight_ih, 2))
+    proj_ih = dense_proj(ugrnn.weight_ih, inp, ugrnn.bias_ih)
+    proj_hh = dense_proj(ugrnn.weight_hh, state, ugrnn.bias_hh)
+    merged_proj = ugrnn.integration_fn(proj_ih, proj_hh)
+    gates = chunk(merged_proj, 2; dims=1)
     candidate_state = @. tanh_fast(gates[1])
     update_gate = sigmoid_fast.(gates[2])
     new_state = @. update_gate * state + (1 - update_gate) * candidate_state
     return new_state, new_state
 end
 
+function initialstates(ugrnn::UGRNNCell)
+    return zeros_like(ugrnn.weight_hh, size(ugrnn.weight_hh, 1) ÷ 2)
+end
+
 function Base.show(io::IO, ugrnn::UGRNNCell)
-    print(io, "UGRNNCell(", size(ugrnn.Wi, 2), " => ", size(ugrnn.Wi, 1) ÷ 2, ")")
+    print(io, "UGRNNCell(", size(ugrnn.weight_ih, 2), " => ", size(ugrnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -104,7 +131,12 @@ See [`UGRNNCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -137,25 +169,25 @@ See [`UGRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct UGRNN{S, M} <: AbstractRecurrentLayer{S}
+struct UGRNN{S,M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand UGRNN
 
-function UGRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
-        return_state::Bool=false, kwargs...)
+function UGRNN((input_size, hidden_size)::Pair{<:Int,<:Int};
+    return_state::Bool=false, kwargs...)
     cell = UGRNNCell(input_size => hidden_size; kwargs...)
-    return UGRNN{return_state, typeof(cell)}(cell)
+    return UGRNN{return_state,typeof(cell)}(cell)
 end
 
 function functor(rnn::UGRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> UGRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> UGRNN{S,typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, ugrnn::UGRNN)
-    print(io, "UGRNN(", size(ugrnn.cell.Wi, 2), " => ", size(ugrnn.cell.Wi, 1))
+    print(io, "UGRNN(", size(ugrnn.cell.weight_ih, 2), " => ", size(ugrnn.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
