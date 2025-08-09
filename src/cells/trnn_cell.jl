@@ -237,7 +237,7 @@ function TGRUCell((input_size, hidden_size)::Pair{<:Int,<:Int};
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
     else
-        weight_hh = init_recurrent_kernel(3 * hidden_size, hidden_size)
+        weight_hh = init_recurrent_kernel(3 * hidden_size, input_size)
     end
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
@@ -302,7 +302,6 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
-
 # Equations
 
 ```math
@@ -363,7 +362,8 @@ end
     TLSTMCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Strongly typed long short term memory cell [Balduzzi2016](@cite).
 See [`TLSTM`](@ref) for a layer that processes entire sequences.
@@ -378,7 +378,12 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -434,7 +439,7 @@ function TLSTMCell((input_size, hidden_size)::Pair{<:Int,<:Int};
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
     else
-        weight_hh = init_recurrent_kernel(3 * hidden_size, hidden_size)
+        weight_hh = init_recurrent_kernel(3 * hidden_size, input_size)
     end
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
@@ -495,7 +500,12 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 

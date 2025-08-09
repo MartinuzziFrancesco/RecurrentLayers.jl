@@ -1,5 +1,20 @@
+#function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVector, bias::AbstractVector)
+#    return weight * inp_or_state .+ bias
+#end
+
 function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVector, bias::AbstractVector)
-    return weight * inp_or_state .+ bias
+    weight_inp = weight * inp_or_state
+    if bias isa AbstractVector
+        if axes(bias) === axes(weight_inp)
+            return weight_inp .+ bias
+        else
+            tmp = similar(weight_inp, eltype(bias))
+            copyto!(tmp, bias)
+            return weight_inp .+ tmp
+        end
+    else
+        return weight_inp .+ bias
+    end
 end
 
 #independent recurrence has only state since it's only for weight_hh
