@@ -59,7 +59,7 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT1Cell{I,H,V,W,A} <: AbstractRecurrentCell
+struct MUT1Cell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -69,11 +69,11 @@ end
 
 @layer MUT1Cell
 
-function MUT1Cell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function MUT1Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
@@ -179,21 +179,21 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT1{S,M} <: AbstractRecurrentLayer{S}
+struct MUT1{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand MUT1
 
-function MUT1((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function MUT1((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT1Cell(input_size => hidden_size; kwargs...)
-    return MUT1{return_state,typeof(cell)}(cell)
+    return MUT1{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT1{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MUT1{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> MUT1{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
@@ -261,7 +261,7 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT2Cell{I,H,V,W,A} <: AbstractRecurrentCell
+struct MUT2Cell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -271,11 +271,11 @@ end
 
 @layer MUT2Cell
 
-function MUT2Cell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function MUT2Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
@@ -382,21 +382,21 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT2{S,M} <: AbstractRecurrentLayer{S}
+struct MUT2{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand MUT2
 
-function MUT2((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function MUT2((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT2Cell(input_size => hidden_size; kwargs...)
-    return MUT2{return_state,typeof(cell)}(cell)
+    return MUT2{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT2{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MUT2{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> MUT2{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
@@ -465,7 +465,7 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT3Cell{I,H,V,W,A} <: AbstractRecurrentCell
+struct MUT3Cell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -475,11 +475,11 @@ end
 
 @layer MUT3Cell
 
-function MUT3Cell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function MUT3Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
@@ -580,21 +580,21 @@ See [`MUT3Cell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MUT3{S,M} <: AbstractRecurrentLayer{S}
+struct MUT3{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand MUT3
 
-function MUT3((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function MUT3((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MUT3Cell(input_size => hidden_size; kwargs...)
-    return MUT3{return_state,typeof(cell)}(cell)
+    return MUT3{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MUT3{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MUT3{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> MUT3{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

@@ -50,7 +50,7 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct TRNNCell{I,V,A} <: AbstractRecurrentCell
+struct TRNNCell{I, V, A} <: AbstractRecurrentCell
     weight_ih::I
     bias_ih::V
     activation::A
@@ -58,8 +58,8 @@ end
 
 @layer TRNNCell
 
-function TRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh_fast;
-    init_kernel=glorot_uniform, bias::Bool=true)
+function TRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
+        init_kernel=glorot_uniform, bias::Bool=true)
     weight_ih = init_kernel(2 * hidden_size, input_size)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     return TRNNCell(weight_ih, bias_ih, activation)
@@ -80,7 +80,8 @@ function initialstates(trnn::TRNNCell)
 end
 
 function Base.show(io::IO, trnn::TRNNCell)
-    print(io, "TRNNCell(", size(trnn.weight_ih, 2), " => ", size(trnn.weight_ih, 1) ÷ 2, ")")
+    print(
+        io, "TRNNCell(", size(trnn.weight_ih, 2), " => ", size(trnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -135,26 +136,27 @@ See [`TRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct TRNN{S,M} <: AbstractRecurrentLayer{S}
+struct TRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand TRNN
 
-function TRNN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function TRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = TRNNCell(input_size => hidden_size; kwargs...)
-    return TRNN{return_state,typeof(cell)}(cell)
+    return TRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::TRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> TRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> TRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, trnn::TRNN)
-    print(io, "TRNN(", size(trnn.cell.weight_ih, 2), " => ", size(trnn.cell.weight_ih, 1) ÷ 2)
+    print(
+        io, "TRNN(", size(trnn.cell.weight_ih, 2), " => ", size(trnn.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
 
@@ -218,7 +220,7 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
   `state = (new_state, inp)` is the new hidden state together with the current input.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct TGRUCell{I,H,V,W,A} <: AbstractDoubleRecurrentCell
+struct TGRUCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -228,11 +230,11 @@ end
 
 @layer TGRUCell
 
-function TGRUCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function TGRUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
@@ -273,7 +275,8 @@ function initialstates(tgru::TGRUCell)
 end
 
 function Base.show(io::IO, tgru::TGRUCell)
-    print(io, "TGRUCell(", size(tgru.weight_ih, 2), " => ", size(tgru.weight_ih, 1) ÷ 3, ")")
+    print(
+        io, "TGRUCell(", size(tgru.weight_ih, 2), " => ", size(tgru.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -335,26 +338,27 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct TGRU{S,M} <: AbstractRecurrentLayer{S}
+struct TGRU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand TGRU
 
-function TGRU((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function TGRU((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = TGRUCell(input_size => hidden_size; kwargs...)
-    return TGRU{return_state,typeof(cell)}(cell)
+    return TGRU{return_state, typeof(cell)}(cell)
 end
 
 function functor(tgru::TGRU{S}) where {S}
     params = (cell=tgru.cell,)
-    reconstruct = p -> TGRU{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> TGRU{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, tgru::TGRU)
-    print(io, "TGRU(", size(tgru.cell.weight_ih, 2), " => ", size(tgru.cell.weight_ih, 1) ÷ 3)
+    print(
+        io, "TGRU(", size(tgru.cell.weight_ih, 2), " => ", size(tgru.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end
 
@@ -420,7 +424,7 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
   with the current input.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct TLSTMCell{I,H,V,W,A} <: AbstractDoubleRecurrentCell
+struct TLSTMCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -430,11 +434,11 @@ end
 
 @layer TLSTMCell
 
-function TLSTMCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function TLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
@@ -478,7 +482,8 @@ function initialstates(tlstm::TLSTMCell)
 end
 
 function Base.show(io::IO, tlstm::TLSTMCell)
-    print(io, "TLSTMCell(", size(tlstm.weight_ih, 2), " => ", size(tlstm.weight_ih, 1) ÷ 3, ")")
+    print(io, "TLSTMCell(", size(tlstm.weight_ih, 2),
+        " => ", size(tlstm.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -541,25 +546,26 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden states `new_states` and
   the last state of the iteration.
 """
-struct TLSTM{S,M} <: AbstractRecurrentLayer{S}
+struct TLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand TLSTM
 
-function TLSTM((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function TLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = TLSTMCell(input_size => hidden_size; kwargs...)
-    return TLSTM{return_state,typeof(cell)}(cell)
+    return TLSTM{return_state, typeof(cell)}(cell)
 end
 
 function functor(tlstm::TLSTM{S}) where {S}
     params = (cell=tlstm.cell,)
-    reconstruct = p -> TLSTM{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> TLSTM{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, tlstm::TLSTM)
-    print(io, "TLSTM(", size(tlstm.cell.weight_ih, 2), " => ", size(tlstm.cell.weight_ih, 1) ÷ 3)
+    print(io, "TLSTM(", size(tlstm.cell.weight_ih, 2),
+        " => ", size(tlstm.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end

@@ -63,7 +63,7 @@ See [`UnICORNN`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct UnICORNNCell{I,H,Z,V,W,F,D,A} <: AbstractDoubleRecurrentCell
+struct UnICORNNCell{I, H, Z, V, W, F, D, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     weight_ch::Z
@@ -76,13 +76,13 @@ end
 
 @layer UnICORNNCell
 
-function UnICORNNCell((input_size, hidden_size)::Pair{<:Int,<:Int},
-    dt::Number=1.0f0; alpha::Number=0.0f0,
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_control_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function UnICORNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
+        dt::Number=1.0f0; alpha::Number=0.0f0,
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_control_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size))
@@ -102,7 +102,8 @@ function UnICORNNCell((input_size, hidden_size)::Pair{<:Int,<:Int},
     end
     weight_ch = vec(init_control_kernel(hidden_size))
     T = eltype(weight_ih)
-    return UnICORNNCell(weight_ih, weight_hh, weight_ch, bias_ih, bias_hh, integration_fn, T(dt), T(alpha))
+    return UnICORNNCell(
+        weight_ih, weight_hh, weight_ch, bias_ih, bias_hh, integration_fn, T(dt), T(alpha))
 end
 
 function (unicornn::UnICORNNCell)(inp::AbstractVecOrMat, (state, c_state))
@@ -111,7 +112,8 @@ function (unicornn::UnICORNNCell)(inp::AbstractVecOrMat, (state, c_state))
     proj_hh = dense_proj(unicornn.weight_hh, state, unicornn.bias_hh)
     merged_proj = unicornn.integration_fn(proj_ih, proj_hh)
     candidate_state = tanh_fast.(merged_proj) .+ unicornn.alpha .* state
-    new_cstate = c_state .- unicornn.dt .* sigmoid_fast.(unicornn.weight_ch) .* candidate_state
+    new_cstate = c_state .-
+                 unicornn.dt .* sigmoid_fast.(unicornn.weight_ch) .* candidate_state
     new_state = state .+ unicornn.dt .* sigmoid_fast.(unicornn.weight_ch) .* new_cstate
     return new_state, (new_state, new_cstate)
 end
@@ -123,7 +125,8 @@ function initialstates(unicornn::UnICORNNCell)
 end
 
 function Base.show(io::IO, unicornn::UnICORNNCell)
-    print(io, "UnICORNNCell(", size(unicornn.weight_ih, 2), " => ", size(unicornn.weight_ih, 1), ")")
+    print(io, "UnICORNNCell(", size(unicornn.weight_ih, 2),
+        " => ", size(unicornn.weight_ih, 1), ")")
 end
 
 @doc raw"""
@@ -189,21 +192,21 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct UnICORNN{S,M} <: AbstractRecurrentLayer{S}
+struct UnICORNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand UnICORNN
 
-function UnICORNN((input_size, hidden_size)::Pair{<:Int,<:Int}, args...;
-    return_state::Bool=false, kwargs...)
+function UnICORNN((input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
+        return_state::Bool=false, kwargs...)
     cell = UnICORNNCell(input_size => hidden_size, args...; kwargs...)
-    return UnICORNN{return_state,typeof(cell)}(cell)
+    return UnICORNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(unicornn::UnICORNN{S}) where {S}
     params = (cell=unicornn.cell,)
-    reconstruct = p -> UnICORNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> UnICORNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

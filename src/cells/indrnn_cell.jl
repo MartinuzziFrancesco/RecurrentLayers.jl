@@ -54,7 +54,7 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct IndRNNCell{F,I,H,V,W,A} <: AbstractRecurrentCell
+struct IndRNNCell{F, I, H, V, W, A} <: AbstractRecurrentCell
     activation::F
     weight_ih::I
     weight_hh::H
@@ -65,11 +65,11 @@ end
 
 @layer IndRNNCell
 
-function IndRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=relu;
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=true)
+function IndRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=true)
     weight_ih = init_kernel(hidden_size, input_size)
     if !independent_recurrence
         @warn"""\n
@@ -163,26 +163,27 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct IndRNN{S,M} <: AbstractRecurrentLayer{S}
+struct IndRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand IndRNN
 
-function IndRNN((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=relu;
-    return_state::Bool=false, kwargs...)
+function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
+        return_state::Bool=false, kwargs...)
     cell = IndRNNCell(input_size => hidden_size, activation; kwargs...)
-    return IndRNN{return_state,typeof(cell)}(cell)
+    return IndRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::IndRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> IndRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, indrnn::IndRNN)
-    print(io, "IndRNN(", size(indrnn.cell.weight_ih, 2), " => ", size(indrnn.cell.weight_ih, 1))
+    print(io, "IndRNN(", size(indrnn.cell.weight_ih, 2),
+        " => ", size(indrnn.cell.weight_ih, 1))
     print(io, ", ", indrnn.cell.activation)
     print(io, ")")
 end

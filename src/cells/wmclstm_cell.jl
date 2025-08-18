@@ -72,7 +72,7 @@ See [`WMCLSTM`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct WMCLSTMCell{I,H,M,V,W,U,A} <: AbstractDoubleRecurrentCell
+struct WMCLSTMCell{I, H, M, V, W, U, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     weight_mh::M
@@ -84,12 +84,12 @@ end
 
 @layer WMCLSTMCell
 
-function WMCLSTMCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_memory_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true, memory_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function WMCLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_memory_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true, memory_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(4 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(4 * hidden_size))
@@ -140,7 +140,8 @@ function initialstates(lstm::WMCLSTMCell)
 end
 
 function Base.show(io::IO, lstm::WMCLSTMCell)
-    print(io, "WMCLSTMCell(", size(lstm.weight_ih, 2), " => ", size(lstm.weight_ih, 1) ÷ 4, ")")
+    print(io, "WMCLSTMCell(", size(lstm.weight_ih, 2),
+        " => ", size(lstm.weight_ih, 1) ÷ 4, ")")
 end
 
 @doc raw"""
@@ -214,21 +215,21 @@ See [`WMCLSTM`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct WMCLSTM{S,M} <: AbstractRecurrentLayer{S}
+struct WMCLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand WMCLSTM
 
-function WMCLSTM((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function WMCLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = WMCLSTMCell(input_size => hidden_size; kwargs...)
-    return WMCLSTM{return_state,typeof(cell)}(cell)
+    return WMCLSTM{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::WMCLSTM{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> WMCLSTM{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> WMCLSTM{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

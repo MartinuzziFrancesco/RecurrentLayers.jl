@@ -61,7 +61,7 @@ See [`OriginalLSTM`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct OriginalLSTMCell{I,H,V,W,A} <: AbstractDoubleRecurrentCell
+struct OriginalLSTMCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -71,11 +71,11 @@ end
 
 @layer OriginalLSTMCell
 
-function OriginalLSTMCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function OriginalLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
@@ -114,7 +114,8 @@ function initialstates(lstm::OriginalLSTMCell)
 end
 
 function Base.show(io::IO, lstm::OriginalLSTMCell)
-    print(io, "OriginalLSTMCell(", size(lstm.weight_ih, 2), " => ", size(lstm.weight_ih, 1) ÷ 3, ")")
+    print(io, "OriginalLSTMCell(", size(lstm.weight_ih, 2),
+        " => ", size(lstm.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -179,21 +180,21 @@ See [`OriginalLSTMCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct OriginalLSTM{S,M} <: AbstractRecurrentLayer{S}
+struct OriginalLSTM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand OriginalLSTM
 
-function OriginalLSTM((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function OriginalLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = OriginalLSTMCell(input_size => hidden_size; kwargs...)
-    return OriginalLSTM{return_state,typeof(cell)}(cell)
+    return OriginalLSTM{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::OriginalLSTM{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> OriginalLSTM{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> OriginalLSTM{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

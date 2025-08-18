@@ -65,7 +65,7 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct coRNNCell{I,H,Z,V,W,C,A,D,G,E} <: AbstractDoubleRecurrentCell
+struct coRNNCell{I, H, Z, V, W, C, A, D, G, E} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     weight_ch::Z
@@ -80,12 +80,12 @@ end
 
 @layer coRNNCell
 
-function coRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int},
-    dt::Number=1.0f0; gamma::Number=0.0f0, epsilon::Number=0.0f0,
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_cell_kernel=glorot_uniform, bias::Bool=true, recurrent_bias::Bool=true,
-    cell_bias::Bool=true, integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function coRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
+        dt::Number=1.0f0; gamma::Number=0.0f0, epsilon::Number=0.0f0,
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_cell_kernel=glorot_uniform, bias::Bool=true, recurrent_bias::Bool=true,
+        cell_bias::Bool=true, integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size))
@@ -116,7 +116,8 @@ function (cornn::coRNNCell)(inp::AbstractVecOrMat, (state, c_state))
     proj_hh = dense_proj(cornn.weight_hh, state, cornn.bias_hh)
     integrated_proj = cornn.integration_fn(proj_ih, proj_hh)
     preact = integrated_proj .+ cornn.weight_ch * c_state .+ cornn.bias_ch
-    new_cstate = c_state .+ cornn.dt .* tanh_fast.(preact) .- cornn.dt .* cornn.gamma .* state .-
+    new_cstate = c_state .+ cornn.dt .* tanh_fast.(preact) .-
+                 cornn.dt .* cornn.gamma .* state .-
                  cornn.dt .* cornn.epsilon .* c_state
     new_state = @. state + cornn.dt * new_cstate
     return new_state, (new_state, new_cstate)
@@ -199,21 +200,21 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct coRNN{S,M} <: AbstractRecurrentLayer{S}
+struct coRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand coRNN
 
-function coRNN((input_size, hidden_size)::Pair{<:Int,<:Int}, args...;
-    return_state::Bool=false, kwargs...)
+function coRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
+        return_state::Bool=false, kwargs...)
     cell = coRNNCell(input_size => hidden_size, args...; kwargs...)
-    return coRNN{return_state,typeof(cell)}(cell)
+    return coRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(cornn::coRNN{S}) where {S}
     params = (cell=cornn.cell,)
-    reconstruct = p -> coRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> coRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

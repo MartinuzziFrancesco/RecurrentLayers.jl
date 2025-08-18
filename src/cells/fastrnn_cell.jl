@@ -60,7 +60,7 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct FastRNNCell{I,H,V,W,M,A,B,F} <: AbstractRecurrentCell
+struct FastRNNCell{I, H, V, W, M, A, B, F} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -73,12 +73,12 @@ end
 
 @layer FastRNNCell
 
-function FastRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh_fast;
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_alpha=3.0, init_beta=-3.0,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_alpha=3.0, init_beta=-3.0,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size))
@@ -117,7 +117,8 @@ function initialstates(fastrnn::FastRNNCell)
 end
 
 function Base.show(io::IO, fastrnn::FastRNNCell)
-    print(io, "FastRNNCell(", size(fastrnn.weight_ih, 2), " => ", size(fastrnn.weight_ih, 1) ÷ 2, ")")
+    print(io, "FastRNNCell(", size(fastrnn.weight_ih, 2),
+        " => ", size(fastrnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -180,26 +181,27 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastRNN{S,M} <: AbstractRecurrentLayer{S}
+struct FastRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand FastRNN
 
-function FastRNN((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh_fast;
-    return_state::Bool=false, kwargs...)
+function FastRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
+        return_state::Bool=false, kwargs...)
     cell = FastRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastRNN{return_state,typeof(cell)}(cell)
+    return FastRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::FastRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> FastRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> FastRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, fastrnn::FastRNN)
-    print(io, "FastRNN(", size(fastrnn.cell.weight_ih, 2), " => ", size(fastrnn.cell.weight_ih, 1))
+    print(io, "FastRNN(", size(fastrnn.cell.weight_ih, 2),
+        " => ", size(fastrnn.cell.weight_ih, 1))
     print(io, ", ", fastrnn.cell.activation)
     print(io, ")")
 end
@@ -269,7 +271,7 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct FastGRNNCell{I,H,V,W,L,M,A,B,F} <: AbstractRecurrentCell
+struct FastGRNNCell{I, H, V, W, L, M, A, B, F} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -284,11 +286,11 @@ end
 @layer FastGRNNCell
 
 function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_zeta=1.0, init_nu=-4.0,
-    bias::Bool=true, recurrent_bias::Bool=true, alt_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_zeta=1.0, init_nu=-4.0,
+        bias::Bool=true, recurrent_bias::Bool=true, alt_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size))
@@ -333,7 +335,8 @@ function initialstates(fastgrnn::FastGRNNCell)
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNNCell)
-    print(io, "FastGRNNCell(", size(fastgrnn.weight_ih, 2), " => ", size(fastgrnn.weight_ih, 1) ÷ 2, ")")
+    print(io, "FastGRNNCell(", size(fastgrnn.weight_ih, 2),
+        " => ", size(fastgrnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -401,26 +404,27 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct FastGRNN{S,M} <: AbstractRecurrentLayer{S}
+struct FastGRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand FastGRNN
 
 function FastGRNN((input_size, hidden_size)::Pair, activation=tanh_fast;
-    return_state::Bool=false, kwargs...)
+        return_state::Bool=false, kwargs...)
     cell = FastGRNNCell(input_size => hidden_size, activation; kwargs...)
-    return FastGRNN{return_state,typeof(cell)}(cell)
+    return FastGRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::FastGRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> FastGRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> FastGRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, fastgrnn::FastGRNN)
-    print(io, "FastGRNN(", size(fastgrnn.cell.weight_ih, 2), " => ", size(fastgrnn.cell.weight_ih, 1))
+    print(io, "FastGRNN(", size(fastgrnn.cell.weight_ih, 2),
+        " => ", size(fastgrnn.cell.weight_ih, 1))
     print(io, ", ", fastgrnn.cell.activation)
     print(io, ")")
 end

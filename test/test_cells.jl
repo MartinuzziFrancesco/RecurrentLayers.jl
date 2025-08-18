@@ -166,7 +166,6 @@ end
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
-
 end
 
 @testset "MultiplicativeLSTMCell" begin

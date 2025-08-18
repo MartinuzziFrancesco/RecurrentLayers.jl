@@ -58,7 +58,7 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct BRCell{I,H,V,W,A} <: AbstractRecurrentCell
+struct BRCell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -68,10 +68,10 @@ end
 
 @layer BRCell
 
-function BRCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=true)
+function BRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=true)
     weight_ih = init_kernel(hidden_size * 3, input_size)
     weight_hh = init_recurrent_kernel(hidden_size * 2)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
@@ -174,21 +174,21 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct BR{S,M} <: AbstractRecurrentLayer{S}
+struct BR{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand BR
 
-function BR((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function BR((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = BRCell(input_size => hidden_size; kwargs...)
-    return BR{return_state,typeof(cell)}(cell)
+    return BR{return_state, typeof(cell)}(cell)
 end
 
 function functor(br::BR{S}) where {S}
     params = (cell=br.cell,)
-    reconstruct = p -> BR{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> BR{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
@@ -257,7 +257,7 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct NBRCell{I,H,V,W,A} <: AbstractRecurrentCell
+struct NBRCell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -267,10 +267,10 @@ end
 
 @layer NBRCell
 
-function NBRCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
+function NBRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size * 3, input_size)
     weight_hh = init_recurrent_kernel(hidden_size * 2, hidden_size)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
@@ -368,21 +368,21 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct NBR{S,M} <: AbstractRecurrentLayer{S}
+struct NBR{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand NBR
 
-function NBR((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function NBR((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = NBRCell(input_size => hidden_size; kwargs...)
-    return NBR{return_state,typeof(cell)}(cell)
+    return NBR{return_state, typeof(cell)}(cell)
 end
 
 function functor(nbr::NBR{S}) where {S}
     params = (cell=nbr.cell,)
-    reconstruct = p -> NBR{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> NBR{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

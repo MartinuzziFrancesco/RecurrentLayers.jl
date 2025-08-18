@@ -60,7 +60,7 @@ See [`CFN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct CFNCell{I,H,V,W,A} <: AbstractRecurrentCell
+struct CFNCell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -70,10 +70,10 @@ end
 
 @layer CFNCell
 
-function CFNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
+function CFNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size * 3, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size * 2))
@@ -174,21 +174,21 @@ See [`CFNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct CFN{S,M} <: AbstractRecurrentLayer{S}
+struct CFN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand CFN
 
-function CFN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function CFN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = CFNCell(input_size => hidden_size; kwargs...)
-    return CFN{return_state,typeof(cell)}(cell)
+    return CFN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::CFN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> CFN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> CFN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

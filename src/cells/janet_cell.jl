@@ -62,7 +62,7 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct JANETCell{I,H,V,W,M,B} <: AbstractDoubleRecurrentCell
+struct JANETCell{I, H, V, W, M, B} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -73,11 +73,11 @@ end
 
 @layer JANETCell trainable = (weight_ih, weight_hh, bias_ih, bias_hh)
 
-function JANETCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false, beta_value::AbstractFloat=1.0f0)
+function JANETCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false, beta_value::AbstractFloat=1.0f0)
     weight_ih = init_kernel(hidden_size * 2, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
@@ -124,7 +124,8 @@ function initialstates(janet::JANETCell)
 end
 
 function Base.show(io::IO, janet::JANETCell)
-    print(io, "JANETCell(", size(janet.weight_ih, 2), " => ", size(janet.weight_ih, 1) ÷ 2, ")")
+    print(io, "JANETCell(", size(janet.weight_ih, 2),
+        " => ", size(janet.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -183,25 +184,26 @@ See [`JANETCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct JANET{S,M} <: AbstractRecurrentLayer{S}
+struct JANET{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand JANET
 
-function JANET((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function JANET((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = JANETCell(input_size => hidden_size; kwargs...)
-    return JANET{return_state,typeof(cell)}(cell)
+    return JANET{return_state, typeof(cell)}(cell)
 end
 
 function functor(janet::JANET{S}) where {S}
     params = (cell=janet.cell,)
-    reconstruct = p -> JANET{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> JANET{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, janet::JANET)
-    print(io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1))
+    print(
+        io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1))
     print(io, ")")
 end

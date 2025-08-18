@@ -56,7 +56,7 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct AntisymmetricRNNCell{F,I,H,V,W,E,G,A} <: AbstractRecurrentCell
+struct AntisymmetricRNNCell{F, I, H, V, W, E, G, A} <: AbstractRecurrentCell
     activation::F
     weight_ih::I
     weight_hh::H
@@ -70,11 +70,11 @@ end
 @layer AntisymmetricRNNCell
 
 function AntisymmetricRNNCell(
-    (input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh;
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
-    epsilon::AbstractFloat=1.0f0, gamma::AbstractFloat=0.0f0)
+        (input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
+        epsilon::AbstractFloat=1.0f0, gamma::AbstractFloat=0.0f0)
     weight_ih = init_kernel(hidden_size, input_size)
     if independent_recurrence
         @warn "AntisymmetricRNNCell does not support independent_recurrence"
@@ -92,7 +92,8 @@ function AntisymmetricRNNCell(
             "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
         ))
     end
-    return AntisymmetricRNNCell(activation, weight_ih, weight_hh, bias_ih, bias_hh, T(epsilon), T(gamma), integration_fn)
+    return AntisymmetricRNNCell(activation, weight_ih, weight_hh, bias_ih,
+        bias_hh, T(epsilon), T(gamma), integration_fn)
 end
 
 function (asymrnn::AntisymmetricRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
@@ -106,7 +107,8 @@ function (asymrnn::AntisymmetricRNNCell)(inp::AbstractVecOrMat, state::AbstractV
 end
 
 function Base.show(io::IO, asymrnn::AntisymmetricRNNCell)
-    print(io, "AntisymmetricRNNCell(", size(asymrnn.weight_ih, 2), " => ", size(asymrnn.weight_ih, 1))
+    print(io, "AntisymmetricRNNCell(", size(asymrnn.weight_ih, 2),
+        " => ", size(asymrnn.weight_ih, 1))
     print(io, ", ", asymrnn.activation)
     print(io, ")")
 end
@@ -164,27 +166,28 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct AntisymmetricRNN{S,M} <: AbstractRecurrentLayer{S}
+struct AntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand AntisymmetricRNN
 
-function AntisymmetricRNN((input_size, hidden_size)::Pair{<:Int,<:Int}, activation=tanh;
-    return_state::Bool=false, kwargs...)
+function AntisymmetricRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
+        return_state::Bool=false, kwargs...)
     cell = AntisymmetricRNNCell(input_size => hidden_size, activation; kwargs...)
-    return AntisymmetricRNN{return_state,typeof(cell)}(cell)
+    return AntisymmetricRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(asymrnn::AntisymmetricRNN{S}) where {S}
     params = (cell=asymrnn.cell,)
-    reconstruct = p -> AntisymmetricRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> AntisymmetricRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, asymrnn::AntisymmetricRNN)
     print(
-        io, "AntisymmetricRNN(", size(asymrnn.cell.weight_ih, 2), " => ", size(asymrnn.cell.weight_ih, 1))
+        io, "AntisymmetricRNN(", size(asymrnn.cell.weight_ih, 2),
+        " => ", size(asymrnn.cell.weight_ih, 1))
     print(io, ", ", asymrnn.cell.activation)
     print(io, ")")
 end
@@ -250,7 +253,7 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct GatedAntisymmetricRNNCell{I,H,V,W,E,G,A} <: AbstractRecurrentCell
+struct GatedAntisymmetricRNNCell{I, H, V, W, E, G, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -263,11 +266,11 @@ end
 @layer GatedAntisymmetricRNNCell
 
 function GatedAntisymmetricRNNCell(
-    (input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
-    epsilon=1.0f0, gamma=0.0f0)
+        (input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
+        epsilon=1.0f0, gamma=0.0f0)
     weight_ih = init_kernel(hidden_size * 2, input_size)
     if independent_recurrence
         @warn "GatedAntisymmetricRNNCell does not support independent_recurrence"
@@ -285,11 +288,12 @@ function GatedAntisymmetricRNNCell(
             "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
         ))
     end
-    return GatedAntisymmetricRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, T(epsilon), T(gamma), integration_fn)
+    return GatedAntisymmetricRNNCell(
+        weight_ih, weight_hh, bias_ih, bias_hh, T(epsilon), T(gamma), integration_fn)
 end
 
 function (asymrnn::GatedAntisymmetricRNNCell)(
-    inp::AbstractVecOrMat, state::AbstractVecOrMat)
+        inp::AbstractVecOrMat, state::AbstractVecOrMat)
     _size_check(asymrnn, inp, 1 => size(asymrnn.weight_ih, 2))
     recurrent_matrix = compute_asym_recurrent(asymrnn.weight_hh, asymrnn.gamma)
     proj_ih = dense_proj(asymrnn.weight_ih, inp, asymrnn.bias_ih)
@@ -366,21 +370,21 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct GatedAntisymmetricRNN{S,M} <: AbstractRecurrentLayer{S}
+struct GatedAntisymmetricRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand GatedAntisymmetricRNN
 
-function GatedAntisymmetricRNN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function GatedAntisymmetricRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = GatedAntisymmetricRNNCell(input_size => hidden_size; kwargs...)
-    return GatedAntisymmetricRNN{return_state,typeof(cell)}(cell)
+    return GatedAntisymmetricRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(asymrnn::GatedAntisymmetricRNN{S}) where {S}
     params = (cell=asymrnn.cell,)
-    reconstruct = p -> GatedAntisymmetricRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> GatedAntisymmetricRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
@@ -392,5 +396,6 @@ function Base.show(io::IO, asymrnn::GatedAntisymmetricRNN)
 end
 
 function compute_asym_recurrent(weight_hh::AbstractArray, gamma::AbstractFloat)
-    return weight_hh .- transpose(weight_hh) .- gamma .* Matrix{eltype(weight_hh)}(I, size(weight_hh, 1), size(weight_hh, 1))
+    return weight_hh .- transpose(weight_hh) .-
+           gamma .* Matrix{eltype(weight_hh)}(I, size(weight_hh, 1), size(weight_hh, 1))
 end

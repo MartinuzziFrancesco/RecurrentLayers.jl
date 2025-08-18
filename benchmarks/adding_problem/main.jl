@@ -77,7 +77,8 @@ Comonicon.@main function main(; rlayer=MGU, epochs::Int=1000, shuffle::Bool=fals
         hidden_size::Int=100, learning_rate::AbstractFloat=0.001, num_layers::Int=1,
         dropout::AbstractFloat=0.2)
     println("Getting data...")
-    train_loader, test_loader = generate_dataloaders(
+    train_loader,
+    test_loader = generate_dataloaders(
         sequence_length, n_train, n_test; batchsize=batchsize, shuffle=shuffle
     )
 

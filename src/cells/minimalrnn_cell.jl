@@ -61,7 +61,7 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MinimalRNNCell{I,H,Z,V,W,M,A} <: AbstractDoubleRecurrentCell
+struct MinimalRNNCell{I, H, Z, V, W, M, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     weight_mm::Z
@@ -73,12 +73,12 @@ end
 
 @layer MinimalRNNCell
 
-function MinimalRNNCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_encoder_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_memory_kernel=glorot_uniform, encoder_bias::Bool=true,
-    recurrent_bias::Bool=true, memory_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function MinimalRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_encoder_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_memory_kernel=glorot_uniform, encoder_bias::Bool=true,
+        recurrent_bias::Bool=true, memory_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_encoder_kernel(hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size))
@@ -109,7 +109,8 @@ function (minimal::MinimalRNNCell)(inp::AbstractVecOrMat, (state, c_state))
     proj_mm = dense_proj(minimal.weight_mm, c_state, minimal.bias_mm)
     new_cstate = tanh_fast.(proj_ih)
     update_gate = sigmoid_fast.(minimal.integration_fn(proj_hh, proj_mm))
-    new_state = update_gate .* state .+ (eltype(minimal.weight_ih)(1.0) .- update_gate) .* new_cstate
+    new_state = update_gate .* state .+
+                (eltype(minimal.weight_ih)(1.0) .- update_gate) .* new_cstate
     return new_state, (new_state, new_cstate)
 end
 
@@ -120,7 +121,8 @@ function initialstates(minimal::MinimalRNNCell)
 end
 
 function Base.show(io::IO, minimal::MinimalRNNCell)
-    print(io, "MinimalRNNCell(", size(minimal.weight_ih, 2), " => ", size(minimal.weight_ih, 1), ")")
+    print(io, "MinimalRNNCell(", size(minimal.weight_ih, 2),
+        " => ", size(minimal.weight_ih, 1), ")")
 end
 
 @doc raw"""
@@ -183,25 +185,26 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct MinimalRNN{S,M} <: AbstractRecurrentLayer{S}
+struct MinimalRNN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand MinimalRNN
 
-function MinimalRNN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function MinimalRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = MinimalRNNCell(input_size => hidden_size; kwargs...)
-    return MinimalRNN{return_state,typeof(cell)}(cell)
+    return MinimalRNN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::MinimalRNN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MinimalRNN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> MinimalRNN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
 function Base.show(io::IO, minimal::MinimalRNN)
-    print(io, "MinimalRNN(", size(minimal.cell.weight_ih, 2), " => ", size(minimal.cell.weight_ih, 1))
+    print(io, "MinimalRNN(", size(minimal.cell.weight_ih, 2),
+        " => ", size(minimal.cell.weight_ih, 1))
     print(io, ")")
 end

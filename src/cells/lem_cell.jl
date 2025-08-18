@@ -69,7 +69,7 @@ See [`LEM`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct LEMCell{I,H,Z,V,W,C,A,D} <: AbstractDoubleRecurrentCell
+struct LEMCell{I, H, Z, V, W, C, A, D} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     weight_ch::Z
@@ -82,11 +82,11 @@ end
 
 @layer LEMCell
 
-function LEMCell((input_size, hidden_size)::Pair{<:Int,<:Int}, dt::Number=1.0f0;
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    init_cell_kernel=glorot_uniform, bias::Bool=true, recurrent_bias::Bool=true,
-    cell_bias::Bool=true, integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function LEMCell((input_size, hidden_size)::Pair{<:Int, <:Int}, dt::Number=1.0f0;
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_cell_kernel=glorot_uniform, bias::Bool=true, recurrent_bias::Bool=true,
+        cell_bias::Bool=true, integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size * 4, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(hidden_size * 3))
@@ -199,21 +199,21 @@ See [`LEMCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct LEM{S,M} <: AbstractRecurrentLayer{S}
+struct LEM{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand LEM
 
-function LEM((input_size, hidden_size)::Pair{<:Int,<:Int}, dt::Number=1.0;
-    return_state::Bool=false, kwargs...)
+function LEM((input_size, hidden_size)::Pair{<:Int, <:Int}, dt::Number=1.0;
+        return_state::Bool=false, kwargs...)
     cell = LEMCell(input_size => hidden_size, dt; kwargs...)
-    return LEM{return_state,typeof(cell)}(cell)
+    return LEM{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::LEM{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> LEM{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> LEM{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

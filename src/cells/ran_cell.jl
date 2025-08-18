@@ -60,7 +60,7 @@ See [`RAN`](@ref) for a layer that processes entire sequences.
   `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct RANCell{I,H,V,W,A} <: AbstractDoubleRecurrentCell
+struct RANCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -70,11 +70,11 @@ end
 
 @layer RANCell
 
-function RANCell((input_size, hidden_size)::Pair{<:Int,<:Int};
-    init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
+function RANCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(3 * hidden_size, input_size)
     if independent_recurrence
         weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
@@ -177,21 +177,21 @@ See [`RANCell`](@ref) for a layer that processes a single sequence.
   When `return_state = true` it returns a tuple of the hidden stats `new_states` and
   the last state of the iteration.
 """
-struct RAN{S,M} <: AbstractRecurrentLayer{S}
+struct RAN{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
 @layer :noexpand RAN
 
-function RAN((input_size, hidden_size)::Pair{<:Int,<:Int};
-    return_state::Bool=false, kwargs...)
+function RAN((input_size, hidden_size)::Pair{<:Int, <:Int};
+        return_state::Bool=false, kwargs...)
     cell = RANCell(input_size => hidden_size; kwargs...)
-    return RAN{return_state,typeof(cell)}(cell)
+    return RAN{return_state, typeof(cell)}(cell)
 end
 
 function functor(rnn::RAN{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> RAN{S,typeof(p.cell)}(p.cell)
+    reconstruct = p -> RAN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 

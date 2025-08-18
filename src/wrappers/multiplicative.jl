@@ -56,13 +56,13 @@ Currently this wrapper does not support the following cells:
 
 ## Returns
 
-Either of 
+Either of
   - A tuple `(output, state)`, where both elements are given by the updated state
     `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`, if the
     `rcell` is single return (e.g. [`Flux.RNNCell`](@extref)).
 
   - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-    `state = (new_state, new_cstate)` is the new hidden and cell state. 
+    `state = (new_state, new_cstate)` is the new hidden and cell state.
     They are tensors of size `hidden_size` or `hidden_size x batch_size`.
     This applies if the `rcell` is double return (e.g. [`Flux.LSTMCell`](@extref)).
 
@@ -101,8 +101,8 @@ Recurrence(
 ```
 """
 struct Multiplicative{M, H, C}
-    Wm::M
-    Wh::H
+    weight_mh::M
+    weight_hh::H
     cell::C
 end
 
@@ -116,18 +116,18 @@ function Multiplicative(rcell, (input_size, hidden_size)::Pair{<:Int, <:Int}, ar
         init_multiplicative_kernel=glorot_uniform,
         init_multiplicativerecurrent_kernel=glorot_uniform, kwargs...)
     cell = rcell(input_size => hidden_size, args...; kwargs...)
-    Wm = init_multiplicative_kernel(hidden_size, input_size)
-    Wh = init_multiplicativerecurrent_kernel(hidden_size, hidden_size)
-    return Multiplicative(Wm, Wh, cell)
+    weight_mh = init_multiplicative_kernel(hidden_size, input_size)
+    weight_hh = init_multiplicativerecurrent_kernel(hidden_size, hidden_size)
+    return Multiplicative(weight_mh, weight_hh, cell)
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
+    m_state = (mrnn.weight_mh * inp) .* (mrnn.weight_hh * state)
     return mrnn.cell(inp, m_state)
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, (state, c_state))
-    m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
+    m_state = (mrnn.weight_mh * inp) .* (mrnn.weight_hh * state)
     return mrnn.cell(inp, (m_state, c_state))
 end
 
