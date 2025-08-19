@@ -78,9 +78,8 @@ julia> mrnn = Multiplicative(MGUCell, 3 => 5)
 Multiplicative(
   5×3 Matrix{Float32},                  # 15 parameters
   5×5 Matrix{Float32},                  # 25 parameters
-  MGUCell(3 => 5),                      # 90 parameters
-)                   # Total: 5 arrays, 130 parameters, 792 bytes.
-
+  MGUCell(3 => 5),                      # 100 parameters
+)                   # Total: 6 arrays, 140 parameters, 880 bytes.
 ```
 
 In order to make `Multiplicative` act on a full sequence it is possible to wrap it
@@ -94,10 +93,9 @@ Recurrence(
   Multiplicative(
     4×2 Matrix{Float32},                # 8 parameters
     4×4 Matrix{Float32},                # 16 parameters
-    AntisymmetricRNNCell(2 => 4, tanh),  # 28 parameters
+    AntisymmetricRNNCell(2 => 4, tanh),  # 32 parameters
   ),
-)                   # Total: 5 arrays, 52 parameters, 488 bytes.
-
+)                   # Total: 6 arrays, 56 parameters, 552 bytes.
 ```
 """
 struct Multiplicative{M, H, C}
