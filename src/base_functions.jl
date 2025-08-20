@@ -2,41 +2,69 @@
 #    return weight * inp_or_state .+ bias
 #end
 
-function dense_proj(W::AbstractMatrix, x::AbstractVecOrMat, b::AbstractVector)
-    y = W * x
-    add_bias!(y, b)
-
-    return y
+function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias::Bool)
+    return weight * inp_or_state
 end
 
-function add_bias!(y::AbstractVector, b::AbstractVector)
-    @assert length(y) == length(b)
-    @inbounds for I in eachindex(y, b)
-        y[I] += b[I]
+function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias::AbstractVector)
+    weight_inporstate = dense_proj(weight, inp_or_state, false)
+    add_bias!(weight_inporstate, bias)
+    return weight_inporstate
+end
+
+function add_bias!(weight_inporstate::AbstractVector, bias::AbstractVector)
+    @assert length(weight_inporstate) == length(bias)
+    @inbounds for idx in eachindex(weight_inporstate, bias)
+        weight_inporstate[idx] += bias[idx]
     end
 end
 
-function add_bias!(y::AbstractMatrix, b::AbstractVector)
-    @assert size(y, 1) == length(b)
-    @inbounds for j in axes(y, 2), i in axes(y, 1)
+function add_bias!(weight_inporstate::AbstractMatrix, bias::AbstractVector)
+    @assert size(weight_inporstate, 1) == length(bias)
+    @inbounds for jdx in axes(weight_inporstate, 2), idx in axes(weight_inporstate, 1)
 
-        y[i, j] += b[i]
+        weight_inporstate[idx, jdx] += bias[idx]
     end
-    return y
-end
-
-function dense_proj(W::AbstractMatrix, x::AbstractVecOrMat, b::Bool)
-    return W * x
+    return weight_inporstate
 end
 
 #independent recurrence has only state since it's only for weight_hh
-function dense_proj(weight::AbstractVector, state::AbstractVecOrMat, bias::AbstractVecOrMat)
-    hidden_size = length(state)
+function dense_proj(weight::AbstractVector, state::AbstractVector, bias::Union{
+        AbstractVector, Bool})
+    proj = _ind_rec(weight, state, bias)
+    return proj
+end
+
+function dense_proj(weight::AbstractVector, state::AbstractMatrix, bias::Union{
+        AbstractVector, Bool})
+    return _ind_rec(weight, state, bias)
+end
+
+function _ind_rec(weight::AbstractVector, state::AbstractVecOrMat, bias::AbstractVector)
+    hidden_size = size(state, 1)
+    weight_size = length(weight)
+    num_gates = div(weight_size, hidden_size)
+
+    if ndims(state) == 1
+        re_weight = reshape(weight, hidden_size, num_gates)
+        re_bias = reshape(bias, hidden_size, num_gates)
+        proj = re_weight .* state .+ re_bias
+        return vec(proj)
+    else
+        batch_size = size(state, 2)
+        proj = reshape(weight, hidden_size, num_gates, 1) .*
+               reshape(state, hidden_size, 1, batch_size) .+
+               reshape(bias, hidden_size, num_gates, 1)
+        return reshape(proj, hidden_size * num_gates, batch_size)
+    end
+end
+
+function _ind_rec(weight::AbstractVector, state::AbstractVecOrMat, bias::Bool)
+    hidden_size = size(state, 1)
     num_gates = div(length(weight), hidden_size)
     re_weight = reshape(weight, hidden_size, num_gates)
-    re_bias = reshape(bias, hidden_size, num_gates)
-    proj = @. re_weight * state + re_bias
-    return vec(proj)
+    proj = @. re_weight * state
+    return proj
 end
 
 function add_projections(weight_b_ih::AbstractVecOrMat, weight_b_hh::AbstractVecOrMat)
