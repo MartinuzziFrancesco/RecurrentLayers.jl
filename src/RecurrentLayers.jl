@@ -2,24 +2,24 @@ module RecurrentLayers
 
 using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_uniform,
-            scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
+    scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
 import Flux: initialstates
 import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
-       FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
-       LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
-       MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
-       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
-       TGRUCell,
-       TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
+    FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+    LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
+    MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
+    PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
+    TGRUCell,
+    TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
-       GatedAntisymmetricRNN,
-       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
-       MUT3, NAS, OriginalLSTM, NBR,
-       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
+    GatedAntisymmetricRNN,
+    IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
+    MUT3, NAS, OriginalLSTM, NBR,
+    PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
 export Multiplicative, StackedRNN
 
 @compat(public, (initialstates))
@@ -33,7 +33,6 @@ include("cells/br_cell.jl")
 include("cells/cfn_cell.jl")
 include("cells/cornn_cell.jl")
 include("cells/fastrnn_cell.jl")
-include("cells/fsrnn_cell.jl")
 include("cells/indrnn_cell.jl")
 include("cells/janet_cell.jl")
 include("cells/lem_cell.jl")
@@ -56,6 +55,7 @@ include("cells/ugrnn_cell.jl")
 include("cells/unicornn_cell.jl")
 include("cells/wmclstm_cell.jl")
 
+include("wrappers/fastslow.jl")
 include("wrappers/multiplicative.jl")
 include("wrappers/stackedrnn.jl")
 
@@ -77,7 +77,7 @@ rcells = (
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
         function ($rlayer)(rc::$rcell; return_state::Bool=false)
-            return $rlayer{return_state, typeof(rc)}(rc)
+            return $rlayer{return_state,typeof(rc)}(rc)
         end
 
         # why wont' this work?
