@@ -3,7 +3,8 @@
     LiGRUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Light gated recurrent unit [Ravanelli2018](@cite).
 The implementation does not include the batch normalization as
@@ -20,7 +21,12 @@ See [`LiGRU`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -53,39 +59,60 @@ See [`LiGRU`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct LiGRUCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct LiGRUCell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer LiGRUCell
 
 function LiGRUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 2, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-
-    return LiGRUCell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(2 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return LiGRUCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
-    _size_check(ligru, inp, 1 => size(ligru.Wi, 2))
-    Wi, Wh, b = ligru.Wi, ligru.Wh, ligru.bias
-    #split
-    gxs = chunk(Wi * inp, 2; dims=1)
-    ghs = chunk(Wh * state .+ b, 2; dims=1)
-    #compute
-    forget_gate = @. sigmoid_fast(gxs[1] + ghs[1])
-    candidate_hidden = @. tanh_fast(gxs[2] + ghs[2])
+    _size_check(ligru, inp, 1 => size(ligru.weight_ih, 2))
+    proj_ih = dense_proj(ligru.weight_ih, inp, ligru.bias_ih)
+    proj_hh = dense_proj(ligru.weight_hh, state, ligru.bias_hh)
+    gxs = chunk(proj_ih, 2; dims=1)
+    ghs = chunk(proj_hh, 2; dims=1)
+    forget_gate = sigmoid_fast.(ligru.integration_fn(gxs[1], ghs[1]))
+    candidate_hidden = tanh_fast.(ligru.integration_fn(gxs[2], ghs[2]))
     new_state = @. forget_gate * state + (1 - forget_gate) * candidate_hidden
     return new_state, new_state
 end
 
+function initialstates(ligru::LiGRUCell)
+    return zeros_like(ligru.weight_hh, size(ligru.weight_hh, 1) ÷ 2)
+end
+
 function Base.show(io::IO, ligru::LiGRUCell)
-    print(io, "LiGRUCell(", size(ligru.Wi, 2), " => ", size(ligru.Wi, 1) ÷ 2, ")")
+    print(io, "LiGRUCell(", size(ligru.weight_ih, 2),
+        " => ", size(ligru.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -109,7 +136,12 @@ See [`LiGRUCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -162,6 +194,7 @@ function functor(rnn::LiGRU{S}) where {S}
 end
 
 function Base.show(io::IO, ligru::LiGRU)
-    print(io, "LiGRU(", size(ligru.cell.Wi, 2), " => ", size(ligru.cell.Wi, 1))
+    print(
+        io, "LiGRU(", size(ligru.cell.weight_ih, 2), " => ", size(ligru.cell.weight_ih, 1))
     print(io, ")")
 end

@@ -2,7 +2,9 @@
 @doc raw"""
     SGRNCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
-        init_recurrent_kernel = glorot_uniform)
+        init_recurrent_kernel = glorot_uniform,
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 
 Simple gated recurrent network [Zu2020](@cite).
@@ -18,7 +20,12 @@ See [`SGRN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -50,36 +57,57 @@ See [`SGRN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct SGRNCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    b::V
+struct SGRNCell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer SGRNCell
 
 function SGRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return SGRNCell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return SGRNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (sgrn::SGRNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(sgrn, inp, 1 => size(sgrn.Wi, 2))
-    Wi, Wh, b = sgrn.Wi, sgrn.Wh, sgrn.b
-    xs = Wi * inp
-    hs = Wh * state .+ b
-    forget_gate = @. sigmoid_fast(xs + hs)
-    input_gate = eltype(Wi)(1.0) .- forget_gate
-    new_state = @. tanh_fast(input_gate * xs + forget_gate * state)
+    _size_check(sgrn, inp, 1 => size(sgrn.weight_ih, 2))
+    proj_ih = dense_proj(sgrn.weight_ih, inp, sgrn.bias_ih)
+    proj_hh = dense_proj(sgrn.weight_hh, state, sgrn.bias_hh)
+    forget_gate = sigmoid_fast.(sgrn.integration_fn(proj_ih, proj_hh))
+    input_gate = eltype(sgrn.weight_ih)(1.0) .- forget_gate
+    new_state = @. tanh_fast(input_gate * proj_ih + forget_gate * state)
     return new_state, new_state
 end
 
+function initialstates(sgrn::SGRNCell)
+    return zeros_like(sgrn.weight_hh, size(sgrn.weight_hh, 1))
+end
+
 function Base.show(io::IO, sgrn::SGRNCell)
-    print(io, "SGRNCell(", size(sgrn.Wi, 2), " => ", size(sgrn.Wi, 1))
+    print(io, "SGRNCell(", size(sgrn.weight_ih, 2), " => ", size(sgrn.weight_ih, 1))
     print(io, ")")
 end
 
@@ -100,7 +128,12 @@ See [`SGRNCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -153,6 +186,6 @@ end
 
 function Base.show(io::IO, sgrn::SGRN)
     print(
-        io, "SGRN(", size(sgrn.cell.Wi, 2), " => ", size(sgrn.cell.Wi, 1))
+        io, "SGRN(", size(sgrn.cell.weight_ih, 2), " => ", size(sgrn.cell.weight_ih, 1))
     print(io, ")")
 end

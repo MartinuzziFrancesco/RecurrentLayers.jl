@@ -3,7 +3,9 @@
     AntisymmetricRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true, epsilon=1.0)
+        independent_recurrence = false, integration_mode = :addition,
+        bias = true, recurrent_bias = true,
+        epsilon=1.0, gamma = 0.0)
 
 
 Antisymmetric recurrent cell [Chang2019](@cite).
@@ -20,7 +22,12 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
 
@@ -49,13 +56,15 @@ See [`AntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct AntisymmetricRNNCell{F, I, H, V, E, G} <: AbstractRecurrentCell
+struct AntisymmetricRNNCell{F, I, H, V, W, E, G, A} <: AbstractRecurrentCell
     activation::F
-    Wi::I
-    Wh::H
-    b::V
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
     epsilon::E
     gamma::G
+    integration_fn::A
 end
 
 @layer AntisymmetricRNNCell
@@ -63,27 +72,43 @@ end
 function AntisymmetricRNNCell(
         (input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true, epsilon=1.0f0, gamma=0.0f0)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    T = eltype(Wi)
-    return AntisymmetricRNNCell(activation, Wi, Wh, b, T(epsilon), T(gamma))
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
+        epsilon::AbstractFloat=1.0f0, gamma::AbstractFloat=0.0f0)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if independent_recurrence
+        @warn "AntisymmetricRNNCell does not support independent_recurrence"
+    end
+    weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    T = eltype(weight_ih)
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return AntisymmetricRNNCell(activation, weight_ih, weight_hh, bias_ih,
+        bias_hh, T(epsilon), T(gamma), integration_fn)
 end
 
 function (asymrnn::AntisymmetricRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(asymrnn, inp, 1 => size(asymrnn.Wi, 2))
-    Wi, Wh, b = asymrnn.Wi, asymrnn.Wh, asymrnn.b
-    epsilon, gamma = asymrnn.epsilon, asymrnn.gamma
-    activation = asymrnn.activation
-    recurrent_matrix = compute_asym_recurrent(Wh, gamma)
-    new_state = state + epsilon .*
-                        activation.(Wi * inp .+ recurrent_matrix * state .+ b)
+    _size_check(asymrnn, inp, 1 => size(asymrnn.weight_ih, 2))
+    recurrent_matrix = compute_asym_recurrent(asymrnn.weight_hh, asymrnn.gamma)
+    proj_ih = dense_proj(asymrnn.weight_ih, inp, asymrnn.bias_ih)
+    proj_hh = dense_proj(recurrent_matrix, state, asymrnn.bias_hh)
+    proj_combined = asymrnn.integration_fn(proj_ih, proj_hh)
+    new_state = state + asymrnn.epsilon .* asymrnn.activation.(proj_combined)
     return new_state, new_state
 end
 
 function Base.show(io::IO, asymrnn::AntisymmetricRNNCell)
-    print(io, "AntisymmetricRNNCell(", size(asymrnn.Wi, 2), " => ", size(asymrnn.Wi, 1))
+    print(io, "AntisymmetricRNNCell(", size(asymrnn.weight_ih, 2),
+        " => ", size(asymrnn.weight_ih, 1))
     print(io, ", ", asymrnn.activation)
     print(io, ")")
 end
@@ -107,6 +132,11 @@ See [`AntisymmetricRNNCell`](@ref) for a layer that processes a single sequence.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
 - `bias`: include a bias or not. Default is `true`
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
 
@@ -156,7 +186,8 @@ end
 
 function Base.show(io::IO, asymrnn::AntisymmetricRNN)
     print(
-        io, "AntisymmetricRNN(", size(asymrnn.cell.Wi, 2), " => ", size(asymrnn.cell.Wi, 1))
+        io, "AntisymmetricRNN(", size(asymrnn.cell.weight_ih, 2),
+        " => ", size(asymrnn.cell.weight_ih, 1))
     print(io, ", ", asymrnn.cell.activation)
     print(io, ")")
 end
@@ -165,7 +196,9 @@ end
     GatedAntisymmetricRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true, epsilon=1.0)
+        independent_recurrence = false, integration_mode = :addition,
+        bias = true, recurrent_bias = true,
+        epsilon=1.0, gamma = 0.0)
 
 
 Antisymmetric recurrent cell with gating [Chang2019](@cite).
@@ -182,6 +215,10 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
 - `bias`: include a bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
 
@@ -216,12 +253,14 @@ See [`GatedAntisymmetricRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct GatedAntisymmetricRNNCell{I, H, V, E, G} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    b::V
+struct GatedAntisymmetricRNNCell{I, H, V, W, E, G, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
     epsilon::E
     gamma::G
+    integration_fn::A
 end
 
 @layer GatedAntisymmetricRNNCell
@@ -229,31 +268,47 @@ end
 function GatedAntisymmetricRNNCell(
         (input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true, epsilon=1.0f0, gamma=0.0f0)
-    Wi = init_kernel(hidden_size * 2, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    T = eltype(Wi)
-    return GatedAntisymmetricRNNCell(Wi, Wh, b, T(epsilon), T(gamma))
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition, independent_recurrence::Bool=false,
+        epsilon=1.0f0, gamma=0.0f0)
+    weight_ih = init_kernel(hidden_size * 2, input_size)
+    if independent_recurrence
+        @warn "GatedAntisymmetricRNNCell does not support independent_recurrence"
+    end
+    weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    T = eltype(weight_ih)
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return GatedAntisymmetricRNNCell(
+        weight_ih, weight_hh, bias_ih, bias_hh, T(epsilon), T(gamma), integration_fn)
 end
 
 function (asymrnn::GatedAntisymmetricRNNCell)(
         inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(asymrnn, inp, 1 => size(asymrnn.Wi, 2))
-    Wi, Wh, b = asymrnn.Wi, asymrnn.Wh, asymrnn.b
-    gxs = chunk(Wi * inp .+ b, 2; dims=1)
-    epsilon, gamma = asymrnn.epsilon, asymrnn.gamma
-    recurrent_matrix = compute_asym_recurrent(Wh, gamma)
-    input_gate = sigmoid_fast.(recurrent_matrix * state .+ gxs[1])
-    new_state = state +
-                epsilon .* input_gate .*
-                tanh_fast.(gxs[2] .+ recurrent_matrix * state)
+    _size_check(asymrnn, inp, 1 => size(asymrnn.weight_ih, 2))
+    recurrent_matrix = compute_asym_recurrent(asymrnn.weight_hh, asymrnn.gamma)
+    proj_ih = dense_proj(asymrnn.weight_ih, inp, asymrnn.bias_ih)
+    proj_hh = dense_proj(recurrent_matrix, state, asymrnn.bias_hh)
+    gxs = chunk(proj_ih, 2; dims=1)
+    proj_combined_1 = asymrnn.integration_fn(gxs[1], proj_hh)
+    proj_combined_2 = asymrnn.integration_fn(gxs[2], proj_hh)
+    input_gate = sigmoid_fast.(proj_combined_1)
+    new_state = state + asymrnn.epsilon .* input_gate .* tanh_fast.(proj_combined_2)
     return new_state, new_state
 end
 
 function Base.show(io::IO, asymrnn::GatedAntisymmetricRNNCell)
     print(io, "GatedAntisymmetricRNNCell(",
-        size(asymrnn.Wi, 2), " => ", size(asymrnn.Wi, 1) ÷ 2)
+        size(asymrnn.weight_ih, 2), " => ", size(asymrnn.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
 
@@ -275,6 +330,11 @@ See [`GatedAntisymmetricRNNCell`](@ref) for a layer that processes a single sequ
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
 - `bias`: include a bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `epsilon`: step size. Default is 1.0.
 - `gamma`: strength of diffusion. Default is 0.0.
 
@@ -330,11 +390,12 @@ end
 
 function Base.show(io::IO, asymrnn::GatedAntisymmetricRNN)
     print(
-        io, "GatedAntisymmetricRNN(", size(asymrnn.cell.Wi, 2),
-        " => ", size(asymrnn.cell.Wi, 1) ÷ 2)
+        io, "GatedAntisymmetricRNN(", size(asymrnn.cell.weight_ih, 2),
+        " => ", size(asymrnn.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
 
-function compute_asym_recurrent(Wh::AbstractArray, gamma::AbstractFloat)
-    return Wh .- transpose(Wh) .- gamma .* Matrix{eltype(Wh)}(I, size(Wh, 1), size(Wh, 1))
+function compute_asym_recurrent(weight_hh::AbstractArray, gamma::AbstractFloat)
+    return weight_hh .- transpose(weight_hh) .-
+           gamma .* Matrix{eltype(weight_hh)}(I, size(weight_hh, 1), size(weight_hh, 1))
 end

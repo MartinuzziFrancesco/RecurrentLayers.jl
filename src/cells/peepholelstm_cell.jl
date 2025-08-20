@@ -4,7 +4,8 @@
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         init_peephole_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true, peephole_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Peephole long short term memory cell [Gers2002](@cite).
 See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
@@ -21,7 +22,13 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_peephole_kernel`: initializer for the hidden to peephole weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `peephole_bias`: include peephole to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -60,42 +67,73 @@ See [`PeepholeLSTM`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct PeepholeLSTMCell{I, H, P, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    Wp::P
-    bias::V
+struct PeepholeLSTMCell{I, H, P, V, W, G, A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    weight_ph::P
+    bias_ih::V
+    bias_hh::W
+    bias_ph::G
+    integration_fn::A
 end
 
 @layer PeepholeLSTMCell
 
 function PeepholeLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_peephole_kernel=glorot_uniform, bias::Bool=true)
-    Wi = init_kernel(hidden_size * 4, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 4, hidden_size)
-    Wp = init_peephole_kernel(hidden_size * 3)
-    b = create_bias(Wi, bias, hidden_size * 4)
-    return PeepholeLSTMCell(Wi, Wh, vec(Wp), b)
+        init_peephole_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true, peephole_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size * 4, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(4 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(4 * hidden_size, hidden_size)
+    end
+    weight_ph = vec(init_peephole_kernel(hidden_size * 3))
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    bias_ph = create_bias(weight_ph, peephole_bias, size(weight_ph, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return PeepholeLSTMCell(weight_ih, weight_hh, weight_ph, bias_ih,
+        bias_hh, bias_ph, integration_fn)
 end
 
 function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(lstm, inp, 1 => size(lstm.Wi, 2))
-    b = lstm.bias
-    gates = lstm.Wi * inp .+ lstm.Wh * state .+ b
+    _size_check(lstm, inp, 1 => size(lstm.weight_ih, 2))
+    proj_ih = dense_proj(lstm.weight_ih, inp, lstm.bias_ih)
+    proj_hh = dense_proj(lstm.weight_hh, state, lstm.bias_hh)
+    proj_ph = dense_proj(lstm.weight_ph, c_state, lstm.bias_ph)
+    gates = lstm.integration_fn(proj_ih, proj_hh)
+    peeps = chunk(proj_ph, 3; dims=1)
     input, forget, cell, output = chunk(gates, 4; dims=1)
-    gpeep = chunk(lstm.Wp, 3; dims=1)
-    new_cstate = @. sigmoid_fast(forget + gpeep[1] * c_state) * c_state +
-                    sigmoid_fast(input + gpeep[2] * c_state) * tanh_fast(cell)
-    new_state = @. sigmoid_fast(output + gpeep[3] * c_state) * tanh_fast(new_cstate)
+    new_cstate = @. sigmoid_fast(forget + peeps[1]) * c_state +
+                    sigmoid_fast(input + peeps[2]) * tanh_fast(cell)
+    new_state = @. sigmoid_fast(output + peeps[3]) * tanh_fast(new_cstate)
     return new_state, (new_state, new_cstate)
 end
 
+function initialstates(lstm::PeepholeLSTMCell)
+    state = zeros_like(lstm.weight_hh, size(lstm.weight_hh, 1) ÷ 4)
+    second_state = zeros_like(lstm.weight_hh, size(lstm.weight_hh, 1) ÷ 4)
+    return state, second_state
+end
+
 function Base.show(io::IO, lstm::PeepholeLSTMCell)
-    print(io, "PeepholeLSTMCell(", size(lstm.Wi, 2), " => ", size(lstm.Wi, 1) ÷ 4, ")")
+    print(io, "PeepholeLSTMCell(", size(lstm.weight_ih, 2),
+        " => ", size(lstm.weight_ih, 1) ÷ 4, ")")
 end
 
 @doc raw"""
@@ -149,7 +187,7 @@ See [`PeepholeLSTMCell`](@ref) for a layer that processes a single sequence.
 ## Arguments
 - `inp`: The input to the peepholelstm. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the PeepholeLSTM. 
+- `(state, cstate)`: A tuple containing the hidden and cell states of the PeepholeLSTM.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -178,7 +216,7 @@ function functor(rnn::PeepholeLSTM{S}) where {S}
 end
 
 function Base.show(io::IO, peepholelstm::PeepholeLSTM)
-    print(io, "PeepholeLSTM(", size(peepholelstm.cell.Wi, 2),
-        " => ", size(peepholelstm.cell.Wi, 1) ÷ 4)
+    print(io, "PeepholeLSTM(", size(peepholelstm.cell.weight_ih, 2),
+        " => ", size(peepholelstm.cell.weight_ih, 1) ÷ 4)
     print(io, ")")
 end

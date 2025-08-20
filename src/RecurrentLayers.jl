@@ -24,6 +24,7 @@ export Multiplicative, StackedRNN
 
 @compat(public, (initialstates))
 
+include("base_functions.jl")
 include("generics.jl")
 
 include("cells/antisymmetricrnn_cell.jl")

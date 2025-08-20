@@ -51,8 +51,8 @@ See [`TRNN`](@ref) for a layer that processes entire sequences.
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct TRNNCell{I, V, A} <: AbstractRecurrentCell
-    Wi::I
-    bias::V
+    weight_ih::I
+    bias_ih::V
     activation::A
 end
 
@@ -60,29 +60,28 @@ end
 
 function TRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
         init_kernel=glorot_uniform, bias::Bool=true)
-    Wi = init_kernel(hidden_size * 2, input_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return TRNNCell(Wi, b, activation)
+    weight_ih = init_kernel(2 * hidden_size, input_size)
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    return TRNNCell(weight_ih, bias_ih, activation)
 end
 
 function (trnn::TRNNCell)(inp::AbstractVecOrMat, state)
-    _size_check(trnn, inp, 1 => size(trnn.Wi, 2))
-    Wi, b, activation = trnn.Wi, trnn.bias, trnn.activation
-    #split
-    gxs = chunk(Wi * inp .+ b, 2; dims=1)
-
-    forget_gate = activation.(gxs[2])
-    t_ones = eltype(Wi)(1.0f0)
+    _size_check(trnn, inp, 1 => size(trnn.weight_ih, 2))
+    proj_ih = dense_proj(trnn.weight_ih, inp, trnn.bias_ih)
+    gxs = chunk(proj_ih, 2; dims=1)
+    forget_gate = trnn.activation.(gxs[2])
+    t_ones = eltype(trnn.weight_ih)(1.0f0)
     new_state = @. forget_gate * state + (t_ones - forget_gate) * gxs[1]
     return new_state, new_state
 end
 
 function initialstates(trnn::TRNNCell)
-    return zeros_like(trnn.Wi, size(trnn.Wi, 1) ÷ 2)
+    return zeros_like(trnn.weight_ih, size(trnn.weight_ih, 1) ÷ 2)
 end
 
 function Base.show(io::IO, trnn::TRNNCell)
-    print(io, "TRNNCell(", size(trnn.Wi, 2), " => ", size(trnn.Wi, 1) ÷ 2, ")")
+    print(
+        io, "TRNNCell(", size(trnn.weight_ih, 2), " => ", size(trnn.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -156,7 +155,8 @@ function functor(rnn::TRNN{S}) where {S}
 end
 
 function Base.show(io::IO, trnn::TRNN)
-    print(io, "TRNN(", size(trnn.cell.Wi, 2), " => ", size(trnn.cell.Wi, 1) ÷ 2)
+    print(
+        io, "TRNN(", size(trnn.cell.weight_ih, 2), " => ", size(trnn.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
 
@@ -164,7 +164,8 @@ end
     TGRUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Strongly typed gated recurrent unit [Balduzzi2016](@cite).
 See [`TGRU`](@ref) for a layer that processes entire sequences.
@@ -179,7 +180,12 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -211,49 +217,66 @@ See [`TGRU`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, inp)` is the new hidden state together with the current input. 
+  `state = (new_state, inp)` is the new hidden state together with the current input.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct TGRUCell{I, H, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct TGRUCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer TGRUCell
 
 function TGRUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3, input_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return TGRUCell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(3 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(3 * hidden_size, input_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return TGRUCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (tgru::TGRUCell)(inp::AbstractVecOrMat, (state, prev_inp))
-    #checks and variables
-    _size_check(tgru, inp, 1 => size(tgru.Wi, 2))
-    Wi, Wh, b = tgru.Wi, tgru.Wh, tgru.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh * prev_inp, 3; dims=1)
-    #equations
-    reset_gate = @. gxs[1] + ghs[1]
-    update_gate = @. sigmoid_fast(gxs[2] + ghs[2])
-    candidate_state = @. tanh_fast(gxs[3] + ghs[3])
+    _size_check(tgru, inp, 1 => size(tgru.weight_ih, 2))
+    proj_ih = dense_proj(tgru.weight_ih, inp, tgru.bias_ih)
+    proj_hh = dense_proj(tgru.weight_hh, prev_inp, tgru.bias_hh)
+    gxs = chunk(proj_ih, 3; dims=1)
+    ghs = chunk(proj_hh, 3; dims=1)
+    reset_gate = tgru.integration_fn(gxs[1], ghs[1])
+    update_gate = sigmoid_fast.(tgru.integration_fn(gxs[2], ghs[2]))
+    candidate_state = tanh_fast.(tgru.integration_fn(gxs[3], ghs[3]))
     new_state = @. update_gate * state + reset_gate * candidate_state
     return new_state, (new_state, inp)
 end
 
 function initialstates(tgru::TGRUCell)
-    initial_state = zeros_like(tgru.Wi, size(tgru.Wi, 1) ÷ 3)
-    initial_inp = zeros_like(tgru.Wi, size(tgru.Wi, 2))
+    initial_state = zeros_like(tgru.weight_ih, size(tgru.weight_ih, 1) ÷ 3)
+    initial_inp = zeros_like(tgru.weight_ih, size(tgru.weight_ih, 2))
     return initial_state, initial_inp
 end
 
 function Base.show(io::IO, tgru::TGRUCell)
-    print(io, "TGRUCell(", size(tgru.Wi, 2), " => ", size(tgru.Wi, 1) ÷ 3, ")")
+    print(
+        io, "TGRUCell(", size(tgru.weight_ih, 2), " => ", size(tgru.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -275,7 +298,12 @@ See [`TGRUCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -329,7 +357,8 @@ function functor(tgru::TGRU{S}) where {S}
 end
 
 function Base.show(io::IO, tgru::TGRU)
-    print(io, "TGRU(", size(tgru.cell.Wi, 2), " => ", size(tgru.cell.Wi, 1) ÷ 3)
+    print(
+        io, "TGRU(", size(tgru.cell.weight_ih, 2), " => ", size(tgru.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end
 
@@ -337,7 +366,8 @@ end
     TLSTMCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Strongly typed long short term memory cell [Balduzzi2016](@cite).
 See [`TLSTM`](@ref) for a layer that processes entire sequences.
@@ -352,7 +382,12 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -372,7 +407,7 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
 
 # Forward
 
-    tlstmcell(inp, state)
+    tlstmcell(inp, (state, c_state, prev_inp))
     tlstmcell(inp)
 
 ## Arguments
@@ -386,52 +421,69 @@ See [`TLSTM`](@ref) for a layer that processes entire sequences.
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
   `state = (new_state, new_cstate, inp)` is the new hidden and cell state, together
-  with the current input. 
+  with the current input.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct TLSTMCell{I, H, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct TLSTMCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer TLSTMCell
 
 function TLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3, input_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return TLSTMCell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(3 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(3 * hidden_size, input_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return TLSTMCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (tlstm::TLSTMCell)(inp::AbstractVecOrMat, (state, c_state, prev_inp))
-    #checks and variables
-    _size_check(tlstm, inp, 1 => size(tlstm.Wi, 2))
-    Wi, Wh, b = tlstm.Wi, tlstm.Wh, tlstm.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh * prev_inp, 3; dims=1)
-    #equations
-    one_vec = eltype(Wi)(1.0f0)
-    reset_gate = @. gxs[1] + ghs[1]
-    update_gate = @. sigmoid_fast(gxs[2] + ghs[2])
-    candidate_state = @. tanh_fast(gxs[3] + ghs[3])
+    _size_check(tlstm, inp, 1 => size(tlstm.weight_ih, 2))
+    proj_ih = dense_proj(tlstm.weight_ih, inp, tlstm.bias_ih)
+    proj_hh = dense_proj(tlstm.weight_hh, prev_inp, tlstm.bias_hh)
+    gxs = chunk(proj_ih, 3; dims=1)
+    ghs = chunk(proj_hh, 3; dims=1)
+    one_vec = eltype(tlstm.weight_ih)(1.0f0)
+    reset_gate = tlstm.integration_fn(gxs[1], ghs[1])
+    update_gate = sigmoid_fast.(tlstm.integration_fn(gxs[2], ghs[2]))
+    candidate_state = tanh_fast.(tlstm.integration_fn(gxs[3], ghs[3]))
     new_cstate = @. update_gate * c_state + (one_vec - update_gate) * reset_gate
     new_state = @. new_cstate * candidate_state
     return new_state, (new_state, new_cstate, inp)
 end
 
 function initialstates(tlstm::TLSTMCell)
-    initial_state = zeros_like(tlstm.Wi, size(tlstm.Wi, 1) ÷ 3)
-    initial_cstate = zeros_like(tlstm.Wi, size(tlstm.Wi, 1) ÷ 3)
-    initial_inp = zeros_like(tlstm.Wi, size(tlstm.Wi, 2))
+    initial_state = zeros_like(tlstm.weight_ih, size(tlstm.weight_ih, 1) ÷ 3)
+    initial_cstate = zeros_like(tlstm.weight_ih, size(tlstm.weight_ih, 1) ÷ 3)
+    initial_inp = zeros_like(tlstm.weight_ih, size(tlstm.weight_ih, 2))
     return initial_state, initial_cstate, initial_inp
 end
 
 function Base.show(io::IO, tlstm::TLSTMCell)
-    print(io, "TLSTMCell(", size(tlstm.Wi, 2), " => ", size(tlstm.Wi, 1) ÷ 3, ")")
+    print(io, "TLSTMCell(", size(tlstm.weight_ih, 2),
+        " => ", size(tlstm.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -453,7 +505,12 @@ See [`TLSTMCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -508,6 +565,7 @@ function functor(tlstm::TLSTM{S}) where {S}
 end
 
 function Base.show(io::IO, tlstm::TLSTM)
-    print(io, "TLSTM(", size(tlstm.cell.Wi, 2), " => ", size(tlstm.cell.Wi, 1) ÷ 3)
+    print(io, "TLSTM(", size(tlstm.cell.weight_ih, 2),
+        " => ", size(tlstm.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end

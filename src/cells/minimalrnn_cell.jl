@@ -1,9 +1,11 @@
 #https://arxiv.org/abs/1711.06788
 @doc raw"""
     MinimalRNNCell(input_size => hidden_size;
-        init_kernel = glorot_uniform,
+        init_encoder_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true, encoder_bias = true)
+        init_memory_kernel = glorot_uniform,
+        encoder_bias = true, recurrent_bias = true, memory_bias=true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Minimal recurrent neural network unit [Chen2017](@cite).
 See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
@@ -14,12 +16,19 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 # Keyword arguments
 
-- `init_kernel`: initializer for the input to hidden weights.
+- `init_encoder_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `init_memory_kernel`: initializer for the memory to hidden weights.
+    Default is `glorot_uniform`.
 - `encoder_bias`: include a bias in the encoder or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `memory_bias`: include memory to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -49,43 +58,71 @@ See [`MinimalRNN`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MinimalRNNCell{I, H, Z, V, E} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    Wz::Z
-    bias::V
-    encoder_bias::E
+struct MinimalRNNCell{I, H, Z, V, W, M, A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    weight_mm::Z
+    bias_ih::V
+    bias_hh::W
+    bias_mm::M
+    integration_fn::A
 end
 
 @layer MinimalRNNCell
 
 function MinimalRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true, encoder_bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    Wz = init_recurrent_kernel(hidden_size, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    eb = create_bias(Wi, encoder_bias, size(Wi, 1))
-    return MinimalRNNCell(Wi, Wh, Wz, b, eb)
+        init_encoder_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        init_memory_kernel=glorot_uniform, encoder_bias::Bool=true,
+        recurrent_bias::Bool=true, memory_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_encoder_kernel(hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    weight_mm = init_memory_kernel(hidden_size, hidden_size)
+    bias_ih = create_bias(weight_ih, encoder_bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    bias_mm = create_bias(weight_mm, memory_bias, size(weight_mm, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MinimalRNNCell(weight_ih, weight_hh, weight_mm,
+        bias_ih, bias_hh, bias_mm, integration_fn)
 end
 
 function (minimal::MinimalRNNCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(minimal, inp, 1 => size(minimal.Wi, 2))
-    Wi, Wh, Wz = minimal.Wi, minimal.Wh, minimal.Wz
-    b, eb = minimal.bias, minimal.encoder_bias
-    #compute
-    new_cstate = tanh_fast.(Wi * inp .+ eb)
-    update_gate = sigmoid_fast.(Wh * state .+ Wz * c_state .+ b)
-    new_state = update_gate .* state .+ (eltype(Wi)(1.0) .- update_gate) .* new_cstate
+    _size_check(minimal, inp, 1 => size(minimal.weight_ih, 2))
+    proj_ih = dense_proj(minimal.weight_ih, inp, minimal.bias_ih)
+    proj_hh = dense_proj(minimal.weight_hh, state, minimal.bias_hh)
+    proj_mm = dense_proj(minimal.weight_mm, c_state, minimal.bias_mm)
+    new_cstate = tanh_fast.(proj_ih)
+    update_gate = sigmoid_fast.(minimal.integration_fn(proj_hh, proj_mm))
+    new_state = update_gate .* state .+
+                (eltype(minimal.weight_ih)(1.0) .- update_gate) .* new_cstate
     return new_state, (new_state, new_cstate)
 end
 
+function initialstates(minimal::MinimalRNNCell)
+    state = zeros_like(minimal.weight_hh, size(minimal.weight_hh, 1))
+    second_state = zeros_like(minimal.weight_hh, size(minimal.weight_hh, 1))
+    return state, second_state
+end
+
 function Base.show(io::IO, minimal::MinimalRNNCell)
-    print(io, "MinimalRNNCell(", size(minimal.Wi, 2), " => ", size(minimal.Wi, 1), ")")
+    print(io, "MinimalRNNCell(", size(minimal.weight_ih, 2),
+        " => ", size(minimal.weight_ih, 1), ")")
 end
 
 @doc raw"""
@@ -103,12 +140,19 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
-- `init_kernel`: initializer for the input to hidden weights.
+- `init_encoder_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `init_memory_kernel`: initializer for the memory to hidden weights.
+    Default is `glorot_uniform`.
 - `encoder_bias`: include a bias in the encoder or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `memory_bias`: include memory to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -131,7 +175,7 @@ See [`MinimalRNNCell`](@ref) for a layer that processes a single sequence.
 ## Arguments
 - `inp`: The input to the `minimalrnn`. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the `MinimalRNN`. 
+- `(state, cstate)`: A tuple containing the hidden and cell states of the `MinimalRNN`.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -160,6 +204,7 @@ function functor(rnn::MinimalRNN{S}) where {S}
 end
 
 function Base.show(io::IO, minimal::MinimalRNN)
-    print(io, "MinimalRNN(", size(minimal.cell.Wi, 2), " => ", size(minimal.cell.Wi, 1))
+    print(io, "MinimalRNN(", size(minimal.cell.weight_ih, 2),
+        " => ", size(minimal.cell.weight_ih, 1))
     print(io, ")")
 end

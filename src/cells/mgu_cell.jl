@@ -3,7 +3,8 @@
     MGUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Minimal gated unit [Zhou2016](@cite).
 See [`MGU`](@ref) for a layer that processes entire sequences.
@@ -18,7 +19,12 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -51,40 +57,62 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MGUCell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct MGUCell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer MGUCell
 
 function MGUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 2, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-
-    return MGUCell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(2 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MGUCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
-    _size_check(mgu, inp, 1 => size(mgu.Wi, 2))
-    Wi, Wh, b = mgu.Wi, mgu.Wh, mgu.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 2; dims=1)
-    ghs = chunk(Wh, 2; dims=1)
-    t_ones = eltype(Wi)(1.0f0)
-
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
-    candidate_state = tanh_fast.(gxs[2] .+ ghs[2] * (forget_gate .* state))
+    _size_check(mgu, inp, 1 => size(mgu.weight_ih, 2))
+    proj_ih = dense_proj(mgu.weight_ih, inp, mgu.bias_ih)
+    gxs = chunk(proj_ih, 2; dims=1)
+    ghs = chunk(mgu.weight_hh, 2; dims=1)
+    bhs = chunk(mgu.bias_hh, 2; dims=1)
+    t_ones = eltype(mgu.weight_ih)(1.0f0)
+    proj_hh_1 = dense_proj(ghs[1], state, bhs[1])
+    forget_gate = sigmoid_fast.(mgu.integration_fn(gxs[1], proj_hh_1))
+    proj_hh_2 = dense_proj(ghs[2], forget_gate .* state, bhs[2])
+    candidate_state = tanh_fast.(mgu.integration_fn(gxs[2], proj_hh_2))
     new_state = @. forget_gate * state + (t_ones - forget_gate) * candidate_state
     return new_state, new_state
 end
 
+function initialstates(mgu::MGUCell)
+    return zeros_like(mgu.weight_hh, size(mgu.weight_hh, 1) ÷ 2)
+end
+
 function Base.show(io::IO, mgu::MGUCell)
-    print(io, "MGUCell(", size(mgu.Wi, 2), " => ", size(mgu.Wi, 1) ÷ 2, ")")
+    print(io, "MGUCell(", size(mgu.weight_ih, 2), " => ", size(mgu.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
@@ -106,7 +134,12 @@ See [`MGUCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 ```math
@@ -158,6 +191,6 @@ function functor(rnn::MGU{S}) where {S}
 end
 
 function Base.show(io::IO, mgu::MGU)
-    print(io, "MGU(", size(mgu.cell.Wi, 2), " => ", size(mgu.cell.Wi, 1))
+    print(io, "MGU(", size(mgu.cell.bias_ih, 2), " => ", size(mgu.cell.bias_ih, 1) ÷ 2)
     print(io, ")")
 end

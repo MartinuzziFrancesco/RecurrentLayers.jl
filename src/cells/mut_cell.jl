@@ -3,7 +3,8 @@
     MUT1Cell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Mutated unit 1 cell [Jozefowicz2015](@cite).
 See [`MUT1`](@ref) for a layer that processes entire sequences.
@@ -18,7 +19,12 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -53,43 +59,63 @@ See [`MUT1`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT1Cell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct MUT1Cell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer MUT1Cell
 
 function MUT1Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    b = create_bias(Wi, bias, 3 * hidden_size)
-
-    return MUT1Cell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(3 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(2 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MUT1Cell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (mut::MUT1Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi, 2))
-    Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh, 2; dims=1)
-
-    t_ones = eltype(Wi)(1.0f0)
+    _size_check(mut, inp, 1 => size(mut.weight_ih, 2))
+    proj_ih = dense_proj(mut.weight_ih, inp, mut.bias_ih)
+    gxs = chunk(proj_ih, 3; dims=1)
+    whs = chunk(mut.weight_hh, 2; dims=1)
+    bhs = chunk(mut.bias_hh, 2; dims=1)
+    proj_hh_1 = dense_proj(whs[1], state, bhs[1])
+    t_ones = eltype(mut.weight_ih)(1.0f0)
     forget_gate = sigmoid_fast.(gxs[1])
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[1] * state)
-    candidate_state = tanh_fast.(
-        ghs[2] * (reset_gate .* state) .+ tanh_fast(gxs[3])
-    ) #in the paper is tanh(x_t) but dimensionally it cannot work
+    reset_gate = sigmoid_fast.(mut.integration_fn(gxs[2], proj_hh_1))
+    proj_hh_2 = dense_proj(whs[2], (reset_gate .* state), bhs[2])
+    candidate_state = tanh_fast.(mut.integration_fn(proj_hh_2, tanh_fast.(gxs[3])))
     new_state = candidate_state .* forget_gate .+ state .* (t_ones .- forget_gate)
     return new_state, new_state
 end
 
+function initialstates(mut::MUT1Cell)
+    return zeros_like(mut.weight_hh, size(mut.weight_hh, 1) ÷ 2)
+end
+
 function Base.show(io::IO, mut::MUT1Cell)
-    print(io, "MUT1Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
+    print(io, "MUT1Cell(", size(mut.weight_ih, 2), " => ", size(mut.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -110,7 +136,12 @@ See [`MUT1Cell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
@@ -167,7 +198,7 @@ function functor(rnn::MUT1{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT1)
-    print(io, "MUT1(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, "MUT1(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
     print(io, ")")
 end
 
@@ -175,7 +206,8 @@ end
     MUT2Cell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Mutated unit 2 cell [Jozefowicz2015](@cite).
 See [`MUT2`](@ref) for a layer that processes entire sequences.
@@ -190,7 +222,12 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
 
@@ -224,42 +261,65 @@ See [`MUT2`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT2Cell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct MUT2Cell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer MUT2Cell
 
 function MUT2Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3, hidden_size)
-    b = create_bias(Wi, bias, 3 * hidden_size)
-
-    return MUT2Cell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(3 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(3 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MUT2Cell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi, 2))
-    Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh, 3; dims=1)
-
-    t_ones = eltype(Wi)(1.0f0)
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * state)
+    _size_check(mut, inp, 1 => size(mut.weight_ih, 2))
+    proj_ih = dense_proj(mut.weight_ih, inp, mut.bias_ih)
+    gxs = chunk(proj_ih, 3; dims=1)
+    whs = chunk(mut.weight_hh, 3; dims=1)
+    bhs = chunk(mut.bias_hh, 3; dims=1)
+    proj_hh_1 = dense_proj(whs[1], state, bhs[1])
+    proj_hh_2 = dense_proj(whs[2], state, bhs[2])
+    t_ones = eltype(mut.weight_ih)(1.0f0)
+    forget_gate = sigmoid_fast.(mut.integration_fn(gxs[1], proj_hh_1))
     # the dimensionlity alos does not work here like the paper describes it
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2] * state)
-    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
+    reset_gate = sigmoid_fast.(mut.integration_fn(gxs[2], proj_hh_2))
+    proj_hh_3 = dense_proj(whs[3], (reset_gate .* state), bhs[3])
+    candidate_state = tanh_fast.(mut.integration_fn(gxs[3], proj_hh_3))
     new_state = candidate_state .* forget_gate .+ state .* (t_ones .- forget_gate)
     return new_state, new_state
 end
 
+function initialstates(mut::MUT2Cell)
+    return zeros_like(mut.weight_hh, size(mut.weight_hh, 1) ÷ 3)
+end
+
 function Base.show(io::IO, mut::MUT2Cell)
-    print(io, "MUT2Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
+    print(io, "MUT2Cell(", size(mut.weight_ih, 2), " => ", size(mut.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -280,7 +340,12 @@ See [`MUT2Cell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
@@ -336,7 +401,7 @@ function functor(rnn::MUT2{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT2)
-    print(io, "MUT2(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, "MUT2(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
     print(io, ")")
 end
 
@@ -359,7 +424,13 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -394,41 +465,64 @@ See [`MUT3`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MUT3Cell{I, H, V} <: AbstractRecurrentCell
-    Wi::I
-    Wh::H
-    bias::V
+struct MUT3Cell{I, H, V, W, A} <: AbstractRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer MUT3Cell
 
 function MUT3Cell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size * 3, input_size)
-    Wh = init_recurrent_kernel(hidden_size * 3, hidden_size)
-    b = create_bias(Wi, bias, 3 * hidden_size)
-
-    return MUT3Cell(Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(3 * hidden_size, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(3 * hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(3 * hidden_size, hidden_size)
+    end
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MUT3Cell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (mut::MUT3Cell)(inp::AbstractVecOrMat, state)
-    _size_check(mut, inp, 1 => size(mut.Wi, 2))
-    Wi, Wh, b = mut.Wi, mut.Wh, mut.bias
-    #split
-    gxs = chunk(Wi * inp .+ b, 3; dims=1)
-    ghs = chunk(Wh, 3; dims=1)
-
-    t_ones = eltype(Wi)(1.0f0)
-    forget_gate = sigmoid_fast.(gxs[1] .+ ghs[1] * tanh_fast(state))
-    reset_gate = sigmoid_fast.(gxs[2] .+ ghs[2] * state)
-    candidate_state = tanh_fast.(ghs[3] * (reset_gate .* state) .+ gxs[3])
+    _size_check(mut, inp, 1 => size(mut.weight_ih, 2))
+    proj_ih = dense_proj(mut.weight_ih, inp, mut.bias_ih)
+    gxs = chunk(proj_ih, 3; dims=1)
+    whs = chunk(mut.weight_hh, 3; dims=1)
+    bhs = chunk(mut.bias_hh, 3; dims=1)
+    proj_hh_1 = dense_proj(whs[1], tanh_fast.(state), bhs[1])
+    proj_hh_2 = dense_proj(whs[2], state, bhs[2])
+    t_ones = eltype(mut.weight_ih)(1.0f0)
+    forget_gate = sigmoid_fast.(mut.integration_fn(gxs[1], proj_hh_1))
+    reset_gate = sigmoid_fast.(mut.integration_fn(gxs[2], proj_hh_2))
+    proj_hh_3 = dense_proj(whs[3], (reset_gate .* state), bhs[3])
+    candidate_state = tanh_fast.(mut.integration_fn(gxs[3], proj_hh_3))
     new_state = candidate_state .* forget_gate .+ state .* (t_ones .- forget_gate)
     return new_state, new_state
 end
 
+function initialstates(mut::MUT3Cell)
+    return zeros_like(mut.weight_hh, size(mut.weight_hh, 1) ÷ 3)
+end
+
 function Base.show(io::IO, mut::MUT3Cell)
-    print(io, "MUT3Cell(", size(mut.Wi, 2), " => ", size(mut.Wi, 1) ÷ 3, ")")
+    print(io, "MUT3Cell(", size(mut.weight_ih, 2), " => ", size(mut.weight_ih, 1) ÷ 3, ")")
 end
 
 @doc raw"""
@@ -505,6 +599,6 @@ function functor(rnn::MUT3{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT3)
-    print(io, "MUT3(", size(mut.cell.Wi, 2), " => ", size(mut.cell.Wi, 1))
+    print(io, "MUT3(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
     print(io, ")")
 end

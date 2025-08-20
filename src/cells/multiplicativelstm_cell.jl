@@ -4,7 +4,8 @@
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         init_multiplicative_kernel=glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true, multiplicative_bias=true,
+        independent_recurrence = false, integration_mode = :addition)
 
 Multiplicative long short term memory cell [Krause2017](@cite).
 See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
@@ -21,7 +22,14 @@ See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_multiplicative_kernel`: initializer for the multiplicative to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `multiplicative_bias`: include multiplicative bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -59,45 +67,77 @@ See [`MultiplicativeLSTM`](@ref) for a layer that processes entire sequences.
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state. 
+  `state = (new_state, new_cstate)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MultiplicativeLSTMCell{I, H, M, V} <: AbstractDoubleRecurrentCell
-    Wi::I
-    Wh::H
-    Wm::M
-    bias::V
+struct MultiplicativeLSTMCell{I, H, M, V, W, N, A} <: AbstractDoubleRecurrentCell
+    weight_ih::I
+    weight_hh::H
+    weight_mh::M
+    bias_ih::V
+    bias_hh::W
+    bias_mh::N
+    integration_fn::A
 end
 
 @layer MultiplicativeLSTMCell
 
 function MultiplicativeLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_multiplicative_kernel=glorot_uniform, bias::Bool=true)
-    Wi = init_kernel(hidden_size * 5, input_size)
-    Wh = init_recurrent_kernel(hidden_size, hidden_size)
-    Wm = init_multiplicative_kernel(hidden_size * 4, hidden_size)
-    b = create_bias(Wi, bias, hidden_size * 4)
-    return MultiplicativeLSTMCell(Wi, Wh, Wm, b)
+        init_multiplicative_kernel=glorot_uniform, bias::Bool=true,
+        multiplicative_bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
+    weight_ih = init_kernel(hidden_size * 5, input_size)
+    if independent_recurrence
+        weight_hh = vec(init_recurrent_kernel(hidden_size))
+    else
+        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
+    end
+    weight_mh = init_multiplicative_kernel(hidden_size * 4, hidden_size)
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    bias_mh = create_bias(weight_mh, multiplicative_bias, size(weight_mh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return MultiplicativeLSTMCell(weight_ih, weight_hh, weight_mh, bias_ih, bias_hh,
+        bias_mh, integration_fn)
 end
 
 function (lstm::MultiplicativeLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
-    _size_check(lstm, inp, 1 => size(lstm.Wi, 2))
-    gxs = chunk(lstm.Wi * inp, 5; dims=1)
-    multiplicative_state = (gxs[1]) .* (lstm.Wh * state)
-    gms = chunk(lstm.Wm * multiplicative_state .+ lstm.bias, 4; dims=1)
-    input_gate = @. sigmoid_fast(gxs[2] + gms[1])
-    output_gate = @. sigmoid_fast(gxs[3] + gms[2])
-    forget_gate = @. sigmoid_fast(gxs[4] + gms[3])
-    candidate_state = @. tanh_fast(gxs[5] + gms[4])
+    _size_check(lstm, inp, 1 => size(lstm.weight_ih, 2))
+    proj_ih = dense_proj(lstm.weight_ih, inp, lstm.bias_ih)
+    proj_hh = dense_proj(lstm.weight_hh, state, lstm.bias_hh)
+    gxs = chunk(proj_ih, 5; dims=1)
+    multiplicative_state = gxs[1] .* proj_hh
+    proj_mh = dense_proj(lstm.weight_mh, multiplicative_state, lstm.bias_mh)
+    gms = chunk(proj_mh, 4; dims=1)
+    input_gate = sigmoid_fast.(lstm.integration_fn(gxs[2], gms[1]))
+    output_gate = sigmoid_fast.(lstm.integration_fn(gxs[3], gms[2]))
+    forget_gate = sigmoid_fast.(lstm.integration_fn(gxs[4], gms[3]))
+    candidate_state = tanh_fast.(lstm.integration_fn(gxs[5], gms[4]))
     new_cstate = @. forget_gate * c_state + input_gate * candidate_state
-    new_state = @. tanh_fast(candidate_state) * output_gate
+    new_state = @. output_gate * tanh_fast(candidate_state)
     return new_state, (new_state, new_cstate)
+end
+
+function initialstates(lstm::MultiplicativeLSTMCell)
+    state = zeros_like(lstm.weight_hh, size(lstm.weight_hh, 1))
+    second_state = zeros_like(lstm.weight_hh, size(lstm.weight_hh, 1))
+    return state, second_state
 end
 
 function Base.show(io::IO, lstm::MultiplicativeLSTMCell)
     print(
-        io, "MultiplicativeLSTMCell(", size(lstm.Wi, 2), " => ", size(lstm.Wi, 1) ÷ 5, ")")
+        io, "MultiplicativeLSTMCell(", size(lstm.weight_ih, 2),
+        " => ", size(lstm.weight_ih, 1) ÷ 5, ")")
 end
 
 @doc raw"""
@@ -120,7 +160,13 @@ See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequenc
     Default is `glorot_uniform`.
 - `init_multiplicative_kernel`: initializer for the multiplicative to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `multiplicative_bias`: include multiplicative bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.
   Default is `false`.
 
@@ -152,7 +198,7 @@ See [`MultiplicativeLSTMCell`](@ref) for a layer that processes a single sequenc
 ## Arguments
 - `inp`: The input to the multiplicativelstm. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the MultiplicativeLSTM. 
+- `(state, cstate)`: A tuple containing the hidden and cell states of the MultiplicativeLSTM.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -181,7 +227,7 @@ function functor(rnn::MultiplicativeLSTM{S}) where {S}
 end
 
 function Base.show(io::IO, lstm::MultiplicativeLSTM)
-    print(io, "MultiplicativeLSTM(", size(lstm.cell.Wi, 2),
-        " => ", size(lstm.cell.Wi, 1) ÷ 5)
+    print(io, "MultiplicativeLSTM(", size(lstm.cell.weight_ih, 2),
+        " => ", size(lstm.cell.weight_ih, 1) ÷ 5)
     print(io, ")")
 end

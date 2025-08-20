@@ -4,7 +4,8 @@
     IndRNNCell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
-        bias = true)
+        bias = true, recurrent_bias = true,
+        independent_recurrence = true, integration_mode = :addition)
 
 
 Independently recurrent cell [Li2018](@cite).
@@ -21,7 +22,13 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `true`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -47,37 +54,58 @@ See [`IndRNN`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct IndRNNCell{F, I, H, V} <: AbstractRecurrentCell
+struct IndRNNCell{F, I, H, V, W, A} <: AbstractRecurrentCell
     activation::F
-    Wi::I
-    Wh::H
-    b::V
+    weight_ih::I
+    weight_hh::H
+    bias_ih::V
+    bias_hh::W
+    integration_fn::A
 end
 
 @layer IndRNNCell
 
 function IndRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        bias::Bool=true)
-    Wi = init_kernel(hidden_size, input_size)
-    Wh = init_recurrent_kernel(hidden_size)
-    b = create_bias(Wi, bias, size(Wi, 1))
-    return IndRNNCell(activation, Wi, Wh, b)
+        bias::Bool=true, recurrent_bias::Bool=true,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=true)
+    weight_ih = init_kernel(hidden_size, input_size)
+    if !independent_recurrence
+        @warn"""\n
+            IndRNNCell has independent_recurrence=true by default\n
+        """
+    end
+    weight_hh = vec(init_recurrent_kernel(hidden_size))
+    bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
+    bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
+    if integration_mode == :addition
+        integration_fn = add_projections
+    elseif integration_mode == :multiplicative_integration
+        integration_fn = mul_projections
+    else
+        throw(ArgumentError(
+            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
+        ))
+    end
+    return IndRNNCell(activation, weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
 function (indrnn::IndRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    _size_check(indrnn, inp, 1 => size(indrnn.Wi, 2))
+    _size_check(indrnn, inp, 1 => size(indrnn.weight_ih, 2))
     activation = fast_act(indrnn.activation, inp)
-    state = activation.(indrnn.Wi * inp .+ vec(indrnn.Wh) .* state .+ indrnn.b)
+    proj_ih = dense_proj(indrnn.weight_ih, inp, indrnn.bias_ih)
+    proj_hh = dense_proj(indrnn.weight_hh, state, indrnn.bias_hh)
+    state = activation.(indrnn.integration_fn(proj_ih, proj_hh))
     return state, state
 end
 
 function initialstates(indrnn::IndRNNCell)
-    return zeros_like(indrnn.Wh, size(indrnn.Wh, 1))
+    return zeros_like(indrnn.weight_hh, size(indrnn.weight_hh, 1))
 end
 
 function Base.show(io::IO, indrnn::IndRNNCell)
-    print(io, "IndRNNCell(", size(indrnn.Wi, 2), " => ", size(indrnn.Wi, 1))
+    print(io, "IndRNNCell(", size(indrnn.weight_ih, 2), " => ", size(indrnn.weight_ih, 1))
     print(io, ", ", indrnn.activation)
     print(io, ")")
 end
@@ -102,7 +130,13 @@ See [`IndRNNCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
-- `bias`: include a bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
+  recurrent to recurrent weights are a vector instead of a matrix. Default `true`.
+- `integration_mode`: determines how the input and hidden projections are combined. The
+  options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
+
 
 # Equations
 
@@ -148,7 +182,8 @@ function functor(rnn::IndRNN{S}) where {S}
 end
 
 function Base.show(io::IO, indrnn::IndRNN)
-    print(io, "IndRNN(", size(indrnn.cell.Wi, 2), " => ", size(indrnn.cell.Wi, 1))
+    print(io, "IndRNN(", size(indrnn.cell.weight_ih, 2),
+        " => ", size(indrnn.cell.weight_ih, 1))
     print(io, ", ", indrnn.cell.activation)
     print(io, ")")
 end

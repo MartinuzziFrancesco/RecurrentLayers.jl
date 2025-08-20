@@ -56,13 +56,13 @@ Currently this wrapper does not support the following cells:
 
 ## Returns
 
-Either of 
+Either of
   - A tuple `(output, state)`, where both elements are given by the updated state
     `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`, if the
     `rcell` is single return (e.g. [`Flux.RNNCell`](@extref)).
 
   - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-    `state = (new_state, new_cstate)` is the new hidden and cell state. 
+    `state = (new_state, new_cstate)` is the new hidden and cell state.
     They are tensors of size `hidden_size` or `hidden_size x batch_size`.
     This applies if the `rcell` is double return (e.g. [`Flux.LSTMCell`](@extref)).
 
@@ -78,9 +78,8 @@ julia> mrnn = Multiplicative(MGUCell, 3 => 5)
 Multiplicative(
   5×3 Matrix{Float32},                  # 15 parameters
   5×5 Matrix{Float32},                  # 25 parameters
-  MGUCell(3 => 5),                      # 90 parameters
-)                   # Total: 5 arrays, 130 parameters, 792 bytes.
-
+  MGUCell(3 => 5),                      # 100 parameters
+)                   # Total: 6 arrays, 140 parameters, 880 bytes.
 ```
 
 In order to make `Multiplicative` act on a full sequence it is possible to wrap it
@@ -94,15 +93,14 @@ Recurrence(
   Multiplicative(
     4×2 Matrix{Float32},                # 8 parameters
     4×4 Matrix{Float32},                # 16 parameters
-    AntisymmetricRNNCell(2 => 4, tanh),  # 28 parameters
+    AntisymmetricRNNCell(2 => 4, tanh),  # 32 parameters
   ),
-)                   # Total: 5 arrays, 52 parameters, 488 bytes.
-
+)                   # Total: 6 arrays, 56 parameters, 552 bytes.
 ```
 """
 struct Multiplicative{M, H, C}
-    Wm::M
-    Wh::H
+    weight_mh::M
+    weight_hh::H
     cell::C
 end
 
@@ -116,18 +114,18 @@ function Multiplicative(rcell, (input_size, hidden_size)::Pair{<:Int, <:Int}, ar
         init_multiplicative_kernel=glorot_uniform,
         init_multiplicativerecurrent_kernel=glorot_uniform, kwargs...)
     cell = rcell(input_size => hidden_size, args...; kwargs...)
-    Wm = init_multiplicative_kernel(hidden_size, input_size)
-    Wh = init_multiplicativerecurrent_kernel(hidden_size, hidden_size)
-    return Multiplicative(Wm, Wh, cell)
+    weight_mh = init_multiplicative_kernel(hidden_size, input_size)
+    weight_hh = init_multiplicativerecurrent_kernel(hidden_size, hidden_size)
+    return Multiplicative(weight_mh, weight_hh, cell)
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
-    m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
+    m_state = (mrnn.weight_mh * inp) .* (mrnn.weight_hh * state)
     return mrnn.cell(inp, m_state)
 end
 
 function (mrnn::Multiplicative)(inp::AbstractVecOrMat, (state, c_state))
-    m_state = (mrnn.Wm * inp) .* (mrnn.Wh * state)
+    m_state = (mrnn.weight_mh * inp) .* (mrnn.weight_hh * state)
     return mrnn.cell(inp, (m_state, c_state))
 end
 
