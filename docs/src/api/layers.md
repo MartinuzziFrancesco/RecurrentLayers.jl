@@ -14,8 +14,6 @@
   Fast Gated Recurrent Neural Network
 - [FastRNN](layers/fastrnn.md):
   Fast Recurrent Neural Network
-- [FSRNN](layers/fsrnn.md):
-  FastSlow Recurrent Neural Network
 - [GatedAntisymmetricRNN](layers/gatedantisymmetricrnn.md):
   Gated Antisymmetric Recurrent Neural Network
 - [IndRNN](layers/indrnn.md):

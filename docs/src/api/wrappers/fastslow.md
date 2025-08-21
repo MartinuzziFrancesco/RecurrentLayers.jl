@@ -1,0 +1,5 @@
+# FastSlow
+
+```@docs
+FastSlow
+```

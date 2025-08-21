@@ -18,8 +18,6 @@ from this list:
   Fast  Gated Recurrent Neural Network Cell
 - [FastRNNCell](cells/fastrnncell.md):
   Fast Recurrent Neural Network Cell
-- [FSRNNCell](cells/fsrnncell.md):
-  FastSlow Recurrent Neural Network Cell
 - [GatedAntisymmetricRNNCell](cells/gatedantisymmetricrnncell.md):
   Gated Antisymmetric Recurrent Neural Network Cell
 - [IndRNNCell](cells/indrnncell.md):

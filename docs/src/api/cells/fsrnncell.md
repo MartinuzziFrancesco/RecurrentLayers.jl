@@ -1,5 +1,0 @@
-# FSRNNCell
-
-```@docs
-    FSRNNCell
-```
