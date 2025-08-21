@@ -1,5 +1,5 @@
-# FSRNNCell
+# FastSlow
 
 ```@docs
-    FSRNNCell
+FastSlow
 ```
