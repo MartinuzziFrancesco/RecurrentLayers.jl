@@ -1,14 +1,21 @@
 #https://arxiv.org/abs/1705.08639
 @doc raw"""
-    FastSlow(input_size => hidden_size,
-        fast_cells, slow_cell)
+    FastSlow(fast_cells, slow_cell, input_size => hidden_size)
 
 Fast slow recurrent neural network cell [Mujika2017](@cite).
+
+!!! warning
+    Currently typed cells ([`TRNNCell`](@ref), [`TGRUCell`](@ref), and [`TLSTMCell`](@ref))
+    are not supported by `FastSlow`
 
 # Arguments
 - `input_size => hidden_size`: input and inner dimension of the layer
 - `fast_cells`: a vector of the fast cells. Must be minimum of length 2.
 - `slow_cell`: the chosen slow cell.
+
+The cells can be passed either as fully constructed struct or by name
+(ie `FastSlow([GRUCell, MGUCell], RANCell, 2=>4)`). In the second case it is not
+possible to modify the default kwargs of the cells.
 
 # Equations
 
