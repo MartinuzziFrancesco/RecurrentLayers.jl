@@ -96,13 +96,14 @@ function AntisymmetricRNNCell(
         bias_hh, T(epsilon), T(gamma), integration_fn)
 end
 
-function (asymrnn::AntisymmetricRNNCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
+function (asymrnn::AntisymmetricRNNCell)(
+        inp::AbstractArray{T, N}, state::AbstractArray{D, M}) where {T, N, D, M}
     _size_check(asymrnn, inp, 1 => size(asymrnn.weight_ih, 2))
     recurrent_matrix = compute_asym_recurrent(asymrnn.weight_hh, asymrnn.gamma)
     proj_ih = dense_proj(asymrnn.weight_ih, inp, asymrnn.bias_ih)
     proj_hh = dense_proj(recurrent_matrix, state, asymrnn.bias_hh)
     proj_combined = asymrnn.integration_fn(proj_ih, proj_hh)
-    new_state = state + asymrnn.epsilon .* asymrnn.activation.(proj_combined)
+    new_state = state .+ asymrnn.epsilon .* asymrnn.activation.(proj_combined)
     return new_state, new_state
 end
 
@@ -293,7 +294,7 @@ function GatedAntisymmetricRNNCell(
 end
 
 function (asymrnn::GatedAntisymmetricRNNCell)(
-        inp::AbstractVecOrMat, state::AbstractVecOrMat)
+        inp::AbstractArray{T, N}, state::AbstractArray{D, M}) where {T, N, D, M}
     _size_check(asymrnn, inp, 1 => size(asymrnn.weight_ih, 2))
     recurrent_matrix = compute_asym_recurrent(asymrnn.weight_hh, asymrnn.gamma)
     proj_ih = dense_proj(asymrnn.weight_ih, inp, asymrnn.bias_ih)
@@ -302,7 +303,7 @@ function (asymrnn::GatedAntisymmetricRNNCell)(
     proj_combined_1 = asymrnn.integration_fn(gxs[1], proj_hh)
     proj_combined_2 = asymrnn.integration_fn(gxs[2], proj_hh)
     input_gate = sigmoid_fast.(proj_combined_1)
-    new_state = state + asymrnn.epsilon .* input_gate .* tanh_fast.(proj_combined_2)
+    new_state = state .+ asymrnn.epsilon .* input_gate .* tanh_fast.(proj_combined_2)
     return new_state, new_state
 end
 

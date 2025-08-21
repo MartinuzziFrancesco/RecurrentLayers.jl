@@ -44,16 +44,18 @@ Fast slow recurrent neural network cell [Mujika2017](@cite).
   `state = (fast_state, slow_state)` is the new hidden and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct FastSlow{F,S} <: AbstractRecurrentCell
+struct FastSlow{F, S} <: AbstractDoubleRecurrentCell
     fast_cells::F
     slow_cell::S
 end
 
 @layer FastSlow
 
-function FastSlow((input_size, hidden_size)::Pair{<:Int,<:Int},
-    fast_cells, slow_cell)
-    @assert length(fast_cells) > 1
+function FastSlow(fast_cells, slow_cell,
+        (input_size, hidden_size)::Pair{<:Int, <:Int}, num_fast_cells=2)
+    if !(fast_cells isa AbstractVector)
+        fast_cells = fill(fast_cells, num_fast_cells)
+    end
     f_cells = []
     for (cell_idx, fast_cell) in enumerate(fast_cells)
         in_size = cell_idx == 1 ? input_size : hidden_size
@@ -70,13 +72,19 @@ function initialstates(fsrnn::FastSlow)
 end
 
 function (fsrnn::FastSlow)(inp::AbstractVecOrMat, (fast_state, slow_state))
+    re_inp, re_faststate, re_slowstate = inp, fast_state, slow_state
     for (cell_idx, fast_cell) in enumerate(fsrnn.fast_cells)
-        inp, fast_state = fast_cell(inp, fast_state)
+        re_inp, re_faststate = fast_cell(re_inp, re_faststate)
         if cell_idx == 1
-            inp, slow_state = fsrnn.slow_cell(inp, slow_state)
+            re_inp, re_slowstate = fsrnn.slow_cell(re_inp, re_slowstate)
         end
     end
-    return inp, (fast_state, slow_state)
+    return re_inp, (re_faststate, re_slowstate)
+end
+
+function (fsrnn::FastSlow)(inp::AbstractVecOrMat)
+    fast_state, slow_state = initialstates(fsrnn)
+    return fsrnn(inp, (fast_state, slow_state))
 end
 
 function Base.show(io::IO, fsrnn::FastSlow)

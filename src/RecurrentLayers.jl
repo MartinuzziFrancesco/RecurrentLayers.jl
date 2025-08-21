@@ -2,25 +2,25 @@ module RecurrentLayers
 
 using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_uniform,
-    scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
+            scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
 import Flux: initialstates
 import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
-    FSRNNCell, GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
-    LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
-    MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
-    PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
-    TGRUCell,
-    TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
-export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, FSRNN,
-    GatedAntisymmetricRNN,
-    IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
-    MUT3, NAS, OriginalLSTM, NBR,
-    PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
-export Multiplicative, StackedRNN
+       GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+       LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
+       MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
+       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
+       TGRUCell,
+       TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
+export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
+       GatedAntisymmetricRNN,
+       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM, MUT1, MUT2,
+       MUT3, NAS, OriginalLSTM, NBR,
+       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
+export Multiplicative, FastSlow, StackedRNN
 
 @compat(public, (initialstates))
 
@@ -61,14 +61,14 @@ include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
 rlayers = (
-    :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :FSRNN, :IndRNN,
+    :AntisymmetricRNN, :ATR, :BRCell, :CFN, :coRNN, :FastGRNN, :FastRNN, :IndRNN,
     :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :OriginalLSTM, :NBR,
     :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :BR, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
-    :FSRNNCell, :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
+    :IndRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MGUCell, :MinimalRNNCell, :MultiplicativeLSTMCell,
     :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :OriginalLSTMCell, :NBRCell,
     :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :STARCell, :TGRUCell, :TLSTMCell,
@@ -77,7 +77,7 @@ rcells = (
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin
         function ($rlayer)(rc::$rcell; return_state::Bool=false)
-            return $rlayer{return_state,typeof(rc)}(rc)
+            return $rlayer{return_state, typeof(rc)}(rc)
         end
 
         # why wont' this work?

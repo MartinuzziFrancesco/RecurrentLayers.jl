@@ -37,3 +37,37 @@ end
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)
 end
+
+@testset "Sizes for FastSlow with cell: $cell" for cell in cells
+    if cell == TGRUCell || cell == TRNNCell
+        continue
+    end
+    wrap = FastSlow(cell, cell, 2 => 4)
+
+    inp = rand(Float32, 2, 3)
+    output = wrap(inp)
+    @test first(output) isa Array{Float32, 2}
+    @test size(first(output)) == (4, 3)
+
+    inp = rand(Float32, 2)
+    output = wrap(inp)
+    @test first(output) isa Array{Float32, 1}
+    @test size(first(output)) == (4,)
+end
+
+@testset "Sizes for Recurrence FastSlow with cell: $cell" for cell in cells
+    if cell == TGRUCell || cell == TRNNCell
+        continue
+    end
+    wrap = Recurrence(FastSlow(cell, cell, 2 => 4))
+
+    inp = rand(Float32, 2, 3, 1)
+    output = wrap(inp)
+    @test output isa Array{Float32, 3}
+    @test size(output) == (4, 3, 1)
+
+    inp = rand(Float32, 2, 3)
+    output = wrap(inp)
+    @test output isa Array{Float32, 2}
+    @test size(output) == (4, 3)
+end
