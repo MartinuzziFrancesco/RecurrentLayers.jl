@@ -1,5 +1,0 @@
-# FSRNN
-
-```@docs
-    FSRNN
-```
