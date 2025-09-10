@@ -22,7 +22,6 @@ level implementations:
 | [**CFN**](https://arxiv.org/abs/1612.06212) | ICLR 2017 | – |
 | [**coRNN**](https://arxiv.org/abs/2010.00951) | ICLR 2021 | [tk-rusch/coRNN](https://github.com/tk-rusch/coRNN) |
 | [**FastRNN/FastGRNN**](https://arxiv.org/abs/1901.02358) | NeurIPS 2018 | [Microsoft/EdgeML](https://github.com/Microsoft/EdgeML) |
-| [**FSRNN**](https://arxiv.org/abs/1705.08639) | NeurIPS 2017 | [amujika/Fast-Slow-LSTM](https://github.com/amujika/Fast-Slow-LSTM) |
 | [**IndRNN**](https://arxiv.org/abs/1803.04831) | CVPR 2018 | [Sunnydreamrain/IndRNN_Theano_Lasagne](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne) |
 | [**JANET**](https://arxiv.org/abs/1804.04849) | arXiv 2018 | [JosvanderWesthuizen/janet](https://github.com/JosvanderWesthuizen/janet) |
 | [**LEM**](https://arxiv.org/pdf/2110.04744) | ICLR 2022 | [tk-rusch/LEM](https://github.com/tk-rusch/LEM) |
@@ -45,7 +44,9 @@ level implementations:
 | [**UnICORNN**](https://arxiv.org/abs/2103.05487) | ICML 2021 | [tk-rusch/unicornn](https://github.com/tk-rusch/unicornn) |
 | [**WMCLSTM**](https://arxiv.org/abs/2109.00020) | Neural Networks 2021 | – |
 
- - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026), and [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf).
+ - Additional wrappers: [Stacked RNNs](https://arxiv.org/pdf/1312.6026),
+ [Multiplicative RNN](https://icml.cc/2011/papers/524_icmlpaper.pdf), and
+ [FastSlow](https://arxiv.org/abs/1705.08639).
 
 ## Installation
 
