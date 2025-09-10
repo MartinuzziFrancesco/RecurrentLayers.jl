@@ -124,7 +124,7 @@ function (lstm::MultiplicativeLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     forget_gate = sigmoid_fast.(lstm.integration_fn(gxs[4], gms[3]))
     candidate_state = tanh_fast.(lstm.integration_fn(gxs[5], gms[4]))
     new_cstate = @. forget_gate * c_state + input_gate * candidate_state
-    new_state = @. output_gate * tanh_fast(candidate_state)
+    new_state = @. output_gate * tanh_fast(new_cstate)
     return new_state, (new_state, new_cstate)
 end
 
