@@ -71,7 +71,7 @@ struct JANETCell{I, H, V, W, M, B} <: AbstractDoubleRecurrentCell
     beta::B
 end
 
-@layer JANETCell trainable = (weight_ih, weight_hh, bias_ih, bias_hh)
+@layer JANETCell trainable=(weight_ih, weight_hh, bias_ih, bias_hh)
 
 function JANETCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
