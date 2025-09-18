@@ -6,7 +6,8 @@ function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias
     return weight * inp_or_state
 end
 
-function dense_proj(weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias::AbstractVector)
+function dense_proj(
+        weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias::AbstractVector)
     weight_inporstate = dense_proj(weight, inp_or_state, false)
     add_bias!(weight_inporstate, bias)
     return weight_inporstate
@@ -22,21 +23,22 @@ end
 function add_bias!(weight_inporstate::AbstractMatrix, bias::AbstractVector)
     @assert size(weight_inporstate, 1) == length(bias)
     @inbounds for jdx in axes(weight_inporstate, 2), idx in axes(weight_inporstate, 1)
-
         weight_inporstate[idx, jdx] += bias[idx]
     end
     return weight_inporstate
 end
 
 #independent recurrence has only state since it's only for weight_hh
-function dense_proj(weight::AbstractVector, state::AbstractVector, bias::Union{
-        AbstractVector, Bool})
+function dense_proj(
+        weight::AbstractVector, state::AbstractVector, bias::Union{
+            AbstractVector, Bool})
     proj = _ind_rec(weight, state, bias)
     return proj
 end
 
-function dense_proj(weight::AbstractVector, state::AbstractMatrix, bias::Union{
-        AbstractVector, Bool})
+function dense_proj(
+        weight::AbstractVector, state::AbstractMatrix, bias::Union{
+            AbstractVector, Bool})
     return _ind_rec(weight, state, bias)
 end
 

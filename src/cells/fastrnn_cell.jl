@@ -39,7 +39,7 @@ See [`FastRNN`](@ref) for a layer that processes entire sequences.
 \begin{aligned}
     \tilde{\mathbf{h}}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
         \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right), \\
-    \mathbf{h}(t) &= \alpha \, \tilde{\mathbf{h}}(t) + \beta \, \mathbf{h}(t-1)
+    \mathbf{h}(t) &= \sigma(\alpha) \, \tilde{\mathbf{h}}(t) + \sigma(\beta) \, \mathbf{h}(t-1)
 \end{aligned}
 ```
 
@@ -108,7 +108,9 @@ function (fastrnn::FastRNNCell)(inp::AbstractVecOrMat, state)
     proj_ih = dense_proj(fastrnn.weight_ih, inp, fastrnn.bias_ih)
     proj_hh = dense_proj(fastrnn.weight_hh, state, fastrnn.bias_hh)
     candidate_state = fastrnn.activation.(fastrnn.integration_fn(proj_ih, proj_hh))
-    new_state = @. fastrnn.alpha * candidate_state + fastrnn.beta * state
+    alpha = sigmoid_fast.(fastrnn.alpha)
+    beta = sigmoid_fast.(fastrnn.beta)
+    new_state = @. alpha * candidate_state + beta * state
     return new_state, new_state
 end
 
@@ -159,7 +161,7 @@ See [`FastRNNCell`](@ref) for a layer that processes a single sequences.
 \begin{aligned}
     \tilde{\mathbf{h}}(t) &= \sigma\left( \mathbf{W}_{ih} \mathbf{x}(t) +
         \mathbf{W}_{hh} \mathbf{h}(t-1) + \mathbf{b} \right), \\
-    \mathbf{h}(t) &= \alpha \, \tilde{\mathbf{h}}(t) + \beta \, \mathbf{h}(t-1)
+    \mathbf{h}(t) &= \sigma(\alpha) \, \tilde{\mathbf{h}}(t) + \sigma(\beta) \, \mathbf{h}(t-1)
 \end{aligned}
 ```
 
@@ -248,7 +250,7 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
         \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
     \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
         \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left( \left( \zeta (1 - \mathbf{z}(t)) + \nu \right)
+    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + 'sigma(\nu) \right)
         \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```
@@ -325,7 +327,9 @@ function (fastgrnn::FastGRNNCell)(inp::AbstractVecOrMat, state)
     gate = @. fastgrnn.activation(partial_gate + bias_alt_1)
     candidate_state = @. tanh_fast(partial_gate + bias_alt_2)
     t_ones = eltype(gate)(1.0f0)
-    new_state = @. (fastgrnn.zeta * (t_ones - gate) + fastgrnn.nu) * candidate_state +
+    zeta = sigmoid_fast.(fastgrnn.zeta)
+    nu = sigmoid_fast.(fastgrnn.nu)
+    new_state = @. (zeta * (t_ones - gate) + nu) * candidate_state +
                    gate * state
     return new_state, new_state
 end
@@ -380,7 +384,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
         \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
     \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
         \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left( \left( \zeta (1 - \mathbf{z}(t)) + \nu \right)
+    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + 'sigma(\nu) \right)
         \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```
