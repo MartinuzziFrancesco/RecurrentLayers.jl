@@ -80,15 +80,7 @@ function UGRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     end
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return UGRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 

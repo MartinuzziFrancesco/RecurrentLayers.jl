@@ -97,15 +97,7 @@ function LEMCell((input_size, hidden_size)::Pair{<:Int, <:Int}, dt::Number=1.0f0
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     bias_ch = create_bias(weight_ch, cell_bias, size(weight_ch, 1))
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return LEMCell(weight_ih, weight_hh, weight_ch, bias_ih, bias_hh, bias_ch,
         integration_fn, eltype(weight_ih)(dt))
 end
