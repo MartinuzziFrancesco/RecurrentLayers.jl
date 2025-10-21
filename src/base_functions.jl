@@ -23,6 +23,7 @@ end
 function add_bias!(weight_inporstate::AbstractMatrix, bias::AbstractVector)
     @assert size(weight_inporstate, 1) == length(bias)
     @inbounds for jdx in axes(weight_inporstate, 2), idx in axes(weight_inporstate, 1)
+
         weight_inporstate[idx, jdx] += bias[idx]
     end
     return weight_inporstate

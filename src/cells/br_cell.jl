@@ -79,15 +79,7 @@ function BRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     if !independent_recurrence
         @warn "independent_recurrence defaults to true in BRCell"
     end
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return BRCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
@@ -278,15 +270,7 @@ function NBRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     if independent_recurrence
         @warn "independent_recurrence defaults to false in NBRCell"
     end
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return NBRCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 

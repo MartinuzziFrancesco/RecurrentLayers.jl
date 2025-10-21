@@ -90,15 +90,7 @@ function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=t
     T = eltype(weight_ih)
     alpha = T(init_alpha) .* ones(T, 1)
     beta = T(init_beta) .* ones(T, 1)
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return FastRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn,
         alpha, beta, activation)
 end
@@ -305,15 +297,7 @@ function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
     T = eltype(weight_ih)
     zeta = T(init_zeta) .* ones(T, 1)
     nu = T(init_nu) .* ones(T, 1)
-    if integration_mode == :addition
-        integration_fn = add_projections
-    elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
-    else
-        throw(ArgumentError(
-            "integration_mode must be :addition or :multiplicative_integration; got $integration_mode"
-        ))
-    end
+    integration_fn = _integration_fn(integration_mode)
     return FastGRNNCell(weight_ih, weight_hh, bias_ih, bias_hh, bias_alt, integration_fn,
         zeta, nu, activation)
 end
