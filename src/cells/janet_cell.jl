@@ -79,11 +79,7 @@ function JANETCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false, beta_value::AbstractFloat=1.0f0)
     weight_ih = init_kernel(hidden_size * 2, input_size)
-    if independent_recurrence
-        weight_hh = vec(init_recurrent_kernel(2 * hidden_size))
-    else
-        weight_hh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    end
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, 2)
     beta = fill(eltype(weight_ih)(beta_value), hidden_size)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))

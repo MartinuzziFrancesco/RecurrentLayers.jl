@@ -80,11 +80,7 @@ function FastRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=t
         integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
-    if independent_recurrence
-        weight_hh = vec(init_recurrent_kernel(hidden_size))
-    else
-        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
-    end
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     T = eltype(weight_ih)
@@ -286,11 +282,7 @@ function FastGRNNCell((input_size, hidden_size)::Pair, activation=tanh_fast;
         integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
-    if independent_recurrence
-        weight_hh = vec(init_recurrent_kernel(hidden_size))
-    else
-        weight_hh = init_recurrent_kernel(hidden_size, hidden_size)
-    end
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel)
     bias_alt = create_bias(weight_ih, alt_bias, 2 * size(weight_ih, 1))
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
