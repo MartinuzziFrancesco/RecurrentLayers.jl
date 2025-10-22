@@ -87,7 +87,7 @@ function coRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
         cell_bias::Bool=true, integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
-    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel)
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size)
     weight_ch = init_cell_kernel(hidden_size, hidden_size)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))

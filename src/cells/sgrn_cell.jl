@@ -73,7 +73,7 @@ function SGRNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
-    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel)
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     integration_fn = _integration_fn(integration_mode)
