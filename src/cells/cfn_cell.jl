@@ -75,11 +75,7 @@ function CFNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         bias::Bool=true, recurrent_bias::Bool=true,
         integration_mode::Symbol=:addition, independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size * 3, input_size)
-    if independent_recurrence
-        weight_hh = vec(init_recurrent_kernel(hidden_size * 2))
-    else
-        weight_hh = init_recurrent_kernel(hidden_size * 2, hidden_size)
-    end
+    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size, 2)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     integration_fn = _integration_fn(integration_mode)
