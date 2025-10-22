@@ -63,8 +63,9 @@ function _integration_fn(mode::Symbol)
     end
 end
 
-function _indrec_matrix(independent_recurrence::Bool, hh_init, hidden_size::Int, hh_size::Int=1;
-        second_hidden_size = hidden_size)
+function _indrec_matrix(
+        independent_recurrence::Bool, hh_init, hidden_size::Int, hh_size::Int=1;
+        second_hidden_size=hidden_size)
     if independent_recurrence
         return vec(hh_init(hh_size * hidden_size))
     else

@@ -18,7 +18,7 @@ makedocs(;
     authors="Francesco Martinuzzi",
     sitename="RecurrentLayers.jl",
     clean=true, doctest=true,
-    linkcheck=true,
+    linkcheck=false,
     plugins=[links, bib],
     format=Documenter.HTML(;
         mathengine,

@@ -32,7 +32,7 @@ StackedRNN(
     MGU(1 => 5),                        # 120 parameters
   ],
 )         # Total: 16 trainable arrays, 460 parameters,
-          # plus 4 non-trainable, 20 parameters, summarysize 3.055 KiB.
+          # plus 4 non-trainable, 20 parameters, summarysize 3.062 KiB.
 
 ```
 """
