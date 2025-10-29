@@ -5,9 +5,9 @@
 <div align="center">
 
 
-| **Documentation** | **Build Status** | **Julia** | **Testing** |
-|:-----------------:|:----------------:|:---------:|:-----------:|
-| [![docsstbl][docs-stbl]][docsstbl-url] [![docsdev][docs-dev]][docsdev-url] | [![CI][ci-img]][ci-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![codecov][cc-img]][cc-url] |
+| **Documentation** | **Build Status** | **Julia** | **Testing** | **Paper** |
+|:-----------------:|:----------------:|:---------:|:-----------:|:---------:|
+| [![docsstbl][docs-stbl]][docsstbl-url] [![docsdev][docs-dev]][docsdev-url] | [![CI][ci-img]][ci-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![codecov][cc-img]][cc-url] | [![arXiv](https://img.shields.io/badge/arXiv-2510.21252-00b300.svg)](https://arxiv.org/abs/2510.21252) |
 
 [docs-stbl]: https://img.shields.io/badge/docs-stable-blue.svg
 [docsstbl-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/
