@@ -5,9 +5,9 @@
 <div align="center">
 
 
-| **Documentation** | **Build Status** | **Julia** | **Testing** |
-|:-----------------:|:----------------:|:---------:|:-----------:|
-| [![docsstbl][docs-stbl]][docsstbl-url] [![docsdev][docs-dev]][docsdev-url] | [![CI][ci-img]][ci-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![codecov][cc-img]][cc-url] |
+| **Documentation** | **Build Status** | **Julia** | **Testing** | **Paper** |
+|:-----------------:|:----------------:|:---------:|:-----------:|:---------:|
+| [![docsstbl][docs-stbl]][docsstbl-url] [![docsdev][docs-dev]][docsdev-url] | [![CI][ci-img]][ci-url] | [![Julia][julia-img]][julia-url] [![Code Style: Blue][style-img]][style-url] | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![codecov][cc-img]][cc-url] | [![arXiv](https://img.shields.io/badge/arXiv-2510.21252-00b300.svg)](https://arxiv.org/abs/2510.21252) |
 
 [docs-stbl]: https://img.shields.io/badge/docs-stable-blue.svg
 [docsstbl-url]: https://MartinuzziFrancesco.github.io/RecurrentLayers.jl/stable/
@@ -103,6 +103,23 @@ pkg> add RecurrentLayers
 ## Getting started 🛠️
 
 The workflow is identical to any recurrent Flux layer: just plug in a new recurrent layer in your workflow and test it out!
+
+## Citation
+
+If you use RecurrentLayers.jl in your work, please consider citing
+
+```bibtex
+@misc{martinuzzi2025unified,
+  doi = {10.48550/ARXIV.2510.21252},
+  url = {https://arxiv.org/abs/2510.21252},
+  author = {Martinuzzi,  Francesco},
+  keywords = {Machine Learning (cs.LG),  Software Engineering (cs.SE),  FOS: Computer and information sciences,  FOS: Computer and information sciences},
+  title = {Unified Implementations of Recurrent Neural Networks in Multiple Deep Learning Frameworks},
+  publisher = {arXiv},
+  year = {2025},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
+```
 
 ## License 📜
 
