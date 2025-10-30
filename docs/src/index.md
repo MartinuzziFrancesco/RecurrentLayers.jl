@@ -62,6 +62,23 @@ julia> ]
 pkg> add RecurrentLayers
 ```
 
+## Citation
+
+If you use RecurrentLayers.jl in your work, please consider citing
+
+```bibtex
+@misc{martinuzzi2025unified,
+  doi = {10.48550/ARXIV.2510.21252},
+  url = {https://arxiv.org/abs/2510.21252},
+  author = {Martinuzzi,  Francesco},
+  keywords = {Machine Learning (cs.LG),  Software Engineering (cs.SE),  FOS: Computer and information sciences,  FOS: Computer and information sciences},
+  title = {Unified Implementations of Recurrent Neural Networks in Multiple Deep Learning Frameworks},
+  publisher = {arXiv},
+  year = {2025},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
+```
+
 ## Contributing
 
 Contributions are always welcome! We specifically look for :

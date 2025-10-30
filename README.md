@@ -104,6 +104,23 @@ pkg> add RecurrentLayers
 
 The workflow is identical to any recurrent Flux layer: just plug in a new recurrent layer in your workflow and test it out!
 
+## Citation
+
+If you use RecurrentLayers.jl in your work, please consider citing
+
+```bibtex
+@misc{martinuzzi2025unified,
+  doi = {10.48550/ARXIV.2510.21252},
+  url = {https://arxiv.org/abs/2510.21252},
+  author = {Martinuzzi,  Francesco},
+  keywords = {Machine Learning (cs.LG),  Software Engineering (cs.SE),  FOS: Computer and information sciences,  FOS: Computer and information sciences},
+  title = {Unified Implementations of Recurrent Neural Networks in Multiple Deep Learning Frameworks},
+  publisher = {arXiv},
+  year = {2025},
+  copyright = {Creative Commons Attribution 4.0 International}
+}
+```
+
 ## License 📜
 
 This project is licensed under the MIT License, except for `nas_cell.jl`, which is licensed under the Apache License, Version 2.0.
