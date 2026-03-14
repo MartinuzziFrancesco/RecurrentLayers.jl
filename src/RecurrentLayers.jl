@@ -10,7 +10,7 @@ using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
        GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
-       LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
+       LightRUCell, MGUCell, MinimalRNNCell, MiRU1Cell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
        MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
@@ -40,6 +40,7 @@ include("cells/lightru_cell.jl")
 include("cells/ligru_cell.jl")
 include("cells/mgu_cell.jl")
 include("cells/minimalrnn_cell.jl")
+include("cells/miru_cell.jl")
 include("cells/multiplicativelstm_cell.jl")
 include("cells/mut_cell.jl")
 include("cells/nas_cell.jl")
