@@ -22,6 +22,8 @@ from this list:
   Gated Antisymmetric Recurrent Neural Network Cell
 - [IndRNNCell](cells/indrnncell.md):
   Independently Recurrent Neural Network Cell
+- [IntersectionRNNCell](cells/intersectionrnncell.md):
+  Intersection Recurrent Neural Network Cell
 - [JANETCell](cells/janetcell.md):
   Just Another Network Cell
 - [LEMCell](cells/lemcell.md):
