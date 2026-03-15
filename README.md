@@ -64,6 +64,7 @@ level implementations:
 | [**LiGRU**](https://arxiv.org/abs/1803.10225) | IEEE Transactions on Emerging Topics in Computing 2018 | [mravanelli/theano-kaldi-rnn](https://github.com/mravanelli/theano-kaldi-rnn/) |
 | [**LightRU**](https://www.mdpi.com/2079-9292/13/16/3204) | MDPI Electronics 2023 | – |
 | [**MinimalRNN**](https://arxiv.org/abs/1711.06788) | NeurIPS 2017 | – |
+| [**MiRU1/MiRU2**](https://arxiv.org/abs/2503.06175) | Neurocomputing 2026 | – |
 | [**MultiplicativeLSTM**](https://arxiv.org/abs/1609.07959) | Workshop ICLR 2017 | [benkrause/mLSTM](https://github.com/benkrause/mLSTM) |
 | [**MGU**](https://arxiv.org/abs/1603.09420) | International Journal of Automation and Computing 2016 | – |
 | [**MUT1/MUT2/MUT3**](https://proceedings.mlr.press/v37/jozefowicz15.pdf) | ICML 2015 | – |
