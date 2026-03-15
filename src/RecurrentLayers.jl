@@ -9,7 +9,7 @@ using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
-       GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+       GatedAntisymmetricRNNCell, IndRNNCell, IntersectionRNNCell, JANETCell, LEMCell, LiGRUCell,
        LightRUCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell, MultiplicativeLSTMCell,
        MUT1Cell, MUT2Cell, MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
@@ -17,7 +17,7 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
        GatedAntisymmetricRNN,
-       IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM, MUT1, MUT2,
+       IndRNN, IntersectionRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, OriginalLSTM, NBR,
        PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
 export Multiplicative, FastSlow, StackedRNN
@@ -34,6 +34,7 @@ include("cells/cfn_cell.jl")
 include("cells/cornn_cell.jl")
 include("cells/fastrnn_cell.jl")
 include("cells/indrnn_cell.jl")
+include("cells/intersectionrnn_cell.jl")
 include("cells/janet_cell.jl")
 include("cells/lem_cell.jl")
 include("cells/lightru_cell.jl")
