@@ -186,7 +186,8 @@ end
 
 function Base.show(io::IO, br::BR)
     print(
-        io, "BR(", size(br.cell.weight_ih, 2), " => ", size(br.cell.weight_ih, 1) ÷ 3)
+        io, "BR(", size(br.cell.weight_ih, 2), " => ", size(br.cell.weight_ih, 1) ÷ 3
+    )
     print(io, ")")
 end
 

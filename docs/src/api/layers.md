@@ -30,6 +30,10 @@
   Minimal Gated Unit
 - [MinimalRNN](layers/minimalrnn.md):
   Minimal Recurrent Neural Network
+- [MiRU1](layers/miru1.md):
+  Minion Gated Recurrent Unit Network Variant 1
+- [MiRU2](layers/miru2.md):
+  Minion Gated Recurrent Unit Network Variant 2
 - [MultiplicativeLSTM](layers/multiplicativelstm.md):
   Multiplicative Long Short-Term Memory
 - [MUT1](layers/mut1.md):

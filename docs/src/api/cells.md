@@ -34,6 +34,10 @@ from this list:
   Minimal Gated Unit Cell
 - [MinimalRNNCell](cells/minimalrnncell.md):
   Minimal Recurrent Neural Network Cell
+- [MiRU1Cell](cells/miru1cell.md):
+  Minion Gated Recurrent Unit Cell Variant 1
+- [MiRU2Cell](cells/miru2cell.md):
+  Minion Gated Recurrent Unit Cell Variant 2
 - [MultiplicativeLSTMCell](cells/multiplicativelstmcell.md):
   Multiplicative Long Short-Term Memory Cell
 - [MUT1Cell](cells/mut1cell.md):

@@ -3,10 +3,10 @@ import Flux: initialstates
 
 layers = [
     AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN, IndRNN,
-    JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM,
+    JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM,
     MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
     RAN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM]
-#IndRNN handles internal states diffrently
+#IndRNN handles internal states differently
 #RHN should be checked more for consistency for initialstates
 
 @testset "Sizes for layer: $layer" for layer in layers
