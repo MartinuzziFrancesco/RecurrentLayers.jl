@@ -3,7 +3,7 @@ import Flux: initialstates
 
 layers = [
     AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN, IndRNN,
-    IntersectionRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM,
+    JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM,
     MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
     RAN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM]
 #IndRNN handles internal states differently
@@ -31,6 +31,33 @@ layers = [
     @test size(output) == (4, 3, 1)
 
     inp = rand(Float32, 2, 3)
+    output = rlayer(inp, state)
+    @test output isa Array{Float32, 2}
+    @test size(output) == (4, 3)
+end
+
+@testset "Sizes for layer: IntersectionRNN" begin
+    rlayer = IntersectionRNN(4 => 4)
+
+    # initial states is zero
+    state = initialstates(rlayer)
+    if state isa AbstractArray
+        @test state ≈ zeros(Float32, 4)
+    else
+        @test state[1] ≈ zeros(Float32, 4)
+        if layer == TGRU
+            @test state[2] ≈ zeros(Float32, 2)
+        else
+            @test state[2] ≈ zeros(Float32, 4)
+        end
+    end
+
+    inp = rand(Float32, 4, 3, 1)
+    output = rlayer(inp, state)
+    @test output isa Array{Float32, 3}
+    @test size(output) == (4, 3, 1)
+
+    inp = rand(Float32, 4, 3)
     output = rlayer(inp, state)
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)

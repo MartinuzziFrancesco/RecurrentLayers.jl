@@ -66,7 +66,7 @@ include("wrappers/stackedrnn.jl")
 ### fallbacks for functors ###
 rlayers = (
     :AntisymmetricRNN, :ATR, :BR, :CFN, :coRNN, :FastGRNN, :FastRNN, :IndRNN,
-    :IntersectionRNN, :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MiRU1
+    :IntersectionRNN, :JANET, :LEM, :LiGRU, :LightRU, :MGU, :MinimalRNN, :MiRU1,
     :MiRU2,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :OriginalLSTM, :NBR,
     :PeepholeLSTM, :RAN, :SCRN, :SGRN, :STAR, :TGRU, :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
