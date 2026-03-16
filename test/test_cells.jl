@@ -2,7 +2,8 @@ using RecurrentLayers, Flux, Test
 
 #cells returning a single hidden state
 single_cells = [AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, GatedAntisymmetricRNNCell,
-    IndRNNCell, LiGRUCell, LightRUCell, MiRU1Cell, MiRU2Cell, MGUCell, MUT1Cell, MUT2Cell,
+    IndRNNCell, LiGRUCell, LightRUCell,
+    MiRU1Cell, MiRU2Cell, MGUCell, MUT1Cell, MUT2Cell,
     MUT3Cell, NBRCell, SGRNCell, STARCell, UGRNNCell]
 
 #cells returning hidden state as a tuple
@@ -208,4 +209,18 @@ end
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+end
+
+@testset "IntersectionRNNCell" begin
+    rnncell = IntersectionRNNCell(5 => 5)
+    @test length(Flux.trainables(rnncell)) == 4
+
+    inp = rand(Float32, 5)
+    @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
+
+    rnncell = IntersectionRNNCell(5 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    inp = rand(Float32, 5)
+    @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
 end

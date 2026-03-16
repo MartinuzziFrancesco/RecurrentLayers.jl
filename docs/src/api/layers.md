@@ -18,6 +18,8 @@
   Gated Antisymmetric Recurrent Neural Network
 - [IndRNN](layers/indrnn.md):
   Independently Recurrent Neural Network
+- [IntersectionRNN](layers/intersectionrnn.md):
+  Intersection Recurrent Neural Network
 - [JANET](layers/janet.md):
   Just Another Network
 - [LEM](layers/lem.md):

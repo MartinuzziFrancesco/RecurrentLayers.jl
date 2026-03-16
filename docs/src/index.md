@@ -23,6 +23,7 @@ level implementations:
 | [**coRNN**](https://arxiv.org/abs/2010.00951) | ICLR 2021 | [tk-rusch/coRNN](https://github.com/tk-rusch/coRNN) |
 | [**FastRNN/FastGRNN**](https://arxiv.org/abs/1901.02358) | NeurIPS 2018 | [Microsoft/EdgeML](https://github.com/Microsoft/EdgeML) |
 | [**IndRNN**](https://arxiv.org/abs/1803.04831) | CVPR 2018 | [Sunnydreamrain/IndRNN_Theano_Lasagne](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne) |
+| [**IntersectionRNN**](https://arxiv.org/abs/1611.09913) | ICLR 2017 | - |
 | [**JANET**](https://arxiv.org/abs/1804.04849) | arXiv 2018 | [JosvanderWesthuizen/janet](https://github.com/JosvanderWesthuizen/janet) |
 | [**LEM**](https://arxiv.org/pdf/2110.04744) | ICLR 2022 | [tk-rusch/LEM](https://github.com/tk-rusch/LEM) |
 | [**LiGRU**](https://arxiv.org/abs/1803.10225) | IEEE Transactions on Emerging Topics in Computing 2018 | [mravanelli/theano-kaldi-rnn](https://github.com/mravanelli/theano-kaldi-rnn/) |

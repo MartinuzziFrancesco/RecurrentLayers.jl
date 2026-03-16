@@ -76,12 +76,11 @@ struct MiRU1Cell{I, H, V, W, L, F, A} <: AbstractRecurrentCell
 end
 
 function MiRU1Cell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
-    init_kernel = glorot_uniform, init_recurrent_kernel = glorot_uniform,
-    bias::Bool=true, recurrent_bias::Bool=true,
-    update_coefficient::AbstractFloat = 0.5,
-    integration_mode::Symbol=:addition,
-    independent_recurrence::Bool=false)
-
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
+        bias::Bool=true, recurrent_bias::Bool=true,
+        update_coefficient::AbstractFloat=0.5,
+        integration_mode::Symbol=:addition,
+        independent_recurrence::Bool=false)
     weight_ih = init_kernel(2 * hidden_size, input_size)
     weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size, 2)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
@@ -89,7 +88,8 @@ function MiRU1Cell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tan
     _update_coefficient = eltype(weight_ih)(update_coefficient)
     integration_fn = _integration_fn(integration_mode)
 
-    return MiRU1Cell(weight_ih, weight_hh, bias_ih, bias_hh, _update_coefficient, activation, integration_fn)
+    return MiRU1Cell(weight_ih, weight_hh, bias_ih, bias_hh,
+        _update_coefficient, activation, integration_fn)
 end
 
 function (miru::MiRU1Cell)(inp::AbstractVecOrMat, state)
@@ -102,7 +102,8 @@ function (miru::MiRU1Cell)(inp::AbstractVecOrMat, state)
     first_gate = miru.activation.(miru.integration_fn(gxs[1], rec_r))
     rec_h = dense_proj(chunk_whh[2], first_gate .* state, chunk_bhh[2])
     candidate_state = tanh_fast.(miru.integration_fn(gxs[2], rec_h))
-    new_state = miru.update_coefficient .* state .+ (1 - miru.update_coefficient) .* candidate_state
+    new_state = miru.update_coefficient .* state .+
+                (1 - miru.update_coefficient) .* candidate_state
 
     return new_state, new_state
 end
@@ -116,7 +117,6 @@ function Base.show(io::IO, miru::MiRU1Cell)
     print(io, "MiRU1Cell(", size(miru.weight_ih, 2), " => ", size(miru.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
-
 
 @doc raw"""
     MiRU1(input_size => hidden_size, [activation];
@@ -208,7 +208,6 @@ function Base.show(io::IO, miru::MiRU1)
     print(io, ")")
 end
 
-
 @doc raw"""
     MiRU2Cell(input_size => hidden_size, [activation];
         init_kernel = glorot_uniform,
@@ -286,10 +285,10 @@ struct MiRU2Cell{I, H, V, W, L, R, F, A} <: AbstractRecurrentCell
 end
 
 function MiRU2Cell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
-        init_kernel = glorot_uniform, init_recurrent_kernel = glorot_uniform,
+        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true, recurrent_bias::Bool=true,
-        update_coefficient::AbstractFloat = 0.5,
-        reset_coefficient::AbstractFloat = 0.5,
+        update_coefficient::AbstractFloat=0.5,
+        reset_coefficient::AbstractFloat=0.5,
         integration_mode::Symbol=:addition,
         independent_recurrence::Bool=false)
     weight_ih = init_kernel(hidden_size, input_size)
@@ -309,7 +308,8 @@ function (miru::MiRU2Cell)(inp::AbstractVecOrMat, state)
     proj_ih = dense_proj(miru.weight_ih, inp, miru.bias_ih)
     proj_hh = dense_proj(miru.weight_hh, miru.reset_coefficient .* state, miru.bias_hh)
     candidate_state = miru.activation.(miru.integration_fn(proj_ih, proj_hh))
-    new_state = miru.update_coefficient .* state + (1 .- miru.update_coefficient) .* candidate_state
+    new_state = miru.update_coefficient .* state +
+                (1 .- miru.update_coefficient) .* candidate_state
 
     return new_state, new_state
 end
