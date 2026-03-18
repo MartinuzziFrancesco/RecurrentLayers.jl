@@ -11,14 +11,16 @@ using NNlib: fast_act
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
        GatedAntisymmetricRNNCell, IndRNNCell, IntersectionRNNCell, JANETCell, LEMCell,
        LiGRUCell,
-       LightRUCell, MCLSTMCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell, MultiplicativeLSTMCell,
+       LightRUCell, MCLSTMCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell,
+       MultiplicativeLSTMCell,
        MUT1Cell, MUT2Cell, MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
        PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
        TGRUCell,
        TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
        GatedAntisymmetricRNN,
-       IndRNN, IntersectionRNN, JANET, LEM, LiGRU, LightRU, MCLSTM, MGU, MinimalRNN, MiRU1, MiRU2,
+       IndRNN, IntersectionRNN, JANET, LEM, LiGRU, LightRU, MCLSTM, MGU, MinimalRNN, MiRU1,
+       MiRU2,
        MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, OriginalLSTM, NBR,
        PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM

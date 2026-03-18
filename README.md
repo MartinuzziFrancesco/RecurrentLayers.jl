@@ -64,6 +64,7 @@ level implementations:
 | [**LEM**](https://arxiv.org/pdf/2110.04744) | ICLR 2022 | [tk-rusch/LEM](https://github.com/tk-rusch/LEM) |
 | [**LiGRU**](https://arxiv.org/abs/1803.10225) | IEEE Transactions on Emerging Topics in Computing 2018 | [mravanelli/theano-kaldi-rnn](https://github.com/mravanelli/theano-kaldi-rnn/) |
 | [**LightRU**](https://www.mdpi.com/2079-9292/13/16/3204) | MDPI Electronics 2023 | – |
+| [**MCLSTM**](https://www.intel.com/content/dam/www/public/us/en/ai/documents/Sequence-Modeling-NIPS-2017.pdf) | NeurIPS 2017 | – |
 | [**MinimalRNN**](https://arxiv.org/abs/1711.06788) | NeurIPS 2017 | – |
 | [**MiRU1/MiRU2**](https://arxiv.org/abs/2503.06175) | Neurocomputing 2026 | – |
 | [**MultiplicativeLSTM**](https://arxiv.org/abs/1609.07959) | Workshop ICLR 2017 | [benkrause/mLSTM](https://github.com/benkrause/mLSTM) |
