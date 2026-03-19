@@ -32,6 +32,8 @@ from this list:
   Light Gated Recurrent Unit Cell
 - [LightRUCell](cells/lightrucell.md):
   Light Recurrent Unit Cell
+- [MCLSTMCell](cells/mclstmcell.md):
+  Memory Controller Long Short-Term Memory Cell
 - [MGUCell](cells/mgucell.md):
   Minimal Gated Unit Cell
 - [MinimalRNNCell](cells/minimalrnncell.md):

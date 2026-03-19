@@ -28,6 +28,8 @@
   Light Gated Recurrent Unit
 - [LightRU](layers/lightru.md):
   Light Recurrent Unit
+- [MCLSTMCell](cells/mclstm.md):
+  Memory Controller Long Short-Term Memory Network
 - [MGU](layers/mgu.md):
   Minimal Gated Unit
 - [MinimalRNN](layers/minimalrnn.md):
