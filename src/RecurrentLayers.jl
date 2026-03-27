@@ -2,7 +2,8 @@ module RecurrentLayers
 
 using Compat: @compat
 using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_uniform,
-            scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu
+            scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu, softplus,
+            hardsigmoid
 import Flux: initialstates
 import Functors: functor
 using LinearAlgebra: I, transpose
@@ -14,7 +15,7 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        LightRUCell, MCLSTMCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell,
        MultiplicativeLSTMCell,
        MUT1Cell, MUT2Cell, MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
-       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, STARCell,
+       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, SGUCell, STARCell,
        TGRUCell,
        TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
@@ -23,7 +24,7 @@ export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
        MiRU2,
        MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, OriginalLSTM, NBR,
-       PeepholeLSTM, RAN, RHN, SCRN, SGRN, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
+       PeepholeLSTM, RAN, RHN, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM
 export Multiplicative, FastSlow, StackedRNN
 
 @compat(public, (initialstates))
@@ -56,6 +57,7 @@ include("cells/ran_cell.jl")
 include("cells/rhn_cell.jl")
 include("cells/scrn_cell.jl")
 include("cells/sgrn_cell.jl")
+include("cells/sgu_cell.jl")
 include("cells/star_cell.jl")
 include("cells/trnn_cell.jl")
 include("cells/ugrnn_cell.jl")

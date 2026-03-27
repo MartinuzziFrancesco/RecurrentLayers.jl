@@ -5,7 +5,7 @@ cells = [
     GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
     LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
     MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
-    PeepholeLSTMCell, RANCell, SCRNCell, SGRNCell, STARCell,
+    PeepholeLSTMCell, RANCell, SCRNCell, SGRNCell, SGUCell, STARCell,
     TGRUCell,
     TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell]
 #RHNCell, RHNCellUnit, FSRNNCell, TLSTMCell
