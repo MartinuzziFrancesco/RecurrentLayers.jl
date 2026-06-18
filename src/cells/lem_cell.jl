@@ -59,7 +59,7 @@ See [`LEM`](@ref) for a layer that processes entire sequences.
 ## Arguments
 - `inp`: The input to the lemcell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the LEMCell.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -136,7 +136,7 @@ See [`LEMCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
-- `dt`: timestep. Defaul is 1.0.
+- `dt`: timestep. Default is 1.0.
 
 # Keyword arguments
 

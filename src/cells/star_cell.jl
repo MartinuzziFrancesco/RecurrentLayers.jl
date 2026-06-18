@@ -45,7 +45,7 @@ See [`STAR`](@ref) for a layer that processes entire sequences.
     starcell(inp)
 
 ## Arguments
-- `inp`: The input to the rancell. It should be a vector of size `input_size`
+- `inp`: The input to the `starcell`. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `state`: The hidden state of the STARCell. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
@@ -63,6 +63,8 @@ struct STARCell{I, H, V, W, A} <: AbstractRecurrentCell
     bias_hh::W
     integration_fn::A
 end
+
+@layer STARCell
 
 function STARCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
@@ -115,7 +117,7 @@ See [`STARCell`](@ref) for a layer that processes a single sequence.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
     Default is `glorot_uniform`.
--- `bias`: include input to recurrent bias or not. Default is `true`.
+- `bias`: include input to recurrent bias or not. Default is `true`.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
   recurrent to recurrent weights are a vector instead of a matrix. Default `false`.

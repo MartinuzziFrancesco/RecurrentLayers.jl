@@ -94,9 +94,9 @@ function (lstm::MCLSTMCell)(inp::AbstractVecOrMat, (v_state, c_state))
     proj_hh = dense_proj(lstm.weight_hh, v_state, lstm.bias_hh)
     gates = lstm.integration_fn(proj_ih, proj_hh)
     fg, ig, og, mg, cell = chunk(gates, 5; dims=1)
-    new_cstate = @. fg * c_state + ig * cell
-    new_state = og .* tanh_fast.(new_cstate)
-    new_vstate = mg .* tanh_fast.(new_cstate)
+    new_cstate = @. sigmoid_fast(fg) * c_state + sigmoid_fast(ig) * tanh_fast(cell)
+    new_state = sigmoid_fast.(og) .* tanh_fast.(new_cstate)
+    new_vstate = sigmoid_fast.(mg) .* tanh_fast.(new_cstate)
     return new_state, (new_vstate, new_cstate)
 end
 
@@ -112,7 +112,7 @@ function Base.show(io::IO, lstm::MCLSTMCell)
 end
 
 @doc raw"""
-    MCLSTM(iinput_size => hidden_size;
+    MCLSTM(input_size => hidden_size;
         return_state=false,
         kwargs...)
 

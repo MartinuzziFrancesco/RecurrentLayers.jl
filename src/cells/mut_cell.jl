@@ -186,7 +186,7 @@ function functor(rnn::MUT1{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT1)
-    print(io, "MUT1(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
+    print(io, "MUT1(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end
 
@@ -299,7 +299,7 @@ function Base.show(io::IO, mut::MUT2Cell)
 end
 
 @doc raw"""
-    MUT2Cell(input_size => hidden_size;
+    MUT2(input_size => hidden_size;
         return_state=false,
         kwargs...)
 
@@ -377,7 +377,7 @@ function functor(rnn::MUT2{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT2)
-    print(io, "MUT2(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
+    print(io, "MUT2(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end
 
@@ -563,6 +563,6 @@ function functor(rnn::MUT3{S}) where {S}
 end
 
 function Base.show(io::IO, mut::MUT3)
-    print(io, "MUT3(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1))
+    print(io, "MUT3(", size(mut.cell.weight_ih, 2), " => ", size(mut.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end

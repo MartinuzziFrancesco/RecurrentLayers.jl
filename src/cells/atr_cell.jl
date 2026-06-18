@@ -79,7 +79,7 @@ function ATRCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     if integration_mode == :addition
         integration_fn = add_projections
     elseif integration_mode == :multiplicative_integration
-        integration_fn = mul_projections
+        integration_fn = add_projections
         @warn """\n
             multiplicative_integration removes the benefits of this architecture.
             Defaulting to :addition

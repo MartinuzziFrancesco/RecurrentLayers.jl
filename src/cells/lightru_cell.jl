@@ -175,6 +175,6 @@ end
 
 function Base.show(io::IO, lightru::LightRU)
     print(io, "LightRU(", size(lightru.cell.weight_ih, 2),
-        " => ", size(lightru.cell.weight_ih, 1))
+        " => ", size(lightru.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end

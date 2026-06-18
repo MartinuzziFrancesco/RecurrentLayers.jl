@@ -108,7 +108,7 @@ end
 
 function Base.show(io::IO, fastrnn::FastRNNCell)
     print(io, "FastRNNCell(", size(fastrnn.weight_ih, 2),
-        " => ", size(fastrnn.weight_ih, 1) ÷ 2, ")")
+        " => ", size(fastrnn.weight_ih, 1), ")")
 end
 
 @doc raw"""
@@ -238,7 +238,7 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
         \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
     \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
         \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + 'sigma(\nu) \right)
+    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + \sigma(\nu) \right)
         \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```
@@ -250,7 +250,7 @@ See [`FastGRNN`](@ref) for a layer that processes entire sequences.
 
 ## Arguments
 
-- `inp`: The input to the fastgrnncell. It should be a vector of size `input_size`
+- `inp`: The input to the `fastgrnncell`. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
 - `state`: The hidden state of the FastGRNN. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
@@ -316,7 +316,7 @@ end
 
 function Base.show(io::IO, fastgrnn::FastGRNNCell)
     print(io, "FastGRNNCell(", size(fastgrnn.weight_ih, 2),
-        " => ", size(fastgrnn.weight_ih, 1) ÷ 2, ")")
+        " => ", size(fastgrnn.weight_ih, 1), ")")
 end
 
 @doc raw"""
@@ -360,7 +360,7 @@ See [`FastGRNNCell`](@ref) for a layer that processes a single sequences.
         \mathbf{W}^{z}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{z} \right), \\
     \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
         \mathbf{W}^{h}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + 'sigma(\nu) \right)
+    \mathbf{h}(t) &= \left( \left( \sigma(\zeta) (1 - \mathbf{z}(t)) + \sigma(\nu) \right)
         \odot \tilde{\mathbf{h}}(t) \right) + \mathbf{z}(t) \odot \mathbf{h}(t-1)
 \end{aligned}
 ```

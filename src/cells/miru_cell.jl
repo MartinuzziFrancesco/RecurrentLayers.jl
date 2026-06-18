@@ -75,6 +75,8 @@ struct MiRU1Cell{I, H, V, W, L, F, A} <: AbstractRecurrentCell
     integration_fn::A
 end
 
+@layer MiRU1Cell
+
 function MiRU1Cell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh_fast;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true, recurrent_bias::Bool=true,
@@ -204,7 +206,7 @@ end
 
 function Base.show(io::IO, miru::MiRU1)
     print(
-        io, "MiRU1(", size(miru.cell.weight_ih, 2), " => ", size(miru.cell.weight_ih, 1))
+        io, "MiRU1(", size(miru.cell.weight_ih, 2), " => ", size(miru.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
 
@@ -283,6 +285,8 @@ struct MiRU2Cell{I, H, V, W, L, R, F, A} <: AbstractRecurrentCell
     activation::F
     integration_fn::A
 end
+
+@layer MiRU2Cell
 
 function MiRU2Cell((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=tanh;
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
