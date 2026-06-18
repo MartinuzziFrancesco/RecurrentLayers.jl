@@ -192,6 +192,7 @@ end
 
 function Base.show(io::IO, janet::JANET)
     print(
-        io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1) ÷ 2)
+        io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1) ÷
+                                                             2)
     print(io, ")")
 end

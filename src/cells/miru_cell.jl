@@ -206,7 +206,8 @@ end
 
 function Base.show(io::IO, miru::MiRU1)
     print(
-        io, "MiRU1(", size(miru.cell.weight_ih, 2), " => ", size(miru.cell.weight_ih, 1) ÷ 2)
+        io, "MiRU1(", size(miru.cell.weight_ih, 2), " => ", size(miru.cell.weight_ih, 1) ÷
+                                                            2)
     print(io, ")")
 end
 

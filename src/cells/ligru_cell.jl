@@ -183,6 +183,7 @@ end
 
 function Base.show(io::IO, ligru::LiGRU)
     print(
-        io, "LiGRU(", size(ligru.cell.weight_ih, 2), " => ", size(ligru.cell.weight_ih, 1) ÷ 2)
+        io, "LiGRU(", size(ligru.cell.weight_ih, 2), " => ", size(ligru.cell.weight_ih, 1) ÷
+                                                             2)
     print(io, ")")
 end

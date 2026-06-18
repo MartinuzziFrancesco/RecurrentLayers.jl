@@ -26,10 +26,10 @@ julia> using RecurrentLayers
 julia> stac_rnn = StackedRNN(MGU, (3=>5); num_layers = 4)
 StackedRNN(
   [
-    MGU(1 => 5),                        # 100 parameters
-    MGU(1 => 5),                        # 120 parameters
-    MGU(1 => 5),                        # 120 parameters
-    MGU(1 => 5),                        # 120 parameters
+    MGU(3 => 5),                        # 100 parameters
+    MGU(5 => 5),                        # 120 parameters
+    MGU(5 => 5),                        # 120 parameters
+    MGU(5 => 5),                        # 120 parameters
   ],
 )         # Total: 16 trainable arrays, 460 parameters,
           # plus 4 non-trainable, 20 parameters, summarysize 3.062 KiB.
