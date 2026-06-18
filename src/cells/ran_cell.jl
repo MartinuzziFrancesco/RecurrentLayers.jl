@@ -184,6 +184,6 @@ function functor(rnn::RAN{S}) where {S}
 end
 
 function Base.show(io::IO, ran::RAN)
-    print(io, "RAN(", size(ran.cell.weight_ih, 2), " => ", size(ran.cell.weight_ih, 1))
+    print(io, "RAN(", size(ran.cell.weight_ih, 2), " => ", size(ran.cell.weight_ih, 1) ÷ 3)
     print(io, ")")
 end

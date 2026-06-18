@@ -5,7 +5,7 @@
         bias = true, recurrent_bias = true,
         independent_recurrence = false, integration_mode = :addition)
 
-Minimal gated unit [Collins2016](@cite).
+Intersection RNN [Collins2016](@cite).
 See [`IntersectionRNN`](@ref) for a layer that processes entire sequences.
 
 # Arguments
@@ -69,6 +69,8 @@ struct IntersectionRNNCell{I, H, V, W, A} <: AbstractRecurrentCell
     integration_fn::A
 end
 
+@layer IntersectionRNNCell
+
 function IntersectionRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true, recurrent_bias::Bool=true,
@@ -92,7 +94,7 @@ function (irnn::IntersectionRNNCell)(inp::AbstractVecOrMat, state)
     hin = tanh_fast.(irnn.integration_fn(gxs[2], ghs[2]))
     gy = sigmoid_fast.(irnn.integration_fn(gxs[3], ghs[3]))
     gh = sigmoid_fast.(irnn.integration_fn(gxs[4], ghs[4]))
-    new_inp = gy .* inp .+ (1 .- gh) .* yin
+    new_inp = gy .* inp .+ (1 .- gy) .* yin
     new_state = gh .* state .+ (1 .- gh) .* hin
 
     return new_inp, new_state ## double check this
@@ -114,7 +116,7 @@ end
         bias = true, recurrent_bias = true,
         independent_recurrence = false, integration_mode = :addition)
 
-Minimal gated unit [Collins2016](@cite).
+Intersection RNN [Collins2016](@cite).
 See [`IntersectionRNNCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments

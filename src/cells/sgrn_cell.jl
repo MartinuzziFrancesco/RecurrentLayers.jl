@@ -168,7 +168,7 @@ end
 
 function functor(sgrn::SGRN{S}) where {S}
     params = (cell=sgrn.cell,)
-    reconstruct = p -> AntisymmetricRNN{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> SGRN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
