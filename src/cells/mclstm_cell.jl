@@ -48,21 +48,21 @@ See [`MCLSTM`](@ref) for a layer that processes entire sequences.
 
 # Forward
 
-    mclstmcell(inp, (state, cstate))
+    mclstmcell(inp, (vstate, cstate))
     mclstmcell(inp)
 
 ## Arguments
 
 - `inp`: The input to the mclstmcell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the MCLSTMCell.
+- `(vstate, cstate)`: A tuple containing the control vector and cell states of the MCLSTMCell.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - A tuple `(output, state)`, where `output = new_state` is the new hidden state and
-  `state = (new_state, new_cstate)` is the new hidden and cell state.
+  `state = (new_vstate, new_cstate)` is the new control vector and cell state.
   They are tensors of size `hidden_size` or `hidden_size x batch_size`.
 """
 struct MCLSTMCell{I, H, V, W, A} <: AbstractDoubleRecurrentCell
@@ -159,20 +159,20 @@ See [`MCLSTMCell`](@ref) for a layer that processes a single sequence.
 
 # Forward
 
-    mclstm(inp, (state, cstate))
+    mclstm(inp, (vstate, cstate))
     mclstm(inp)
 
 ## Arguments
 - `inp`: The input to the mclstm. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the MCLSTM.
+- `(vstate, cstate)`: A tuple containing the control vector and cell states of the MCLSTM.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
-  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  When `return_state = true` it returns a tuple of the hidden states `new_states` and
   the last state of the iteration.
 """
 struct MCLSTM{S, M} <: AbstractRecurrentLayer{S}

@@ -65,9 +65,15 @@ end
 function _ind_rec(weight::AbstractVector, state::AbstractVecOrMat, bias::Bool)
     hidden_size = size(state, 1)
     num_gates = div(length(weight), hidden_size)
-    re_weight = reshape(weight, hidden_size, num_gates)
-    proj = @. re_weight * state
-    return proj
+    if ndims(state) == 1
+        re_weight = reshape(weight, hidden_size, num_gates)
+        return vec(re_weight .* state)
+    else
+        batch_size = size(state, 2)
+        proj = reshape(weight, hidden_size, num_gates, 1) .*
+               reshape(state, hidden_size, 1, batch_size)
+        return reshape(proj, hidden_size * num_gates, batch_size)
+    end
 end
 
 function add_projections(weight_b_ih::AbstractVecOrMat, weight_b_hh::AbstractVecOrMat)
@@ -77,3 +83,6 @@ end
 function mul_projections(weight_b_ih::AbstractVecOrMat, weight_b_hh::AbstractVecOrMat)
     return weight_b_ih .* weight_b_hh
 end
+
+_chunked_bias(bias::Bool, n::Int) = ntuple(_ -> bias, n)
+_chunked_bias(bias, n::Int) = chunk(bias, n; dims=1)

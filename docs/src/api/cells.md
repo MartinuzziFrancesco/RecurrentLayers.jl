@@ -66,6 +66,8 @@ from this list:
   Structurally Constrained Recurrent Network Cell
 - [SGRNCell](cells/sgrncell.md):
   Simple Gated Recurrent Network Cell
+- [SGUCell](cells/sgucell.md):
+  Simple Gated Unit Cell
 - [STARCell](cells/starcell.md):
   Stackable Recurrent Network Cell
 - [TGRUCell](cells/tgrucell.md):

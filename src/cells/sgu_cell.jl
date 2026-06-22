@@ -1,13 +1,12 @@
-#https://arxiv.org/pdf/1603.09420
 @doc raw"""
-    MGUCell(input_size => hidden_size;
+    SGUCell(input_size => hidden_size;
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         bias = true, recurrent_bias = true,
         independent_recurrence = false, integration_mode = :addition)
 
-Minimal gated unit [Zhou2016](@cite).
-See [`MGU`](@ref) for a layer that processes entire sequences.
+Simple gated unit [Gao2016](@cite).
+See [`SGU`](@ref) for a layer that processes entire sequences.
 
 # Arguments
 
@@ -30,25 +29,29 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 
 ```math
 \begin{aligned}
-    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
-        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
-    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
-        \mathbf{W}^{h}_{hh} \left( \mathbf{f}(t) \odot \mathbf{h}(t-1) \right) +
-        \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left(1 - \mathbf{f}(t)\right) \odot \mathbf{h}(t-1) +
-        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
+    \mathbf{x}_g(t) &= \mathbf{W}_{xg} \mathbf{x}(t), \\
+    \mathbf{z}_g(t) &= \tanh\left(\mathbf{W}_{zg}
+        \left(\mathbf{x}_g(t) \circ \mathbf{h}(t-1)\right) +
+        \mathbf{b}_{zg}\right), \\
+    \mathbf{z}_{out}(t) &= \operatorname{softplus}\left(
+        \mathbf{z}_g(t) \circ \mathbf{h}(t-1)\right), \\
+    \mathbf{z}_t &= \operatorname{hard sigmoid}\left(
+        \mathbf{W}_{xz} \mathbf{x}(t) + \mathbf{W}_{hz} \mathbf{h}(t-1) +
+        \mathbf{b}_z\right), \\
+    \mathbf{h}(t) &= \left(1 - \mathbf{z}_t\right) \circ \mathbf{h}(t-1) +
+        \mathbf{z}_t \circ \mathbf{z}_{out}(t).
 \end{aligned}
 ```
 
 # Forward
 
-    mgucell(inp, state)
-    mgucell(inp)
+    sgucell(inp, state)
+    sgucell(inp)
 
 ## Arguments
-- `inp`: The input to the mgucell. It should be a vector of size `input_size`
+- `inp`: The input to the sgucell. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `state`: The hidden state of the MGUCell. It should be a vector of size
+- `state`: The hidden state of the SGUCell. It should be a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
   If not provided, it is assumed to be a vector of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -57,7 +60,7 @@ See [`MGU`](@ref) for a layer that processes entire sequences.
 - A tuple `(output, state)`, where both elements are given by the updated state
   `new_state`, a tensor of size `hidden_size` or `hidden_size x batch_size`.
 """
-struct MGUCell{I, H, V, W, A} <: AbstractRecurrentCell
+struct SGUCell{I, H, V, W, A} <: AbstractRecurrentCell
     weight_ih::I
     weight_hh::H
     bias_ih::V
@@ -65,9 +68,9 @@ struct MGUCell{I, H, V, W, A} <: AbstractRecurrentCell
     integration_fn::A
 end
 
-@layer MGUCell
+@layer SGUCell
 
-function MGUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
+function SGUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true, recurrent_bias::Bool=true,
         integration_mode::Symbol=:addition,
@@ -77,38 +80,39 @@ function MGUCell((input_size, hidden_size)::Pair{<:Int, <:Int};
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     integration_fn = _integration_fn(integration_mode)
-    return MGUCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
+    return SGUCell(weight_ih, weight_hh, bias_ih, bias_hh, integration_fn)
 end
 
-function (mgu::MGUCell)(inp::AbstractVecOrMat, state)
-    _size_check(mgu, inp, 1 => size(mgu.weight_ih, 2))
-    proj_ih = dense_proj(mgu.weight_ih, inp, mgu.bias_ih)
+function (sgucell::SGUCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
+    _size_check(sgucell, inp, 1 => size(sgucell.weight_ih, 2))
+    proj_ih = dense_proj(sgucell.weight_ih, inp, sgucell.bias_ih)
     gxs = chunk(proj_ih, 2; dims=1)
-    ghs = chunk(mgu.weight_hh, 2; dims=1)
-    bhs = _chunked_bias(mgu.bias_hh, 2)
-    t_ones = eltype(mgu.weight_ih)(1.0f0)
-    proj_hh_1 = dense_proj(ghs[1], state, bhs[1])
-    forget_gate = sigmoid_fast.(mgu.integration_fn(gxs[1], proj_hh_1))
-    proj_hh_2 = dense_proj(ghs[2], forget_gate .* state, bhs[2])
-    candidate_state = tanh_fast.(mgu.integration_fn(gxs[2], proj_hh_2))
-    new_state = @. forget_gate * state + (t_ones - forget_gate) * candidate_state
+    whs = chunk(sgucell.weight_hh, 2; dims=1)
+    bhs = _chunked_bias(sgucell.bias_hh, 2)
+    zg = tanh_fast.(dense_proj(whs[1], gxs[1] .* state, bhs[1]))
+    zout = softplus.(zg .* state)
+    zt_c1 = dense_proj(whs[2], state, bhs[2])
+    zt = hardsigmoid.(sgucell.integration_fn(gxs[2], zt_c1))
+    new_state = @. (1 - zt) * state + zt * zout
     return new_state, new_state
 end
 
-function initialstates(mgu::MGUCell)
-    return zeros_like(mgu.weight_hh, size(mgu.weight_hh, 1) ÷ 2)
+function initialstates(sgucell::SGUCell)
+    state = zeros_like(sgucell.weight_hh, size(sgucell.weight_hh, 1) ÷ 2)
+    return state
 end
 
-function Base.show(io::IO, mgu::MGUCell)
-    print(io, "MGUCell(", size(mgu.weight_ih, 2), " => ", size(mgu.weight_ih, 1) ÷ 2, ")")
+function Base.show(io::IO, sgucell::SGUCell)
+    print(io, "SGUCell(", size(sgucell.weight_ih, 2),
+        " => ", size(sgucell.weight_ih, 1) ÷ 2, ")")
 end
 
 @doc raw"""
-    MGU(input_size => hidden_size;
+    SGU(input_size => hidden_size;
         return_state = false, kwargs...)
 
-Minimal gated unit network [Zhou2016](@cite).
-See [`MGUCell`](@ref) for a layer that processes a single sequence.
+Simple gated unit network [Gao2016](@cite).
+See [`SGUCell`](@ref) for a layer that processes a single sequence.
 
 # Arguments
 
@@ -130,55 +134,61 @@ See [`MGUCell`](@ref) for a layer that processes a single sequence.
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
 # Equations
+
 ```math
 \begin{aligned}
-    \mathbf{f}(t) &= \sigma\left( \mathbf{W}^{f}_{ih} \mathbf{x}(t) +
-        \mathbf{W}^{f}_{hh} \mathbf{h}(t-1) + \mathbf{b}^{f} \right), \\
-    \tilde{\mathbf{h}}(t) &= \tanh\left( \mathbf{W}^{h}_{ih} \mathbf{x}(t) +
-        \mathbf{W}^{h}_{hh} \left( \mathbf{f}(t) \odot \mathbf{h}(t-1) \right) +
-        \mathbf{b}^{h} \right), \\
-    \mathbf{h}(t) &= \left(1 - \mathbf{f}(t)\right) \odot \mathbf{h}(t-1) +
-        \mathbf{f}(t) \odot \tilde{\mathbf{h}}(t)
+    \mathbf{x}_g(t) &= \mathbf{W}_{xg} \mathbf{x}(t), \\
+    \mathbf{z}_g(t) &= \tanh\left(\mathbf{W}_{zg}
+        \left(\mathbf{x}_g(t) \circ \mathbf{h}(t-1)\right) +
+        \mathbf{b}_{zg}\right), \\
+    \mathbf{z}_{out}(t) &= \operatorname{softplus}\left(
+        \mathbf{z}_g(t) \circ \mathbf{h}(t-1)\right), \\
+    \mathbf{z}_t &= \operatorname{hard sigmoid}\left(
+        \mathbf{W}_{xz} \mathbf{x}(t) + \mathbf{W}_{hz} \mathbf{h}(t-1) +
+        \mathbf{b}_z\right), \\
+    \mathbf{h}(t) &= \left(1 - \mathbf{z}_t\right) \circ \mathbf{h}(t-1) +
+        \mathbf{z}_t \circ \mathbf{z}_{out}(t).
 \end{aligned}
 ```
 
 # Forward
 
-    mgu(inp, state)
-    mgu(inp)
+    sgu(inp, state)
+    sgu(inp)
 
 ## Arguments
-- `inp`: The input to the mgu. It should be a vector of size `input_size x len`
+- `inp`: The input to the sgu. It should be a vector of size `input_size x len`
   or a matrix of size `input_size x len x batch_size`.
-- `state`: The hidden state of the MGU. If given, it is a vector of size
+- `state`: The hidden state of the SGU. If given, it is a vector of size
   `hidden_size` or a matrix of size `hidden_size x batch_size`.
   If not provided, it is assumed to be a vector of zeros,
   initialized by [`Flux.initialstates`](@extref).
 
 ## Returns
 - New hidden states `new_states` as an array of size `hidden_size x len x batch_size`.
-  When `return_state = true` it returns a tuple of the hidden stats `new_states` and
+  When `return_state = true` it returns a tuple of the hidden states `new_states` and
   the last state of the iteration.
 """
-struct MGU{S, M} <: AbstractRecurrentLayer{S}
+struct SGU{S, M} <: AbstractRecurrentLayer{S}
     cell::M
 end
 
-@layer :noexpand MGU
+@layer :noexpand SGU
 
-function MGU((input_size, hidden_size)::Pair{<:Int, <:Int};
+function SGU((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
-    cell = MGUCell(input_size => hidden_size; kwargs...)
-    return MGU{return_state, typeof(cell)}(cell)
+    cell = SGUCell(input_size => hidden_size; kwargs...)
+    return SGU{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::MGU{S}) where {S}
+function functor(rnn::SGU{S}) where {S}
     params = (cell=rnn.cell,)
-    reconstruct = p -> MGU{S, typeof(p.cell)}(p.cell)
+    reconstruct = p -> SGU{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
 
-function Base.show(io::IO, mgu::MGU)
-    print(io, "MGU(", size(mgu.cell.weight_ih, 2), " => ", size(mgu.cell.weight_ih, 1) ÷ 2)
+function Base.show(io::IO, sgu::SGU)
+    print(io, "SGU(", size(sgu.cell.weight_ih, 2),
+        " => ", size(sgu.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end
