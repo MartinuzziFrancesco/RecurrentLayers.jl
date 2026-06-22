@@ -28,7 +28,7 @@
   Light Gated Recurrent Unit
 - [LightRU](layers/lightru.md):
   Light Recurrent Unit
-- [MCLSTMCell](layers/mclstm.md):
+- [MCLSTM](layers/mclstm.md):
   Memory Controller Long Short-Term Memory Network
 - [MGU](layers/mgu.md):
   Minimal Gated Unit
@@ -62,6 +62,8 @@
   Structurally Constrained Recurrent Network
 - [SGRN](layers/sgrn.md):
   Simple Gated Recurrent Network
+- [SGU](layers/sgu.md):
+  Simple Gated Unit Network
 - [STAR](layers/star.md):
   Stackable Recurrent Network
 - [TGRU](layers/tgru.md):

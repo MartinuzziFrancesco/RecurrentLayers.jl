@@ -99,7 +99,7 @@ function (scrn::SCRNCell)(inp::AbstractVecOrMat, (state, c_state))
     proj_ih = dense_proj(scrn.weight_ih, inp, scrn.bias_ih)
     gxs = chunk(proj_ih, 2; dims=1)
     whs = chunk(scrn.weight_hh, 2; dims=1)
-    bhs = chunk(scrn.bias_hh, 2; dims=1)
+    bhs = _chunked_bias(scrn.bias_hh, 2)
     #compute
     t_ones = eltype(scrn.weight_ih)(1.0f0)
     new_cstate = @. (t_ones - scrn.alpha) * gxs[1] + scrn.alpha * c_state
