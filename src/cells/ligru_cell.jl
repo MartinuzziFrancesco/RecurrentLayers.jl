@@ -89,7 +89,7 @@ function (ligru::LiGRUCell)(inp::AbstractVecOrMat, state)
     gxs = chunk(proj_ih, 2; dims=1)
     ghs = chunk(proj_hh, 2; dims=1)
     forget_gate = sigmoid_fast.(ligru.integration_fn(gxs[1], ghs[1]))
-    candidate_hidden = tanh_fast.(ligru.integration_fn(gxs[2], ghs[2]))
+    candidate_hidden = relu.(ligru.integration_fn(gxs[2], ghs[2]))
     new_state = @. forget_gate * state + (1 - forget_gate) * candidate_hidden
     return new_state, new_state
 end
@@ -183,6 +183,7 @@ end
 
 function Base.show(io::IO, ligru::LiGRU)
     print(
-        io, "LiGRU(", size(ligru.cell.weight_ih, 2), " => ", size(ligru.cell.weight_ih, 1))
+        io, "LiGRU(", size(ligru.cell.weight_ih, 2), " => ", size(ligru.cell.weight_ih, 1) ÷
+                                                             2)
     print(io, ")")
 end

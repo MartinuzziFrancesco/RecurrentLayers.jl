@@ -179,6 +179,6 @@ function functor(rnn::MGU{S}) where {S}
 end
 
 function Base.show(io::IO, mgu::MGU)
-    print(io, "MGU(", size(mgu.cell.bias_ih, 2), " => ", size(mgu.cell.bias_ih, 1) ÷ 2)
+    print(io, "MGU(", size(mgu.cell.weight_ih, 2), " => ", size(mgu.cell.weight_ih, 1) ÷ 2)
     print(io, ")")
 end

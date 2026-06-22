@@ -23,7 +23,7 @@ See [`BR`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `true` in this architecture. For the
-  architecture without independent recurrence plese refer to [`NBRCell`](@ref)
+  architecture without independent recurrence please refer to [`NBRCell`](@ref)
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
@@ -130,7 +130,7 @@ See [`BRCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `true` in this architecture. For the
-  architecture without independent recurrence plese refer to [`NBR`](@ref)
+  architecture without independent recurrence please refer to [`NBR`](@ref)
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
@@ -215,7 +215,7 @@ See [`NBR`](@ref) for a layer that processes entire sequences.
 - `bias`: include a bias or not. Default is `true`.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `false` in this architecture. For the
-  architecture with independent recurrence plese refer to [`BRCell`](@ref)
+  architecture with independent recurrence please refer to [`BRCell`](@ref)
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
@@ -282,8 +282,8 @@ function (nbr::NBRCell)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     gxs = chunk(proj_ih, 3; dims=1)
     ghs = chunk(proj_hh, 2; dims=1)
     t_ones = eltype(nbr.weight_ih)(1.0)
-    h1 = nbr.integration_fn(gxs[1], gxs[1])
-    h2 = nbr.integration_fn(gxs[2], gxs[2])
+    h1 = nbr.integration_fn(gxs[1], ghs[1])
+    h2 = nbr.integration_fn(gxs[2], ghs[2])
     modulation_gate = @. t_ones + tanh_fast(h1)
     candidate_state = @. sigmoid_fast(h2)
     h3 = @. gxs[3] + modulation_gate * state
@@ -316,7 +316,7 @@ See [`NBRCell`](@ref) for a layer that processes a single sequence.
 - `bias`: include a bias or not. Default is `true`.
 - `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
 - `independent_recurrence`: hard-coded to `false` in this architecture. For the
-  architecture with independent recurrence plese refer to [`BR`](@ref)
+  architecture with independent recurrence please refer to [`BR`](@ref)
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 

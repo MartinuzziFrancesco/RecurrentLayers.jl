@@ -50,9 +50,9 @@ See [`JANET`](@ref) for a layer that processes entire sequences.
     janetcell(inp)
 
 ## Arguments
-- `inp`: The input to the rancell. It should be a vector of size `input_size`
+- `inp`: The input to the `janetcell`. It should be a vector of size `input_size`
   or a matrix of size `input_size x batch_size`.
-- `(state, cstate)`: A tuple containing the hidden and cell states of the RANCell.
+- `(state, cstate)`: A tuple containing the hidden and cell states of the JANETCell.
   They should be vectors of size `hidden_size` or matrices of size
   `hidden_size x batch_size`. If not provided, they are assumed to be vectors of zeros,
   initialized by [`Flux.initialstates`](@extref).
@@ -192,6 +192,7 @@ end
 
 function Base.show(io::IO, janet::JANET)
     print(
-        io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1))
+        io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1) ÷
+                                                             2)
     print(io, ")")
 end

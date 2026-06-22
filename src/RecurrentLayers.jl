@@ -90,7 +90,7 @@ for (rlayer, rcell) in zip(rlayers, rcells)
             return $rlayer{return_state, typeof(rc)}(rc)
         end
 
-        # why wont' this work?
+        # why won't this work?
         #function functor(rl::$rlayer{S}) where {S}
         #    params = (cell = rl.cell)
         #    reconstruct = p -> $rlayer{S, typeof(p.cell)}(p.cell)
