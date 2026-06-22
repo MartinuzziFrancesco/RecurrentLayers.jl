@@ -2,7 +2,46 @@
 
 Guidance for AI agents working in **RecurrentLayers.jl**.
 
-## What this package is
+## Build, Test, Format
+
+Run commands from the repository root.
+
+- Full test suite: `julia --project -e 'using Pkg; Pkg.test()'`
+- Format code and docstrings: `julia -e 'using JuliaFormatter; format(".")'`
+- If `JuliaFormatter` is not installed globally, use a temporary environment:
+  `julia -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("JuliaFormatter"); using JuliaFormatter; format(".")'`
+
+`JuliaFormatter` is not a project dependency. Do not add it to `Project.toml`.
+Do not add any package to `Project.toml` without asking the maintainer first.
+
+## Definition of Done
+
+A code change is complete only when:
+
+1. Relevant tests pass, preferably the full `Pkg.test()` command above for
+   behavior changes.
+2. Formatting has been run with `JuliaFormatter`.
+3. Public API changes are registered in `src/RecurrentLayers.jl`, documented
+   under `docs/src/api/`, and reflected in the README feature table when
+   applicable.
+4. Generated files, unrelated manifests, and unrelated user edits are untouched.
+5. Any skipped verification is reported with the reason.
+
+## Boundaries
+
+- Do not edit `docs/build/`; it is generated.
+- Do not commit, push, branch, or rewrite git history unless explicitly asked.
+- Do not add dependencies or test-only packages to `Project.toml` without asking
+  first.
+- Do not make unrelated `Manifest.toml` changes.
+- Do not remove or rewrite existing user changes to solve conflicts; work with
+  them or ask when the conflict cannot be resolved safely.
+- Do not add comments that merely restate the code. Add comments only when they
+  clarify non-obvious behavior, equations, compatibility constraints, or
+  licensing.
+- Preserve the Apache-2.0 header in `src/cells/nas_cell.jl`.
+
+## What This Package Is
 
 RecurrentLayers.jl extends [Flux.jl](https://github.com/FluxML/Flux.jl) with
 recurrent layers not available in base deep learning libraries (30+ cells plus
@@ -22,8 +61,8 @@ RecurrentLayers/
 │   ├── base_functions.jl    # shared kernels: dense_proj, add_bias!,
 │   │                        #   add/mul_projections, _ind_rec
 │   ├── cells/               # one file per cell family
-│   │   ├── sgrn_cell.jl     #   (template: Cell + Layer pair)
-│   │   └── ...              #   30+ others (atr, ligru, mclstm, ...)
+│   │   ├── sgrn_cell.jl     #   template for Cell + Layer pairs
+│   │   └── ...              #   30+ others: atr, ligru, mclstm, ...
 │   └── wrappers/
 │       ├── fastslow.jl
 │       ├── multiplicative.jl
@@ -48,96 +87,58 @@ RecurrentLayers/
 └── README.md
 ```
 
-Every new public name must be registered in `src/RecurrentLayers.jl` (export
-lists + `include` + the `rlayers`/`rcells` tuples). Don't edit `docs/build/`
-(generated).
+Every new public name must be registered in `src/RecurrentLayers.jl`: exports,
+`include`, and the `rlayers`/`rcells` tuples.
 
-## Anatomy of a cell file
+## Adding A Cell
 
-Use an existing cell such as `src/cells/sgrn_cell.jl` as the template. Each file
-defines a **Cell** (single time step) and a **Layer** (whole sequence) pair:
+Use `src/cells/sgrn_cell.jl` as the template. Each file defines a **Cell**
+(single time step) and a **Layer** (whole sequence) pair.
 
-1. A `@doc raw"""..."""` block above each type with `# Arguments`,
-   `# Keyword arguments`, `# Equations` (LaTeX), `# Forward`, and `# Returns`.
-   The first line links the paper via a `[Key](@cite)` reference.
-2. `struct XCell{...} <: AbstractRecurrentCell` (or
-   `AbstractDoubleRecurrentCell` for two-state cells) holding
-   `weight_ih`, `weight_hh`, `bias_ih`, `bias_hh`, and any extra fields
-   (e.g. `integration_fn`).
-3. `@layer XCell`.
-4. A constructor taking `(input_size => hidden_size)::Pair{<:Int,<:Int}` with
-   keyword args (`init_kernel`, `init_recurrent_kernel`, `bias`,
-   `recurrent_bias`, `independent_recurrence`, `integration_mode`, ...). Build
-   weights with `init_kernel`/`_indrec_matrix`, biases with `create_bias`,
+1. Add a `@doc raw"""..."""` block above each type with `# Arguments`,
+   `# Keyword arguments`, `# Equations` in LaTeX, `# Forward`, and `# Returns`.
+   The first line links the paper with a `[Key](@cite)` reference.
+2. Define `struct XCell{...} <: AbstractRecurrentCell`, or
+   `AbstractDoubleRecurrentCell` for two-state cells, holding `weight_ih`,
+   `weight_hh`, `bias_ih`, `bias_hh`, and any extra fields.
+3. Add `@layer XCell`.
+4. Add a constructor taking `(input_size => hidden_size)::Pair{<:Int,<:Int}`.
+   Use keyword args such as `init_kernel`, `init_recurrent_kernel`, `bias`,
+   `recurrent_bias`, `independent_recurrence`, and `integration_mode`. Build
+   weights with `init_kernel`/`_indrec_matrix`, biases with `create_bias`, and
    integration with `_integration_fn`.
-5. The forward `(cell::XCell)(inp, state)` returning `(output, new_state)`.
-   Start with `_size_check`, project via `dense_proj`, combine via the stored
-   `integration_fn`, use `sigmoid_fast`/`tanh_fast`.
-6. `initialstates(cell::XCell)` if it differs from the generic default.
-7. `Base.show` for the cell.
-8. The matching `struct X{S,M} <: AbstractRecurrentLayer{S}`, `@layer :noexpand X`,
-   constructor (forwards `kwargs...` to the cell, threads `return_state`),
-   `functor`, and `Base.show`.
+5. Implement `(cell::XCell)(inp, state)` returning `(output, new_state)`. Start
+   with `_size_check`, project via `dense_proj`, combine via the stored
+   `integration_fn`, and use `sigmoid_fast`/`tanh_fast`.
+6. Add `initialstates(cell::XCell)` only when it differs from the generic
+   default.
+7. Add `Base.show` for the cell.
+8. Add the matching `struct X{S,M} <: AbstractRecurrentLayer{S}`,
+   `@layer :noexpand X`, constructor forwarding `kwargs...` to the cell and
+   threading `return_state`, `functor`, and `Base.show`.
 
-When adding a new cell, also:
-- add the file to the `include` list in `src/RecurrentLayers.jl`;
-- add both `XCell` and `X` to the two `export` lines;
-- add `:X`/`:XCell` to the `rlayers`/`rcells` tuples (unless the layer needs a
-  hand-written constructor, like the LSTM-family double-state cells);
-- add doc stubs under `docs/src/api/cells/` and `docs/src/api/layers/`, and a
-  bib entry in `docs/src/refs.bib`;
-- add tests and a row in the README feature table.
+Also update:
+
+- `src/RecurrentLayers.jl`: `include`, `export`, `rlayers`, and `rcells`.
+- `docs/src/api/cells/` and `docs/src/api/layers/`: Markdown stubs.
+- `docs/src/refs.bib`: bibliography entry.
+- Tests and the README feature table.
 
 ## Conventions
 
-- **Code style:** SciML style via JuliaFormatter (`.JuliaFormatter.toml`):
-  4-space indent, 92-column margin, `whitespace_in_kwargs=false`,
-  `separate_kwargs_with_semicolon=true`, `always_for_in=true`. A FormatCheck CI
-  job enforces this — run the formatter before finishing (see below).
-- Prefer the shared helpers in `base_functions.jl`/`generics.jl` over reinventing
-  projections or state handling.
-- `initialstates` is the canonical way to get zero state; it is the public
-  re-export surface (`@compat(public, initialstates)`).
-- Keep docstrings in the established structure; they are rendered into the docs
-  and `format_docstrings=true` is on.
-
-## Commands
-
-Run from the repo root.
-
-```julia
-# Run the full test suite
-julia --project -e 'using Pkg; Pkg.test()'
-```
-
-The test target pulls in `Aqua`, `JET`, `SafeTestsets`, and `Test`
-(see `[targets]` in `Project.toml`). `qa.jl` runs the Aqua + JET quality checks.
-
-**Formatting** (must pass FormatCheck CI). `JuliaFormatter` is *not* a project
-dependency and must not be added to `Project.toml`. Run it from your default
-(global) environment, where it should be installed once:
-
-```bash
-# Preferred: from the global environment
-julia -e 'using JuliaFormatter; format(".")'
-```
-
-If it isn't installed globally, either `julia -e 'using Pkg; Pkg.add("JuliaFormatter")'`
-once, or run it from a throwaway temporary environment without touching the
-project:
-
-```bash
-julia -e 'using Pkg; Pkg.activate(; temp=true); Pkg.add("JuliaFormatter"); using JuliaFormatter; format(".")'
-```
+- Follow SciML style via `.JuliaFormatter.toml`: 4-space indent, 92-column
+  margin, `whitespace_in_kwargs=false`, `separate_kwargs_with_semicolon=true`,
+  `always_for_in=true`, and `format_docstrings=true`.
+- Prefer shared helpers in `base_functions.jl` and `generics.jl` over new
+  projection or state-handling logic.
+- `initialstates` is the canonical public way to get zero state
+  (`@compat(public, initialstates)`).
+- Keep docstrings in the established structure because they are rendered into
+  the docs.
+- Keep naming and behavior aligned with `LuxRecurrentLayers.jl` and
+  `torchrecurrent` where reasonable.
 
 ## Compatibility
 
-- Julia ≥ 1.10; Flux ≥ 0.16.1, NNlib, Functors, Compat (see `[compat]`).
-- `src/cells/nas_cell.jl` is Apache-2.0 licensed (reimplementation of
-  TensorFlow's NASCell); everything else is MIT. Preserve the file header.
-
-## Scope notes for agents
-
-- Commit or push only when explicitly asked; branch off `main` first if needed.
-- Don't edit files under `docs/build/` — they are generated.
-- Keep `Manifest.toml` changes out of unrelated PRs.
+- Julia >= 1.10; Flux >= 0.16.1, NNlib, Functors, and Compat.
+- `src/cells/nas_cell.jl` is Apache-2.0 licensed; everything else is MIT.
