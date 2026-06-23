@@ -16,8 +16,8 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        LightRUCell, MCLSTMCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell,
        MultiplicativeLSTMCell,
        MUT1Cell, MUT2Cell, MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
-       PeepholeLSTMCell, RANCell, RHNCell, SCRNCell, SGRNCell, SGUCell, STARCell,
-       TGRUCell,
+       PeepholeLSTMCell, RANCell, ResLSTMCell, RHNCell, SCRNCell, SGRNCell, SGUCell,
+       STARCell, TGRUCell,
        TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
 export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
        GatedAntisymmetricRNN,
@@ -25,8 +25,8 @@ export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
        MiRU2,
        MultiplicativeLSTM, MUT1, MUT2,
        MUT3, NAS, OriginalLSTM, NBR,
-       PeepholeLSTM, RAN, RHN, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN,
-       WMCLSTM
+       PeepholeLSTM, RAN, ResLSTM, RHN, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN,
+       UGRNN, UnICORNN, WMCLSTM
 export Multiplicative, FastSlow, StackedRNN
 
 @compat(public, (initialstates))
@@ -56,6 +56,7 @@ include("cells/nas_cell.jl")
 include("cells/originallstm_cell.jl")
 include("cells/peepholelstm_cell.jl")
 include("cells/ran_cell.jl")
+include("cells/reslstm_cell.jl")
 include("cells/rhn_cell.jl")
 include("cells/scrn_cell.jl")
 include("cells/sgrn_cell.jl")
@@ -76,15 +77,16 @@ rlayers = (
     :IntersectionRNN, :JANET, :LEM, :LiGRU, :LightRU, :MCLSTM, :MGU, :MinimalRNN, :MiRU1,
     :MiRU2,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :OriginalLSTM, :NBR,
-    :PeepholeLSTM, :RAN, :SCRN, :SGRN, :SGU, :STAR, :TGRU, :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
+    :PeepholeLSTM, :RAN, :ResLSTM, :SCRN, :SGRN, :SGU, :STAR, :TGRU,
+    :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
 
 rcells = (
     :AntisymmetricRNNCell, :ATRCell, :BRCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
     :IndRNNCell, :IntersectionRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MCLSTMCell, :MGUCell, :MinimalRNNCell, :MiRU1Cell, :MiRU2Cell, :MultiplicativeLSTMCell,
     :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :OriginalLSTMCell, :NBRCell,
-    :PeepholeLSTMCell, :RANCell, :SCRNCell, :SGRNCell, :SGUCell, :STARCell, :TGRUCell, :TLSTMCell,
-    :TRNNCell, :UGRNNCell, :UnICORNNCell, :WMCLSTMCell)
+    :PeepholeLSTMCell, :RANCell, :ResLSTMCell, :SCRNCell, :SGRNCell, :SGUCell, :STARCell,
+    :TGRUCell, :TLSTMCell, :TRNNCell, :UGRNNCell, :UnICORNNCell, :WMCLSTMCell)
 
 for (rlayer, rcell) in zip(rlayers, rcells)
     @eval begin

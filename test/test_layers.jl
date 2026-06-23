@@ -5,7 +5,7 @@ layers = [
     AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN, IndRNN,
     JANET, LEM, LiGRU, LightRU, MCLSTM, MGU, MinimalRNN, MiRU1, MiRU2, MultiplicativeLSTM,
     MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
-    RAN, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM]
+    RAN, ResLSTM, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM]
 #IndRNN handles internal states differently
 #RHN should be checked more for consistency for initialstates
 
@@ -24,6 +24,24 @@ layers = [
             @test state[2] ≈ zeros(Float32, 4)
         end
     end
+
+    inp = rand(Float32, 2, 3, 1)
+    output = rlayer(inp, state)
+    @test output isa Array{Float32, 3}
+    @test size(output) == (4, 3, 1)
+
+    inp = rand(Float32, 2, 3)
+    output = rlayer(inp, state)
+    @test output isa Array{Float32, 2}
+    @test size(output) == (4, 3)
+end
+
+@testset "Sizes for layer: ResLSTM with projected memory" begin
+    rlayer = ResLSTM(2 => 4; memory_size=6)
+
+    state = initialstates(rlayer)
+    @test state[1] ≈ zeros(Float32, 4)
+    @test state[2] ≈ zeros(Float32, 6)
 
     inp = rand(Float32, 2, 3, 1)
     output = rlayer(inp, state)
