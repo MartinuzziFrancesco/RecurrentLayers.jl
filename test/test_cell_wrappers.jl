@@ -2,7 +2,7 @@ using RecurrentLayers, Flux, Test
 
 cells = [
     AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
-    GatedAntisymmetricRNNCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
+    GatedAntisymmetricRNNCell, DSGUCell, IndRNNCell, JANETCell, LEMCell, LiGRUCell,
     LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
     MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
     PeepholeLSTMCell, RANCell, ResLSTMCell, SCRNCell, SGRNCell, SGUCell, STARCell,

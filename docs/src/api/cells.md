@@ -14,6 +14,8 @@ from this list:
   Chaos Free Network Cell
 - [coRNNCell](cells/cornncell.md):
   Coupled Oscillatory Recurrent Neural Network Cell
+- [DSGUCell](cells/dsgucell.md):
+  Deep Simple Gated Unit Cell
 - [FastGRNNCell](cells/fastgrnncell.md):
   Fast  Gated Recurrent Neural Network Cell
 - [FastRNNCell](cells/fastrnncell.md):
