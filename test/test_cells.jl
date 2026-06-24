@@ -211,6 +211,34 @@ end
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
 end
 
+@testset "ResLSTMCell" begin
+    rnncell = ResLSTMCell(3 => 5; memory_size=7)
+    @test length(Flux.trainables(rnncell)) == 10
+    @test size(rnncell.weight_ih) == (26, 3)
+    @test size(rnncell.weight_hh) == (26, 5)
+    @test size(rnncell.weight_ph) == (14,)
+    @test size(rnncell.weight_poh) == (5, 7)
+    @test size(rnncell.weight_proj) == (5, 7)
+    @test size(rnncell.weight_res) == (5, 3)
+
+    inp = rand(Float32, 3)
+    state = (zeros(Float32, 5), zeros(Float32, 7))
+    output, new_state = rnncell(inp, state)
+    @test size(output) == (5,)
+    @test size(new_state[1]) == (5,)
+    @test size(new_state[2]) == (7,)
+    @test rnncell(inp) == rnncell(inp, state)
+
+    rnncell = ResLSTMCell(3 => 5; bias=false, memory_size=7)
+    @test length(Flux.trainables(rnncell)) == 9
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, state)
+
+    @test_throws ArgumentError ResLSTMCell(
+        3 => 5; memory_size=7, independent_recurrence=true)
+end
+
 @testset "IntersectionRNNCell" begin
     rnncell = IntersectionRNNCell(5 => 5)
     @test length(Flux.trainables(rnncell)) == 4

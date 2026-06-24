@@ -56,6 +56,8 @@
   Peephole Long Short-Term Memory
 - [RAN](layers/ran.md):
   Recurrent Additive Network
+- [ResLSTM](layers/reslstm.md):
+  Residual Long Short-Term Memory
 - [RHN](layers/rhn.md):
   Recurrent Highway Network
 - [SCRN](layers/scrn.md):

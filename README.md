@@ -74,6 +74,7 @@ level implementations:
 | [**OriginalLSTM**](https://ieeexplore.ieee.org/abstract/document/6795963) | Neural Computation 1997 | - |
 | [**PeepholeLSTM**](https://www.jmlr.org/papers/volume3/gers02a/gers02a.pdf) | JMLR 2002 | – |
 | [**RAN**](https://arxiv.org/abs/1705.07393) | arXiv 2017 | [kentonl/ran](https://github.com/kentonl/ran) |
+| [**ResLSTM**](https://arxiv.org/abs/1701.03360) | INTERSPEECH 2017 | – |
 | [**RHN**](https://arxiv.org/abs/1607.03474) | ICML 2017 | [jzilly/RecurrentHighwayNetworks](https://github.com/jzilly/RecurrentHighwayNetworks) |
 | [**SCRN**](https://arxiv.org/abs/1412.7753) | ICLR 2015 | [facebookarchive/SCRNNs](https://github.com/facebookarchive/SCRNNs) |
 | [**SGRN**](https://doi.org/10.1049/gtd2.12056) | IET 2018 | – |

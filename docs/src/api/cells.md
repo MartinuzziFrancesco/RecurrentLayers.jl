@@ -60,6 +60,8 @@ from this list:
   Peephole Long Short-Term Memory Cell
 - [RANCell](cells/rancell.md):
   Recurrent Additive Network Cell
+- [ResLSTMCell](cells/reslstmcell.md):
+  Residual Long Short-Term Memory Cell
 - [RHNCell](cells/rhncell.md):
   Recurrent Highway Network Cell
 - [SCRNCell](cells/scrncell.md):
