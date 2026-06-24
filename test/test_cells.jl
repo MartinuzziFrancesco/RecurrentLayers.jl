@@ -26,6 +26,22 @@ different_cells = [FastGRNNCell, FastRNNCell, RHNCell, SCRNCell, MinimalRNNCell]
     @test rnncell(inp) == rnncell(inp, zeros(Float32, 5))
 end
 
+@testset "DSGUCell" begin
+    rnncell = DSGUCell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 5
+    @test size(rnncell.weight_ih) == (10, 3)
+    @test size(rnncell.weight_hh) == (10, 5)
+    @test size(rnncell.weight_out) == (5, 5)
+
+    inp = rand(Float32, 3)
+    output, state = rnncell(inp)
+    @test size(output) == (5,)
+    @test size(state) == (5,)
+
+    rnncell = DSGUCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 4
+end
+
 @testset "Double return cell: $cell = " for cell in double_cells
     rnncell = cell(3 => 5)
     @test length(Flux.trainables(rnncell)) == 4

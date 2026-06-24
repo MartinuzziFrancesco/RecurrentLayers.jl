@@ -1,8 +1,8 @@
 using RecurrentLayers, Flux, Test
 
 layers = [
-    AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN, GatedAntisymmetricRNN, IndRNN,
-    JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM,
+    AntisymmetricRNN, ATR, BR, CFN, coRNN, DSGU, FastGRNN, FastRNN, GatedAntisymmetricRNN,
+    IndRNN, JANET, LEM, LiGRU, LightRU, MGU, MinimalRNN, MultiplicativeLSTM,
     MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
     RAN, ResLSTM, SCRN, SGRN, SGU, STAR, TGRU, TLSTM, TRNN, UGRNN, UnICORNN, WMCLSTM]
 

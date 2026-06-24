@@ -10,6 +10,8 @@
   Chaos Free Network
 - [coRNN](layers/cornn.md):
   Coupled Oscillatory Recurrent Neural Network
+- [DSGU](layers/dsgu.md):
+  Deep Simple Gated Unit Network
 - [FastGRNN](layers/fastgrnn.md):
   Fast Gated Recurrent Neural Network
 - [FastRNN](layers/fastrnn.md):

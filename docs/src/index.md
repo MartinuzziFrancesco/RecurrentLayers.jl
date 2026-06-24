@@ -21,6 +21,7 @@ level implementations:
 | [**BR/BRC**](https://doi.org/10.1371/journal.pone.0252676) | PLOS ONE 2021 | [nvecoven/BRC](https://github.com/nvecoven/BRC) |
 | [**CFN**](https://arxiv.org/abs/1612.06212) | ICLR 2017 | – |
 | [**coRNN**](https://arxiv.org/abs/2010.00951) | ICLR 2021 | [tk-rusch/coRNN](https://github.com/tk-rusch/coRNN) |
+| [**DSGU**](https://proceedings.mlr.press/v63/gao30.pdf) | ACML 2016 | – |
 | [**FastRNN/FastGRNN**](https://arxiv.org/abs/1901.02358) | NeurIPS 2018 | [Microsoft/EdgeML](https://github.com/Microsoft/EdgeML) |
 | [**IndRNN**](https://arxiv.org/abs/1803.04831) | CVPR 2018 | [Sunnydreamrain/IndRNN_Theano_Lasagne](https://github.com/Sunnydreamrain/IndRNN_Theano_Lasagne) |
 | [**IntersectionRNN**](https://arxiv.org/abs/1611.09913) | ICLR 2017 | - |

@@ -10,7 +10,8 @@ import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
 
-export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, FastRNNCell,
+export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, DSGUCell, FastGRNNCell,
+       FastRNNCell,
        GatedAntisymmetricRNNCell, IndRNNCell, IntersectionRNNCell, JANETCell, LEMCell,
        LiGRUCell,
        LightRUCell, MCLSTMCell, MGUCell, MinimalRNNCell, MiRU1Cell, MiRU2Cell,
@@ -19,7 +20,7 @@ export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, FastGRNNCell, 
        PeepholeLSTMCell, RANCell, ResLSTMCell, RHNCell, SCRNCell, SGRNCell, SGUCell,
        STARCell, TGRUCell,
        TLSTMCell, TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell
-export AntisymmetricRNN, ATR, BR, CFN, coRNN, FastGRNN, FastRNN,
+export AntisymmetricRNN, ATR, BR, CFN, coRNN, DSGU, FastGRNN, FastRNN,
        GatedAntisymmetricRNN,
        IndRNN, IntersectionRNN, JANET, LEM, LiGRU, LightRU, MCLSTM, MGU, MinimalRNN, MiRU1,
        MiRU2,
@@ -39,6 +40,7 @@ include("cells/atr_cell.jl")
 include("cells/br_cell.jl")
 include("cells/cfn_cell.jl")
 include("cells/cornn_cell.jl")
+include("cells/dsgu_cell.jl")
 include("cells/fastrnn_cell.jl")
 include("cells/indrnn_cell.jl")
 include("cells/intersectionrnn_cell.jl")
@@ -73,7 +75,7 @@ include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
 rlayers = (
-    :AntisymmetricRNN, :ATR, :BR, :CFN, :coRNN, :FastGRNN, :FastRNN, :IndRNN,
+    :AntisymmetricRNN, :ATR, :BR, :CFN, :coRNN, :DSGU, :FastGRNN, :FastRNN, :IndRNN,
     :IntersectionRNN, :JANET, :LEM, :LiGRU, :LightRU, :MCLSTM, :MGU, :MinimalRNN, :MiRU1,
     :MiRU2,
     :MultiplicativeLSTM, :MUT1, :MUT2, :MUT3, :NAS, :OriginalLSTM, :NBR,
@@ -81,7 +83,8 @@ rlayers = (
     :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
 
 rcells = (
-    :AntisymmetricRNNCell, :ATRCell, :BRCell, :CFNCell, :coRNNCell, :FastGRNNCell, :FastRNNCell,
+    :AntisymmetricRNNCell, :ATRCell, :BRCell, :CFNCell, :coRNNCell, :DSGUCell,
+    :FastGRNNCell, :FastRNNCell,
     :IndRNNCell, :IntersectionRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
     :MCLSTMCell, :MGUCell, :MinimalRNNCell, :MiRU1Cell, :MiRU2Cell, :MultiplicativeLSTMCell,
     :MUT1Cell, :MUT2Cell, :MUT3Cell, :NASCell, :OriginalLSTMCell, :NBRCell,
