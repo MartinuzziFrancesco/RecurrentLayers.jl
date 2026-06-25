@@ -70,6 +70,8 @@
   Simple Gated Unit Network
 - [STAR](layers/star.md):
   Stackable Recurrent Network
+- [TauGRU](layers/taugru.md):
+  Gated Recurrent Unit with Weighted Time-Delay Feedback
 - [TGRU](layers/tgru.md):
   Typed Gated Recurrent Unit
 - [TLSTM](layers/tlstm.md):
