@@ -74,6 +74,8 @@ from this list:
   Simple Gated Unit Cell
 - [STARCell](cells/starcell.md):
   Stackable Recurrent Network Cell
+- [TauGRUCell](cells/taugrucell.md):
+  Gated Recurrent Unit Cell with Weighted Time-Delay Feedback
 - [TGRUCell](cells/tgrucell.md):
   Typed Gated Recurrent Unit Cell
 - [TLSTMCell](cells/tlstmcell.md):

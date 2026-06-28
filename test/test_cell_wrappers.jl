@@ -6,7 +6,7 @@ cells = [
     LightRUCell, MGUCell, MinimalRNNCell, MultiplicativeLSTMCell, MUT1Cell, MUT2Cell,
     MUT3Cell, NASCell, OriginalLSTMCell, NBRCell,
     PeepholeLSTMCell, RANCell, ResLSTMCell, SCRNCell, SGRNCell, SGUCell, STARCell,
-    TGRUCell,
+    TauGRUCell, TGRUCell,
     TRNNCell, UGRNNCell, UnICORNNCell, WMCLSTMCell]
 #RHNCell, RHNCellUnit, FSRNNCell, TLSTMCell
 

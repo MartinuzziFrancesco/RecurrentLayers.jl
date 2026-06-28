@@ -141,6 +141,34 @@ end
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 3)))
 end
 
+@testset "TauGRUCell" begin
+    rnncell = TauGRUCell(3 => 5)
+    @test length(Flux.trainables(rnncell)) == 4
+    @test size(rnncell.weight_ih) == (20, 3)
+    @test size(rnncell.weight_hh) == (20, 5)
+
+    inp = rand(Float32, 3)
+    @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    rnncell = TauGRUCell(3 => 5; delay=2)
+    inp = rand(Float32, 3)
+    output, state = rnncell(inp)
+    @test size(output) == (5,)
+    @test size(state[1]) == (5,)
+    @test size(state[2]) == (10,)
+
+    inp = rand(Float32, 3, 2)
+    output, state = rnncell(inp)
+    @test size(output) == (5, 2)
+    @test size(state[1]) == (5, 2)
+    @test size(state[2]) == (10, 2)
+
+    rnncell = TauGRUCell(3 => 5; bias=false)
+    @test length(Flux.trainables(rnncell)) == 3
+
+    @test_throws ArgumentError TauGRUCell(3 => 5; delay=0)
+end
+
 @testset "TLSTMCell" begin
     rnncell = TLSTMCell(3 => 5)
     @test length(Flux.trainables(rnncell)) == 4
