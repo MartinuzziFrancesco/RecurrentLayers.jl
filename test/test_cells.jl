@@ -102,6 +102,9 @@ end
 @testset "coRNNCell" begin
     rnncell = coRNNCell(3 => 5)
     @test length(Flux.trainables(rnncell)) == 6
+    @test rnncell.dt == 0.1f0
+    @test rnncell.gamma == 1.0f0
+    @test rnncell.epsilon == 1.0f0
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
@@ -111,6 +114,27 @@ end
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    weight_ih = Float32[0.1 -0.2 0.3; 0.4 0.5 -0.6]
+    weight_hh = Float32[0.2 -0.1; 0.3 0.4]
+    weight_ch = Float32[-0.3 0.7; 0.6 -0.2]
+    rnncell = coRNNCell(3 => 2, 0.25f0; gamma=1.5f0, epsilon=0.5f0,
+        init_kernel=(args...) -> weight_ih,
+        init_recurrent_kernel=(args...) -> weight_hh,
+        init_cell_kernel=(args...) -> weight_ch,
+        bias=false, recurrent_bias=false, cell_bias=false)
+    inp = Float32[0.2, -0.5, 0.7]
+    state = Float32[0.6, -0.4]
+    c_state = Float32[-0.3, 0.8]
+    official_cstate = c_state .+
+                      rnncell.dt .*
+                      (tanh.(weight_ih * inp .+ weight_hh * state .+ weight_ch * c_state) .-
+                       rnncell.gamma .* state .- rnncell.epsilon .* c_state)
+    official_state = state .+ rnncell.dt .* official_cstate
+    output, new_state = rnncell(inp, (state, c_state))
+    @test output ≈ official_state
+    @test new_state[1] ≈ official_state
+    @test new_state[2] ≈ official_cstate
 end
 
 @testset "TRNNCell" begin
@@ -187,16 +211,45 @@ end
 
 @testset "UnICORNNCell" begin
     rnncell = UnICORNNCell(3 => 5)
-    @test length(Flux.trainables(rnncell)) == 5
+    @test length(Flux.trainables(rnncell)) == 4
+    @test rnncell.dt == 0.1f0
+    @test rnncell.alpha == 0.0f0
+    @test size(rnncell.weight_hh) == (5,)
+    @test size(rnncell.weight_ch) == (5,)
+    @test all(x -> 0.0f0 <= x <= 1.0f0, rnncell.weight_hh)
+    @test all(x -> -0.1f0 <= x <= 0.1f0, rnncell.weight_ch)
+    @test rnncell.bias_hh === false
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
 
     rnncell = UnICORNNCell(3 => 5; bias=false)
-    @test length(Flux.trainables(rnncell)) == 4
+    @test length(Flux.trainables(rnncell)) == 3
 
     inp = rand(Float32, 3)
     @test rnncell(inp) == rnncell(inp, (zeros(Float32, 5), zeros(Float32, 5)))
+
+    weight_ih = Float32[0.1 -0.2 0.3; 0.4 0.5 -0.6]
+    weight_hh = Float32[0.2, 0.7]
+    weight_ch = Float32[-0.1, 0.3]
+    rnncell = UnICORNNCell(3 => 2, 0.2f0; alpha=0.4f0,
+        init_kernel=(args...) -> weight_ih,
+        init_recurrent_kernel=(args...) -> weight_hh,
+        init_control_kernel=(args...) -> weight_ch,
+        bias=false, recurrent_bias=false)
+    inp = Float32[0.2, -0.5, 0.7]
+    state = Float32[0.6, -0.4]
+    c_state = Float32[-0.3, 0.8]
+    step = 1.0f0 ./ (1.0f0 .+ exp.(-weight_ch))
+    official_cstate = c_state .-
+                      rnncell.dt .* step .*
+                      (tanh.(state .* weight_hh .+ weight_ih * inp) .+
+                       rnncell.alpha .* state)
+    official_state = state .+ rnncell.dt .* step .* official_cstate
+    output, new_state = rnncell(inp, (state, c_state))
+    @test output ≈ official_state
+    @test new_state[1] ≈ official_state
+    @test new_state[2] ≈ official_cstate
 end
 
 @testset "MinimalRNNCell" begin

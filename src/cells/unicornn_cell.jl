@@ -2,10 +2,10 @@
 @doc raw"""
     UnICORNNCell(input_size => hidden_size, [dt];
         alpha=0.0, init_kernel = glorot_uniform,
-        init_recurrent_kernel = glorot_uniform,
-        init_control_kernel = glorot_uniform,
-        bias = true, recurrent_bias = true,
-        independent_recurrence = false, integration_mode = :addition)
+        init_recurrent_kernel = _rand_uniform01,
+        init_control_kernel = _rand_uniform_centered01,
+        bias = true, recurrent_bias = false,
+        independent_recurrence = true, integration_mode = :addition)
 
 Undamped independent controlled oscillatory recurrent neural
 unit [Rusch2021b](@cite).
@@ -14,7 +14,7 @@ See [`UnICORNN`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
-- `dt`: time step. Default is 1.0.
+- `dt`: time step. Default is 0.1.
 
 # Keyword arguments
 
@@ -22,13 +22,14 @@ See [`UnICORNN`](@ref) for a layer that processes entire sequences.
 - `init_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
-    Default is `glorot_uniform`.
+    Default is uniform in ``[0, 1]``.
 - `init_control_kernel`: initializer for the control to hidden weights.
-    Default is `glorot_uniform`.
+    Default is uniform in ``[-0.1, 0.1]``.
 - `bias`: include input to recurrent bias or not. Default is `true`.
-- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `false`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
-  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+  recurrent to recurrent weights are a vector instead of a matrix. This architecture
+  always uses independent recurrence. Default `true`.
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 
@@ -76,15 +77,22 @@ end
 
 @layer UnICORNNCell
 
+_rand_uniform01(dims...) = rand(Float32, dims...)
+_rand_uniform_centered01(dims...) = 0.2f0 .* rand(Float32, dims...) .- 0.1f0
+
 function UnICORNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
-        dt::Number=1.0f0; alpha::Number=0.0f0,
-        init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
-        init_control_kernel=glorot_uniform,
-        bias::Bool=true, recurrent_bias::Bool=true,
+        dt::Number=0.1f0; alpha::Number=0.0f0,
+        init_kernel=glorot_uniform, init_recurrent_kernel=_rand_uniform01,
+        init_control_kernel=_rand_uniform_centered01,
+        bias::Bool=true, recurrent_bias::Bool=false,
         integration_mode::Symbol=:addition,
-        independent_recurrence::Bool=false)
+        independent_recurrence::Bool=true)
     weight_ih = init_kernel(hidden_size, input_size)
-    weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size)
+    if !independent_recurrence
+        @warn "UnICORNNCell requires independent recurrent weights; using a vector " *
+              "weight_hh despite independent_recurrence=false"
+    end
+    weight_hh = vec(init_recurrent_kernel(hidden_size))
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
     bias_hh = create_bias(weight_hh, recurrent_bias, size(weight_hh, 1))
     weight_ch = vec(init_control_kernel(hidden_size))
@@ -120,7 +128,9 @@ end
 @doc raw"""
     UnICORNN(input_size => hidden_size, [dt];
         alpha=0.0, return_state=false, init_kernel = glorot_uniform,
-        init_recurrent_kernel = glorot_uniform, bias = true)
+        init_recurrent_kernel = _rand_uniform01,
+        init_control_kernel = _rand_uniform_centered01,
+        bias = true, recurrent_bias = false)
 
 Undamped independent controlled oscillatory recurrent neural
 network [Rusch2021b](@cite).
@@ -129,7 +139,7 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
-- `dt`: time step. Default is 1.0.
+- `dt`: time step. Default is 0.1.
 
 # Keyword arguments
 
@@ -137,13 +147,14 @@ See [`UnICORNNCell`](@ref) for a layer that processes a single sequence.
 - `init_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
-    Default is `glorot_uniform`.
+    Default is uniform in ``[0, 1]``.
 - `init_control_kernel`: initializer for the control to hidden weights.
-    Default is `glorot_uniform`.
+    Default is uniform in ``[-0.1, 0.1]``.
 - `bias`: include input to recurrent bias or not. Default is `true`.
-- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `true`.
+- `recurrent_bias`: include recurrent to recurrent bias or not. Default is `false`.
 - `independent_recurrence`: flag to toggle independent recurrence. If `true`, the
-  recurrent to recurrent weights are a vector instead of a matrix. Default `false`.
+  recurrent to recurrent weights are a vector instead of a matrix. This architecture
+  always uses independent recurrence. Default `true`.
 - `integration_mode`: determines how the input and hidden projections are combined. The
   options are `:addition` and `:multiplicative_integration`. Defaults to `:addition`.
 - `return_state`: Option to return the last state together with the output.

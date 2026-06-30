@@ -1,7 +1,7 @@
 #https://arxiv.org/abs/2010.00951
 @doc raw"""
     coRNNCell(input_size => hidden_size, [dt];
-        gamma=0.0, epsilon=0.0,
+        gamma=1.0, epsilon=1.0,
         init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         init_cell_kernel = glorot_uniform,
@@ -14,12 +14,12 @@ See [`coRNN`](@ref) for a layer that processes entire sequences.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
-- `dt`: time step. Default is 1.0.
+- `dt`: time step. Default is 0.1.
 
 # Keyword arguments
 
-- `gamma`: damping for state. Default is 0.0.
-- `epsilon`: damping for candidate state. Default is 0.0.
+- `gamma`: damping for state. Default is 1.0.
+- `epsilon`: damping for candidate state. Default is 1.0.
 - `init_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
@@ -81,7 +81,7 @@ end
 @layer coRNNCell
 
 function coRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int},
-        dt::Number=1.0f0; gamma::Number=0.0f0, epsilon::Number=0.0f0,
+        dt::Number=0.1f0; gamma::Number=1.0f0, epsilon::Number=1.0f0,
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         init_cell_kernel=glorot_uniform, bias::Bool=true, recurrent_bias::Bool=true,
         cell_bias::Bool=true, integration_mode::Symbol=:addition,
@@ -123,7 +123,7 @@ end
 
 @doc raw"""
     coRNN(input_size => hidden_size, [dt];
-        gamma=0.0, epsilon=0.0,
+        gamma=1.0, epsilon=1.0,
         return_state=false, init_kernel = glorot_uniform,
         init_recurrent_kernel = glorot_uniform,
         init_cell_kernel = glorot_uniform,
@@ -136,12 +136,12 @@ See [`coRNNCell`](@ref) for a layer that processes a single sequence.
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
-- `dt`: time step. Default is 1.0.
+- `dt`: time step. Default is 0.1.
 
 # Keyword arguments
 
-- `gamma`: damping for state. Default is 0.0.
-- `epsilon`: damping for candidate state. Default is 0.0.
+- `gamma`: damping for state. Default is 1.0.
+- `epsilon`: damping for candidate state. Default is 1.0.
 - `init_kernel`: initializer for the input to hidden weights.
     Default is `glorot_uniform`.
 - `init_recurrent_kernel`: initializer for the hidden to hidden weights.
