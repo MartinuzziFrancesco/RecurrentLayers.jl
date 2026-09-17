@@ -8,9 +8,13 @@
 Intersection RNN [Collins2016](@cite).
 See [`IntersectionRNN`](@ref) for a layer that processes entire sequences.
 
+Requires `input_size == hidden_size`: the output `y(t)` is a gated mix of
+`x(t)` and `y^{in}(t)`, both of dimension `hidden_size`.
+
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
+  Must be equal.
 
 # Keyword arguments
 
@@ -75,6 +79,11 @@ function IntersectionRNNCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         init_kernel=glorot_uniform, init_recurrent_kernel=glorot_uniform,
         bias::Bool=true, recurrent_bias::Bool=true,
         integration_mode::Symbol=:addition, independent_recurrence::Bool=true)
+    input_size == hidden_size || throw(ArgumentError(
+        "IntersectionRNNCell requires input_size == hidden_size (got " *
+        "$input_size => $hidden_size), since the output is a gated mix of " *
+        "x(t) and y^in(t), both of dimension hidden_size."
+    ))
     weight_ih = init_kernel(hidden_size * 4, input_size)
     weight_hh = _indrec_matrix(independent_recurrence, init_recurrent_kernel, hidden_size, 4)
     bias_ih = create_bias(weight_ih, bias, size(weight_ih, 1))
@@ -119,9 +128,13 @@ end
 Intersection RNN [Collins2016](@cite).
 See [`IntersectionRNNCell`](@ref) for a layer that processes a single sequence.
 
+Requires `input_size == hidden_size`: the output `y(t)` is a gated mix of
+`x(t)` and `y^{in}(t)`, both of dimension `hidden_size`.
+
 # Arguments
 
 - `input_size => hidden_size`: input and inner dimension of the layer.
+  Must be equal.
 
 # Keyword arguments
 

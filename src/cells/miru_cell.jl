@@ -313,7 +313,7 @@ function (miru::MiRU2Cell)(inp::AbstractVecOrMat, state)
     proj_ih = dense_proj(miru.weight_ih, inp, miru.bias_ih)
     proj_hh = dense_proj(miru.weight_hh, miru.reset_coefficient .* state, miru.bias_hh)
     candidate_state = miru.activation.(miru.integration_fn(proj_ih, proj_hh))
-    new_state = miru.update_coefficient .* state +
+    new_state = miru.update_coefficient .* state .+
                 (1 .- miru.update_coefficient) .* candidate_state
 
     return new_state, new_state

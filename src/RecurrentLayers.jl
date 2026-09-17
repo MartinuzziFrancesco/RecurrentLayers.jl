@@ -5,10 +5,11 @@ using Flux: _size_check, _match_eltype, chunk, create_bias, zeros_like, glorot_u
             scan, @layer, default_rng, Chain, Dropout, sigmoid_fast, tanh_fast, relu,
             softplus,
             hardsigmoid
-import Flux: initialstates
-import Functors: functor
 using LinearAlgebra: I, transpose
 using NNlib: fast_act
+
+import Flux: initialstates
+import Functors: functor
 
 export AntisymmetricRNNCell, ATRCell, BRCell, CFNCell, coRNNCell, DSGUCell, FastGRNNCell,
        FastRNNCell,
@@ -75,7 +76,7 @@ include("wrappers/multiplicative.jl")
 include("wrappers/stackedrnn.jl")
 
 ### fallbacks for functors ###
-rlayers = (
+const RLAYERS = (
     :AntisymmetricRNN, :ATR, :BR, :CFN, :coRNN, :DSGU, :FastGRNN, :FastRNN, :IndRNN,
     :IntersectionRNN, :JANET, :LEM, :LiGRU, :LightRU, :MCLSTM, :MGU, :MinimalRNN, :MiRU1,
     :MiRU2,
@@ -83,7 +84,7 @@ rlayers = (
     :PeepholeLSTM, :RAN, :ResLSTM, :SCRN, :SGRN, :SGU, :STAR, :TauGRU, :TGRU,
     :TLSTM, :TRNN, :UGRNN, :UnICORNN, :WMCLSTM)
 
-rcells = (
+const RCELLS = (
     :AntisymmetricRNNCell, :ATRCell, :BRCell, :CFNCell, :coRNNCell, :DSGUCell,
     :FastGRNNCell, :FastRNNCell,
     :IndRNNCell, :IntersectionRNNCell, :JANETCell, :LEMCell, :LiGRUCell, :LightRUCell,
@@ -92,18 +93,9 @@ rcells = (
     :PeepholeLSTMCell, :RANCell, :ResLSTMCell, :SCRNCell, :SGRNCell, :SGUCell, :STARCell,
     :TauGRUCell, :TGRUCell, :TLSTMCell, :TRNNCell, :UGRNNCell, :UnICORNNCell, :WMCLSTMCell)
 
-for (rlayer, rcell) in zip(rlayers, rcells)
-    @eval begin
-        function ($rlayer)(rc::$rcell; return_state::Bool=false)
-            return $rlayer{return_state, typeof(rc)}(rc)
-        end
-
-        # why won't this work?
-        #function functor(rl::$rlayer{S}) where {S}
-        #    params = (cell = rl.cell)
-        #    reconstruct = p -> $rlayer{S, typeof(p.cell)}(p.cell)
-        #    return params, reconstruct
-        #end
+for (rlayer, rcell) in zip(RLAYERS, RCELLS)
+    @eval function ($rlayer)(rc::$rcell; return_state::Bool=false)
+        return $rlayer{return_state, typeof(rc)}(rc)
     end
 end
 

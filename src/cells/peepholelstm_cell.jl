@@ -99,17 +99,28 @@ function PeepholeLSTMCell((input_size, hidden_size)::Pair{<:Int, <:Int};
         bias_hh, bias_ph, integration_fn)
 end
 
+_split_ph_bias(bias::Bool, hidden_size::Int) = bias, bias
+function _split_ph_bias(bias::AbstractVector, hidden_size::Int)
+    return bias[1:(2 * hidden_size)], bias[(2 * hidden_size + 1):end]
+end
+
 function (lstm::PeepholeLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(lstm, inp, 1 => size(lstm.weight_ih, 2))
+    hidden_size = size(lstm.weight_ih, 1) ÷ 4
     proj_ih = dense_proj(lstm.weight_ih, inp, lstm.bias_ih)
     proj_hh = dense_proj(lstm.weight_hh, state, lstm.bias_hh)
-    proj_ph = dense_proj(lstm.weight_ph, c_state, lstm.bias_ph)
     gates = lstm.integration_fn(proj_ih, proj_hh)
-    peeps = chunk(proj_ph, 3; dims=1)
     input, forget, cell, output = chunk(gates, 4; dims=1)
-    new_cstate = @. sigmoid_fast(forget + peeps[1]) * c_state +
-                    sigmoid_fast(input + peeps[2]) * tanh_fast(cell)
-    new_state = @. sigmoid_fast(output + peeps[3]) * tanh_fast(new_cstate)
+
+    # input/forget peepholes read c(t-1); the output peephole reads c(t)
+    bias_ph_if, bias_ph_o = _split_ph_bias(lstm.bias_ph, hidden_size)
+    weight_ph_if = @view lstm.weight_ph[1:(2 * hidden_size)]
+    weight_ph_o = @view lstm.weight_ph[(2 * hidden_size + 1):end]
+    peep_i, peep_f = chunk(dense_proj(weight_ph_if, c_state, bias_ph_if), 2; dims=1)
+    new_cstate = @. sigmoid_fast(forget + peep_f) * c_state +
+                    sigmoid_fast(input + peep_i) * tanh_fast(cell)
+    peep_o = dense_proj(weight_ph_o, new_cstate, bias_ph_o)
+    new_state = @. sigmoid_fast(output + peep_o) * tanh_fast(new_cstate)
     return new_state, (new_state, new_cstate)
 end
 

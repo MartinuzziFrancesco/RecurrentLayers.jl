@@ -4,19 +4,20 @@
 struct RHNCellUnit{I, V}
     weights::I
     bias::V
+    num_gates::Int
 end
 
 @layer RHNCellUnit
 
-function RHNCellUnit((input_size, hidden_size)::Pair{<:Int, <:Int};
+function RHNCellUnit((input_size, hidden_size)::Pair{<:Int, <:Int}, num_gates::Int=3;
         init_kernel=glorot_uniform, bias::Bool=true)
-    weight = init_kernel(3 * hidden_size, input_size)
+    weight = init_kernel(num_gates * hidden_size, input_size)
     b = create_bias(weight, bias, size(weight, 1))
-    return RHNCellUnit(weight, b)
+    return RHNCellUnit(weight, b, num_gates)
 end
 
 function initialstates(rhn::RHNCellUnit)
-    return zeros_like(rhn.weights, size(rhn.weights, 1) ÷ 3)
+    return zeros_like(rhn.weights, size(rhn.weights, 1) ÷ rhn.num_gates)
 end
 
 function (rhn::RHNCellUnit)(inp::AbstractVecOrMat)
@@ -30,12 +31,12 @@ function (rhn::RHNCellUnit)(inp::AbstractVecOrMat, state::AbstractVecOrMat)
     #compute
     pre_nonlin = weight * inp .+ bias
     #split
-    pre_h, pre_t, pre_c = chunk(pre_nonlin, 3; dims=1)
-    return pre_h, pre_t, pre_c
+    return chunk(pre_nonlin, rhn.num_gates; dims=1)
 end
 
 function Base.show(io::IO, rhn::RHNCellUnit)
-    print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ", size(rhn.weights, 1) ÷ 3, ")")
+    print(io, "RHNCellUnit(", size(rhn.weights, 2), " => ",
+        size(rhn.weights, 1) ÷ rhn.num_gates, ")")
 end
 
 @doc raw"""
@@ -90,17 +91,13 @@ end
 function RHNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Integer=3;
         couple_carry::Bool=true, #sec 5, setup
         cell_kwargs...)
-    layers = []
-    for layer in 1:depth
-        if layer == 1
-            real_in = input_size + hidden_size
-        else
-            real_in = hidden_size
-        end
-        rhn = RHNCellUnit(real_in => hidden_size; cell_kwargs...)
-        push!(layers, rhn)
+    depth > 0 || throw(ArgumentError("depth must be a positive integer; got $depth"))
+    num_gates = couple_carry ? 2 : 3
+    layers = ntuple(depth) do layer
+        real_in = layer == 1 ? input_size + hidden_size : hidden_size
+        RHNCellUnit(real_in => hidden_size, num_gates; cell_kwargs...)
     end
-    return RHNCell(Chain(layers), couple_carry)
+    return RHNCell(Chain(layers...), couple_carry)
 end
 
 function initialstates(rhn::RHNCell)
@@ -113,35 +110,43 @@ function (rhn::RHNCell)(inp::AbstractArray)
 end
 
 function (rhn::RHNCell)(inp::AbstractArray, state::AbstractVecOrMat)
-    current_state = colify(state)
+    current_state = _rhn_batch_state(state, inp)
+    layers = rhn.layers.layers
 
-    for (i, layer) in enumerate(rhn.layers.layers)
-        if i == 1
-            inp_combined = vcat(inp, current_state)
-        else
-            inp_combined = current_state
-        end
-
-        pre_h, pre_t, pre_c = layer(inp_combined)
-
-        # Apply nonlinearities
-        hidden_gate = tanh_fast.(pre_h)
-        transform_gate = sigmoid_fast.(pre_t)
-        carry_gate = sigmoid_fast.(pre_c)
-
-        # Highway component
-        if rhn.couple_carry
-            current_state = @. (hidden_gate - current_state) * transform_gate +
-                               current_state
-        else
-            current_state = @. hidden_gate * transform_gate + current_state * carry_gate
-        end
+    # the first micro-layer has a differently-shaped input (x(t) is
+    # concatenated in), so it is kept out of the loop below: mixing
+    # differently-shaped iterations in one Julia `for` loop breaks Zygote's
+    # reverse-mode AD (it tries to accumulate gradients of mismatched shapes).
+    current_state = _rhn_layer_step(
+        first(layers), vcat(inp, current_state), current_state, rhn.couple_carry)
+    for layer in Base.tail(layers)
+        current_state = _rhn_layer_step(layer, current_state, current_state, rhn.couple_carry)
     end
 
     return current_state, current_state
 end
 
-# TODO fix implementation here
+function _rhn_layer_step(layer, inp_combined, current_state, couple_carry::Bool)
+    if couple_carry
+        pre_h, pre_t = layer(inp_combined)
+        hidden_gate = tanh_fast.(pre_h)
+        transform_gate = sigmoid_fast.(pre_t)
+        return @. (hidden_gate - current_state) * transform_gate + current_state
+    else
+        pre_h, pre_t, pre_c = layer(inp_combined)
+        hidden_gate = tanh_fast.(pre_h)
+        transform_gate = sigmoid_fast.(pre_t)
+        carry_gate = sigmoid_fast.(pre_c)
+        return @. hidden_gate * transform_gate + current_state * carry_gate
+    end
+end
+
+function _rhn_batch_state(state::AbstractVector, inp::AbstractMatrix)
+    repeat(state, 1, size(inp, 2))
+end
+_rhn_batch_state(state::AbstractVecOrMat, inp::AbstractVector) = state
+_rhn_batch_state(state::AbstractMatrix, inp::AbstractMatrix) = state
+
 @doc raw"""
     RHN(input_size => hidden_size, [depth];
         return_state = false,
@@ -199,9 +204,14 @@ function functor(rhn::RHN{S}) where {S}
     return params, reconstruct
 end
 
-function colify(x::AbstractArray)
-    # If x is already 2D (e.g. (N,1)), leave it.
-    # If x is 1D (N,), reshape to (N, 1).
-    ndims(x) == 1 && return reshape(x, (length(x), 1))
-    return x
+function Base.show(io::IO, rhn::RHN)
+    unit = first(rhn.cell.layers.layers)
+    hidden_size = size(unit.weights, 1) ÷ unit.num_gates
+    input_size = size(unit.weights, 2) - hidden_size
+    print(io, "RHN(", input_size, " => ", hidden_size)
+    depth = length(rhn.cell.layers.layers)
+    if depth != 3
+        print(io, ", ", depth)
+    end
+    print(io, ")")
 end
