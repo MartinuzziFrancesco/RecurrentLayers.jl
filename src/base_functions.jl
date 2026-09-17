@@ -8,25 +8,7 @@ end
 
 function dense_proj(
         weight::AbstractMatrix, inp_or_state::AbstractVecOrMat, bias::AbstractVector)
-    weight_inporstate = dense_proj(weight, inp_or_state, false)
-    add_bias!(weight_inporstate, bias)
-    return weight_inporstate
-end
-
-function add_bias!(weight_inporstate::AbstractVector, bias::AbstractVector)
-    @assert length(weight_inporstate) == length(bias)
-    @inbounds for idx in eachindex(weight_inporstate, bias)
-        weight_inporstate[idx] += bias[idx]
-    end
-end
-
-function add_bias!(weight_inporstate::AbstractMatrix, bias::AbstractVector)
-    @assert size(weight_inporstate, 1) == length(bias)
-    @inbounds for jdx in axes(weight_inporstate, 2), idx in axes(weight_inporstate, 1)
-
-        weight_inporstate[idx, jdx] += bias[idx]
-    end
-    return weight_inporstate
+    return dense_proj(weight, inp_or_state, false) .+ bias
 end
 
 #independent recurrence has only state since it's only for weight_hh
@@ -84,5 +66,5 @@ function mul_projections(weight_b_ih::AbstractVecOrMat, weight_b_hh::AbstractVec
     return weight_b_ih .* weight_b_hh
 end
 
-_chunked_bias(bias::Bool, n::Int) = ntuple(_ -> bias, n)
+_chunked_bias(bias::Bool, n::Int) = ntuple(Returns(bias), n)
 _chunked_bias(bias, n::Int) = chunk(bias, n; dims=1)

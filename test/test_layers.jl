@@ -5,10 +5,9 @@ layers = [
     AntisymmetricRNN, ATR, BR, CFN, coRNN, DSGU, FastGRNN, FastRNN, GatedAntisymmetricRNN,
     IndRNN, JANET, LEM, LiGRU, LightRU, MCLSTM, MGU, MinimalRNN, MiRU1, MiRU2,
     MultiplicativeLSTM, MUT1, MUT2, MUT3, NAS, OriginalLSTM, NBR, PeepholeLSTM,
-    RAN, ResLSTM, SCRN, SGRN, SGU, STAR, TauGRU, TGRU, TLSTM, TRNN, UGRNN, UnICORNN,
+    RAN, ResLSTM, RHN, SCRN, SGRN, SGU, STAR, TauGRU, TGRU, TLSTM, TRNN, UGRNN, UnICORNN,
     WMCLSTM]
 #IndRNN handles internal states differently
-#RHN should be checked more for consistency for initialstates
 
 @testset "Sizes for layer: $layer" for layer in layers
     rlayer = layer(2 => 4)
@@ -37,6 +36,23 @@ layers = [
     output = rlayer(inp, state)
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)
+
+    # batched input (batch_size > 1) must work
+    inp = rand(Float32, 2, 3, 5)
+    output = rlayer(inp)
+    @test size(output) == (4, 3, 5)
+end
+
+# a representative subset (single-state, double-state, independent_recurrence,
+# multiplicative_integration, and the RHN/MiRU2 cells whose forward pass was
+# just fixed) checked for batched gradients; exhaustive per-layer gradient
+# checks blow up Zygote's compile time across 40 distinct cell types.
+@testset "Batched gradients: $layer" for layer in [
+    SGRN, LEM, TauGRU, RHN, MiRU2, IndRNN]
+    rlayer = layer(2 => 4)
+    inp = rand(Float32, 2, 3, 5)
+    gs = Flux.gradient(m -> sum(m(inp)), rlayer)
+    @test gs[1] !== nothing
 end
 
 @testset "Sizes for layer: TauGRU delay" begin
@@ -96,4 +112,10 @@ end
     output = rlayer(inp, state)
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)
+
+    inp = rand(Float32, 4, 3, 5)
+    output = rlayer(inp)
+    @test size(output) == (4, 3, 5)
+
+    @test_throws ArgumentError IntersectionRNN(2 => 4)
 end

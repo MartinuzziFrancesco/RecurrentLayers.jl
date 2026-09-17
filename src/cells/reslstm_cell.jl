@@ -144,17 +144,10 @@ function (lstm::ResLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     proj_ph = dense_proj(lstm.weight_ph, c_state, lstm.bias_ph)
     gates = lstm.integration_fn(proj_ih, proj_hh)
     memory_size = size(lstm.weight_proj, 2)
-    if gates isa AbstractVector
-        input = gates[1:memory_size]
-        forget = gates[(memory_size + 1):(2 * memory_size)]
-        cell = gates[(2 * memory_size + 1):(3 * memory_size)]
-        output = gates[(3 * memory_size + 1):end]
-    else
-        input = gates[1:memory_size, :]
-        forget = gates[(memory_size + 1):(2 * memory_size), :]
-        cell = gates[(2 * memory_size + 1):(3 * memory_size), :]
-        output = gates[(3 * memory_size + 1):end, :]
-    end
+    input = selectdim(gates, 1, 1:memory_size)
+    forget = selectdim(gates, 1, (memory_size + 1):(2 * memory_size))
+    cell = selectdim(gates, 1, (2 * memory_size + 1):(3 * memory_size))
+    output = selectdim(gates, 1, (3 * memory_size + 1):size(gates, 1))
     peeps = chunk(proj_ph, 2; dims=1)
     new_cstate = @. sigmoid_fast(forget + peeps[2]) * c_state +
                     sigmoid_fast(input + peeps[1]) * tanh_fast(cell)

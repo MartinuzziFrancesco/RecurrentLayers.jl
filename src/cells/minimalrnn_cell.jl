@@ -94,8 +94,9 @@ function (minimal::MinimalRNNCell)(inp::AbstractVecOrMat, (state, c_state))
     _size_check(minimal, inp, 1 => size(minimal.weight_ih, 2))
     proj_ih = dense_proj(minimal.weight_ih, inp, minimal.bias_ih)
     proj_hh = dense_proj(minimal.weight_hh, state, minimal.bias_hh)
-    proj_mm = dense_proj(minimal.weight_mm, c_state, minimal.bias_mm)
     new_cstate = tanh_fast.(proj_ih)
+    # u(t) depends on z(t) = new_cstate, not the incoming z(t-1) = c_state
+    proj_mm = dense_proj(minimal.weight_mm, new_cstate, minimal.bias_mm)
     update_gate = sigmoid_fast.(minimal.integration_fn(proj_hh, proj_mm))
     new_state = update_gate .* state .+
                 (eltype(minimal.weight_ih)(1.0) .- update_gate) .* new_cstate
