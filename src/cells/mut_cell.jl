@@ -282,7 +282,7 @@ function (mut::MUT2Cell)(inp::AbstractVecOrMat, state)
     proj_hh_2 = dense_proj(whs[2], state, bhs[2])
     t_ones = eltype(mut.weight_ih)(1.0f0)
     forget_gate = sigmoid_fast.(mut.integration_fn(gxs[1], proj_hh_1))
-    # the dimensionlity alos does not work here like the paper describes it
+    # the dimensionality also does not work here like the paper describes it
     reset_gate = sigmoid_fast.(mut.integration_fn(gxs[2], proj_hh_2))
     proj_hh_3 = dense_proj(whs[3], (reset_gate .* state), bhs[3])
     candidate_state = tanh_fast.(mut.integration_fn(gxs[3], proj_hh_3))

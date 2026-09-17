@@ -115,8 +115,8 @@ function (lstm::WMCLSTMCell)(inp::AbstractVecOrMat, (state, c_state))
     forget_gate = @. sigmoid_fast(gates[2] + tanh_fast(proj_mh_2))
     cell_gate = @. tanh_fast(gates[4])
     new_cstate = @. forget_gate * c_state + input_gate * cell_gate
-    proj_mh_2 = dense_proj(wms[3], new_cstate, bms[3])
-    output_gate = @. sigmoid_fast(gates[3] + tanh_fast(proj_mh_2))
+    proj_mh_3 = dense_proj(wms[3], new_cstate, bms[3])
+    output_gate = @. sigmoid_fast(gates[3] + tanh_fast(proj_mh_3))
     new_state = @. output_gate * tanh_fast(new_cstate)
     return new_state, (new_state, new_cstate)
 end

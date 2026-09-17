@@ -203,3 +203,15 @@ function functor(rhn::RHN{S}) where {S}
     reconstruct = p -> RHN{S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
+
+function Base.show(io::IO, rhn::RHN)
+    unit = first(rhn.cell.layers.layers)
+    hidden_size = size(unit.weights, 1) ÷ unit.num_gates
+    input_size = size(unit.weights, 2) - hidden_size
+    print(io, "RHN(", input_size, " => ", hidden_size)
+    depth = length(rhn.cell.layers.layers)
+    if depth != 3
+        print(io, ", ", depth)
+    end
+    print(io, ")")
+end
