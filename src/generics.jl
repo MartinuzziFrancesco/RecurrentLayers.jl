@@ -28,7 +28,7 @@ end
 # infer `S` back. This single method replaces what used to be a hand-written
 # `functor` per layer type.
 function functor(rlayer::L) where {S, L <: AbstractRecurrentLayer{S}}
-    params = (cell = rlayer.cell,)
+    params = (cell=rlayer.cell,)
     reconstruct = p -> (Base.typename(L).wrapper){S, typeof(p.cell)}(p.cell)
     return params, reconstruct
 end
