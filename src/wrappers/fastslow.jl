@@ -63,10 +63,9 @@ function FastSlow(fast_cells, slow_cell,
     if !(fast_cells isa AbstractVector)
         fast_cells = fill(fast_cells, num_fast_cells)
     end
-    f_cells = []
-    for (cell_idx, fast_cell) in enumerate(fast_cells)
+    f_cells = ntuple(length(fast_cells)) do cell_idx
         in_size = cell_idx == 1 ? input_size : hidden_size
-        push!(f_cells, fast_cell(in_size => hidden_size))
+        fast_cells[cell_idx](in_size => hidden_size)
     end
     s_cell = slow_cell(hidden_size => hidden_size)
     return FastSlow(f_cells, s_cell)
