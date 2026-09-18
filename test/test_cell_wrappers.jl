@@ -71,3 +71,20 @@ end
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)
 end
+
+# a representative subset, mirroring test_layers.jl: exhaustive per-cell
+# gradient checks blow up Zygote's compile time across 30+ distinct types
+@testset "Batched gradients: Multiplicative with cell: $cell" for cell in
+                                                                  [MGUCell, SGRNCell]
+    wrap = Multiplicative(cell, 2 => 4)
+    inp = rand(Float32, 2, 3)
+    gs = Flux.gradient(m -> sum(first(m(inp))), wrap)
+    @test gs[1] !== nothing
+end
+
+@testset "Batched gradients: FastSlow with cell: $cell" for cell in [MGUCell, SGRNCell]
+    wrap = FastSlow(cell, cell, 2 => 4)
+    inp = rand(Float32, 2, 3)
+    gs = Flux.gradient(m -> sum(first(m(inp))), wrap)
+    @test gs[1] !== nothing
+end

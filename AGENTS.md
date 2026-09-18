@@ -115,7 +115,9 @@ Use `src/cells/sgrn_cell.jl` as the template. Each file defines a **Cell**
 7. Add `Base.show` for the cell.
 8. Add the matching `struct X{S,M} <: AbstractRecurrentLayer{S}`,
    `@layer :noexpand X`, constructor forwarding `kwargs...` to the cell and
-   threading `return_state`, `functor`, and `Base.show`.
+   threading `return_state`, and `Base.show`. `functor` is handled generically
+   for every `AbstractRecurrentLayer{S}` in `src/generics.jl` — do not add a
+   per-type override unless the new struct has more than one field.
 
 Also update:
 
