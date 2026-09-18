@@ -198,12 +198,6 @@ function IntersectionRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return IntersectionRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::IntersectionRNN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> IntersectionRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, irnn::IntersectionRNN)
     print(io, "IntersectionRNN(", size(irnn.cell.weight_ih, 2),
         " => ", size(irnn.cell.bias_ih, 1) ÷ 4)

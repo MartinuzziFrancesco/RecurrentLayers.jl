@@ -180,12 +180,6 @@ function OriginalLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
     return OriginalLSTM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::OriginalLSTM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> OriginalLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, originallstm::OriginalLSTM)
     print(io, "OriginalLSTM(", size(originallstm.cell.weight_ih, 2),
         " => ", size(originallstm.cell.weight_ih, 1) ÷ 3)

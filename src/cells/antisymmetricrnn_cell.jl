@@ -171,12 +171,6 @@ function AntisymmetricRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activat
     return AntisymmetricRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(asymrnn::AntisymmetricRNN{S}) where {S}
-    params = (cell=asymrnn.cell,)
-    reconstruct = p -> AntisymmetricRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, asymrnn::AntisymmetricRNN)
     print(
         io, "AntisymmetricRNN(", size(asymrnn.cell.weight_ih, 2),
@@ -365,12 +359,6 @@ function GatedAntisymmetricRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
     cell = GatedAntisymmetricRNNCell(input_size => hidden_size; kwargs...)
     return GatedAntisymmetricRNN{return_state, typeof(cell)}(cell)
-end
-
-function functor(asymrnn::GatedAntisymmetricRNN{S}) where {S}
-    params = (cell=asymrnn.cell,)
-    reconstruct = p -> GatedAntisymmetricRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
 end
 
 function Base.show(io::IO, asymrnn::GatedAntisymmetricRNN)

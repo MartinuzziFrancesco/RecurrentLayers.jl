@@ -25,14 +25,12 @@ julia> using RecurrentLayers
 
 julia> stac_rnn = StackedRNN(MGU, (3=>5); num_layers = 4)
 StackedRNN(
-  [
-    MGU(3 => 5),                        # 100 parameters
-    MGU(5 => 5),                        # 120 parameters
-    MGU(5 => 5),                        # 120 parameters
-    MGU(5 => 5),                        # 120 parameters
-  ],
+  MGU(3 => 5),                          # 100 parameters
+  MGU(5 => 5),                          # 120 parameters
+  MGU(5 => 5),                          # 120 parameters
+  MGU(5 => 5),                          # 120 parameters
 )         # Total: 16 trainable arrays, 460 parameters,
-          # plus 4 non-trainable, 20 parameters, summarysize 3.062 KiB.
+          # plus 4 non-trainable, 20 parameters, summarysize 2.945 KiB.
 
 ```
 """
@@ -47,16 +45,14 @@ end
 function StackedRNN(rlayer, (input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
         num_layers::Int=1, dropout::Number=0.0, dims=:,
         active::Union{Bool, Nothing}=nothing, rng=default_rng(), kwargs...)
-    #build container
-    layers = []
     #warn for dropout and num_layers
     if num_layers == 1 && dropout != 0.0
         @warn("Dropout is not applied when num_layers = 1.")
     end
 
-    for idx in 1:num_layers
+    layers = ntuple(num_layers) do idx
         in_size = idx == 1 ? input_size : hidden_size
-        push!(layers, rlayer(in_size => hidden_size, args...; kwargs...))
+        rlayer(in_size => hidden_size, args...; kwargs...)
     end
     states = [initialstates(layer) for layer in layers]
 

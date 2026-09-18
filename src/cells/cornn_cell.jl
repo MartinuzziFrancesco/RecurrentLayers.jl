@@ -200,12 +200,6 @@ function coRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
     return coRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(cornn::coRNN{S}) where {S}
-    params = (cell=cornn.cell,)
-    reconstruct = p -> coRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, cornn::coRNN)
     print(io, "coRNN(", size(cornn.cell.weight_ih, 2),
         " => ", size(cornn.cell.weight_ih, 1))

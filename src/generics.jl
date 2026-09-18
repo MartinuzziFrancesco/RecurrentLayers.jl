@@ -22,6 +22,17 @@ function initialstates(rlayer::AbstractRecurrentLayer)
     return initialstates(rlayer.cell)
 end
 
+# Every concrete `L <: AbstractRecurrentLayer{S}` wraps a single `cell` field
+# and has no way to recover `S` from it, so the structural default `functor`
+# (which drops type parameters and reconstructs via the bare type name) can't
+# infer `S` back. This single method replaces what used to be a hand-written
+# `functor` per layer type.
+function functor(rlayer::L) where {S, L <: AbstractRecurrentLayer{S}}
+    params = (cell=rlayer.cell,)
+    reconstruct = p -> (Base.typename(L).wrapper){S, typeof(p.cell)}(p.cell)
+    return params, reconstruct
+end
+
 function (rlayer::AbstractRecurrentLayer)(inp::AbstractArray)
     state = initialstates(rlayer)
     return rlayer(inp, state)

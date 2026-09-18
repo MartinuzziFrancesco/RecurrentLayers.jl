@@ -263,12 +263,6 @@ function ResLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
     return ResLSTM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::ResLSTM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> ResLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, reslstm::ResLSTM)
     print(io, "ResLSTM(", size(reslstm.cell.weight_ih, 2),
         " => ", size(reslstm.cell.weight_proj, 1))

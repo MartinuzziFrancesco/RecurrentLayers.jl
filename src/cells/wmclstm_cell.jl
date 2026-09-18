@@ -215,12 +215,6 @@ function WMCLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
     return WMCLSTM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::WMCLSTM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> WMCLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, lstm::WMCLSTM)
     print(io, "WMCLSTM(", size(lstm.cell.weight_ih, 2),
         " => ", size(lstm.cell.weight_ih, 1) ÷ 4)

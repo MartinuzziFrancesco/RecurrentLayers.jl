@@ -178,12 +178,6 @@ function BR((input_size, hidden_size)::Pair{<:Int, <:Int};
     return BR{return_state, typeof(cell)}(cell)
 end
 
-function functor(br::BR{S}) where {S}
-    params = (cell=br.cell,)
-    reconstruct = p -> BR{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, br::BR)
     print(
         io, "BR(", size(br.cell.weight_ih, 2), " => ", size(br.cell.weight_ih, 1) ÷ 3
@@ -363,12 +357,6 @@ function NBR((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
     cell = NBRCell(input_size => hidden_size; kwargs...)
     return NBR{return_state, typeof(cell)}(cell)
-end
-
-function functor(nbr::NBR{S}) where {S}
-    params = (cell=nbr.cell,)
-    reconstruct = p -> NBR{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
 end
 
 function Base.show(io::IO, nbr::NBR)

@@ -174,12 +174,6 @@ function CFN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return CFN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::CFN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> CFN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, cfn::CFN)
     print(io, "CFN(", size(cfn.cell.weight_ih, 2), " => ", size(cfn.cell.weight_ih, 1) ÷ 3)
     print(io, ")")

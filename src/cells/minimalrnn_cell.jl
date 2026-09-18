@@ -186,12 +186,6 @@ function MinimalRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return MinimalRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::MinimalRNN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> MinimalRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, minimal::MinimalRNN)
     print(io, "MinimalRNN(", size(minimal.cell.weight_ih, 2),
         " => ", size(minimal.cell.weight_ih, 1))

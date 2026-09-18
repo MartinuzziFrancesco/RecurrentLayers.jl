@@ -170,12 +170,6 @@ function STAR((input_size, hidden_size)::Pair{<:Int, <:Int};
     return STAR{return_state, typeof(cell)}(cell)
 end
 
-function functor(star::STAR{S}) where {S}
-    params = (cell=star.cell,)
-    reconstruct = p -> STAR{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, star::STAR)
     print(
         io, "STAR(", size(star.cell.weight_ih, 2), " => ", size(star.cell.weight_ih, 1) ÷ 2)

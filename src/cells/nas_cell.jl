@@ -255,12 +255,6 @@ function NAS((input_size, hidden_size)::Pair{<:Int, <:Int};
     return NAS{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::NAS{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> NAS{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, nas::NAS)
     print(io, "NAS(", size(nas.cell.weight_ih, 2), " => ", size(nas.cell.weight_ih, 1) ÷ 8)
     print(io, ")")

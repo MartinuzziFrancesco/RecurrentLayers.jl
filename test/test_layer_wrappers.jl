@@ -19,3 +19,12 @@ layers = [
     @test output isa Array{Float32, 2}
     @test size(output) == (4, 3)
 end
+
+# a representative subset, mirroring test_layers.jl: exhaustive per-layer
+# gradient checks blow up Zygote's compile time across 30+ distinct types
+@testset "Batched gradients: StackedRNN with layer: $layer" for layer in [MGU, SGRN, RHN]
+    wrap = StackedRNN(layer, 2 => 4; num_layers=3)
+    inp = rand(Float32, 2, 3, 5)
+    gs = Flux.gradient(m -> sum(m(inp)), wrap)
+    @test gs[1] !== nothing
+end

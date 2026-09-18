@@ -167,12 +167,6 @@ function LightRU((input_size, hidden_size)::Pair{<:Int, <:Int};
     return LightRU{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::LightRU{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> LightRU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, lightru::LightRU)
     print(io, "LightRU(", size(lightru.cell.weight_ih, 2),
         " => ", size(lightru.cell.weight_ih, 1) ÷ 2)

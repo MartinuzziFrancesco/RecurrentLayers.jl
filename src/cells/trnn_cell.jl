@@ -148,12 +148,6 @@ function TRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return TRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::TRNN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> TRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, trnn::TRNN)
     print(
         io, "TRNN(", size(trnn.cell.weight_ih, 2), " => ", size(trnn.cell.weight_ih, 1) ÷ 2)
@@ -338,12 +332,6 @@ function TGRU((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
     cell = TGRUCell(input_size => hidden_size; kwargs...)
     return TGRU{return_state, typeof(cell)}(cell)
-end
-
-function functor(tgru::TGRU{S}) where {S}
-    params = (cell=tgru.cell,)
-    reconstruct = p -> TGRU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
 end
 
 function Base.show(io::IO, tgru::TGRU)
@@ -536,12 +524,6 @@ function TLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
     cell = TLSTMCell(input_size => hidden_size; kwargs...)
     return TLSTM{return_state, typeof(cell)}(cell)
-end
-
-function functor(tlstm::TLSTM{S}) where {S}
-    params = (cell=tlstm.cell,)
-    reconstruct = p -> TLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
 end
 
 function Base.show(io::IO, tlstm::TLSTM)

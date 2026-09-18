@@ -208,12 +208,6 @@ function MultiplicativeLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
     return MultiplicativeLSTM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::MultiplicativeLSTM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> MultiplicativeLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, lstm::MultiplicativeLSTM)
     print(io, "MultiplicativeLSTM(", size(lstm.cell.weight_ih, 2),
         " => ", size(lstm.cell.weight_ih, 1) ÷ 5)

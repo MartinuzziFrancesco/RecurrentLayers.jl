@@ -200,12 +200,6 @@ function LEM((input_size, hidden_size)::Pair{<:Int, <:Int}, dt::Number=1.0;
     return LEM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::LEM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> LEM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, lem::LEM)
     print(io, "LEM(", size(lem.cell.weight_ih, 2),
         " => ", size(lem.cell.weight_ih, 1) ÷ 4)

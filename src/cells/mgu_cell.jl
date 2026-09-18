@@ -172,12 +172,6 @@ function MGU((input_size, hidden_size)::Pair{<:Int, <:Int};
     return MGU{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::MGU{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> MGU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, mgu::MGU)
     print(io, "MGU(", size(mgu.cell.weight_ih, 2), " => ", size(mgu.cell.weight_ih, 1) ÷ 2)
     print(io, ")")

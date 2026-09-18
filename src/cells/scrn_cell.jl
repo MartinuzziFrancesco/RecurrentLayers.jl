@@ -197,12 +197,6 @@ function SCRN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return SCRN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::SCRN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> SCRN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, scrn::SCRN)
     print(
         io, "SCRN(", size(scrn.cell.weight_ih, 2), " => ", size(scrn.cell.weight_ih, 1) ÷ 2)

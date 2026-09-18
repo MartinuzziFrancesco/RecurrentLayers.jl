@@ -181,12 +181,6 @@ function SGU((input_size, hidden_size)::Pair{<:Int, <:Int};
     return SGU{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::SGU{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> SGU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, sgu::SGU)
     print(io, "SGU(", size(sgu.cell.weight_ih, 2),
         " => ", size(sgu.cell.weight_ih, 1) ÷ 2)

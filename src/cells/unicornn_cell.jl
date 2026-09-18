@@ -203,12 +203,6 @@ function UnICORNN((input_size, hidden_size)::Pair{<:Int, <:Int}, args...;
     return UnICORNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(unicornn::UnICORNN{S}) where {S}
-    params = (cell=unicornn.cell,)
-    reconstruct = p -> UnICORNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, unicornn::UnICORNN)
     print(io, "UnICORNN(", size(unicornn.cell.weight_ih, 2),
         " => ", size(unicornn.cell.weight_ih, 1))
