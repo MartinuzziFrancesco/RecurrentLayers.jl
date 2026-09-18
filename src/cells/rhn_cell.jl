@@ -88,7 +88,7 @@ end
 
 @layer RHNCell
 
-function RHNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Integer=3;
+function RHNCell((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Int=3;
         couple_carry::Bool=true, #sec 5, setup
         cell_kwargs...)
     depth > 0 || throw(ArgumentError("depth must be a positive integer; got $depth"))
