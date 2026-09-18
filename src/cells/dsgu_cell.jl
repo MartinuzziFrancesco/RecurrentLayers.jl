@@ -183,12 +183,6 @@ function DSGU((input_size, hidden_size)::Pair{<:Int, <:Int};
     return DSGU{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::DSGU{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> DSGU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, dsgu::DSGU)
     print(io, "DSGU(", size(dsgu.cell.weight_ih, 2),
         " => ", size(dsgu.cell.weight_ih, 1) ÷ 2)

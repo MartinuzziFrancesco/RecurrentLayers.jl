@@ -184,12 +184,6 @@ function JANET((input_size, hidden_size)::Pair{<:Int, <:Int};
     return JANET{return_state, typeof(cell)}(cell)
 end
 
-function functor(janet::JANET{S}) where {S}
-    params = (cell=janet.cell,)
-    reconstruct = p -> JANET{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, janet::JANET)
     print(
         io, "JANET(", size(janet.cell.weight_ih, 2), " => ", size(janet.cell.weight_ih, 1) ÷

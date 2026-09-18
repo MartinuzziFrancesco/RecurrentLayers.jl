@@ -167,12 +167,6 @@ function IndRNN((input_size, hidden_size)::Pair{<:Int, <:Int}, activation=relu;
     return IndRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::IndRNN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> IndRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, indrnn::IndRNN)
     print(io, "IndRNN(", size(indrnn.cell.weight_ih, 2),
         " => ", size(indrnn.cell.weight_ih, 1))

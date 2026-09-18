@@ -198,12 +198,6 @@ function RHN((input_size, hidden_size)::Pair{<:Int, <:Int}, depth::Integer=3;
     return RHN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rhn::RHN{S}) where {S}
-    params = (cell=rhn.cell,)
-    reconstruct = p -> RHN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, rhn::RHN)
     unit = first(rhn.cell.layers.layers)
     hidden_size = size(unit.weights, 1) ÷ unit.num_gates

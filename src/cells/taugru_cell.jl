@@ -239,12 +239,6 @@ function TauGRU((input_size, hidden_size)::Pair{<:Int, <:Int};
     return TauGRU{return_state, typeof(cell)}(cell)
 end
 
-function functor(taugru::TauGRU{S}) where {S}
-    params = (cell=taugru.cell,)
-    reconstruct = p -> TauGRU{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, taugru::TauGRU)
     print(io, "TauGRU(", size(taugru.cell.weight_ih, 2), " => ",
         size(taugru.cell.weight_ih, 1) ÷ 4)

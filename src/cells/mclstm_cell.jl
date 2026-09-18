@@ -187,12 +187,6 @@ function MCLSTM((input_size, hidden_size)::Pair{<:Int, <:Int};
     return MCLSTM{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::MCLSTM{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> MCLSTM{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, lstm::MCLSTM)
     print(io, "MCLSTM(", size(lstm.cell.weight_ih, 2),
         " => ", size(lstm.cell.weight_ih, 1) ÷ 5)

@@ -170,12 +170,6 @@ function UGRNN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return UGRNN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::UGRNN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> UGRNN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, ugrnn::UGRNN)
     print(io, "UGRNN(", size(ugrnn.cell.weight_ih, 2),
         " => ", size(ugrnn.cell.weight_ih, 1) ÷ 2)

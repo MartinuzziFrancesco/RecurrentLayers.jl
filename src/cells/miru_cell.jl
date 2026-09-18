@@ -198,12 +198,6 @@ function MiRU1((input_size, hidden_size)::Pair{<:Int, <:Int};
     return MiRU1{return_state, typeof(cell)}(cell)
 end
 
-function functor(miru::MiRU1{S}) where {S}
-    params = (cell=miru.cell,)
-    reconstruct = p -> MiRU1{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, miru::MiRU1)
     print(
         io, "MiRU1(", size(miru.cell.weight_ih, 2), " => ", size(miru.cell.weight_ih, 1) ÷
@@ -404,12 +398,6 @@ function MiRU2((input_size, hidden_size)::Pair{<:Int, <:Int};
         return_state::Bool=false, kwargs...)
     cell = MiRU2Cell(input_size => hidden_size; kwargs...)
     return MiRU2{return_state, typeof(cell)}(cell)
-end
-
-function functor(miru::MiRU2{S}) where {S}
-    params = (cell=miru.cell,)
-    reconstruct = p -> MiRU2{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
 end
 
 function Base.show(io::IO, miru::MiRU2)

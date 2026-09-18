@@ -177,12 +177,6 @@ function RAN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return RAN{return_state, typeof(cell)}(cell)
 end
 
-function functor(rnn::RAN{S}) where {S}
-    params = (cell=rnn.cell,)
-    reconstruct = p -> RAN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, ran::RAN)
     print(io, "RAN(", size(ran.cell.weight_ih, 2), " => ", size(ran.cell.weight_ih, 1) ÷ 3)
     print(io, ")")

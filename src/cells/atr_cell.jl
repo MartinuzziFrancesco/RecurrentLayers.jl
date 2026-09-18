@@ -180,12 +180,6 @@ function ATR((input_size, hidden_size)::Pair{<:Int, <:Int};
     return ATR{return_state, typeof(cell)}(cell)
 end
 
-function functor(atr::ATR{S}) where {S}
-    params = (cell=atr.cell,)
-    reconstruct = p -> ATR{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, atr::ATR)
     print(
         io, "ATR(", size(atr.cell.weight_ih, 2), " => ", size(atr.cell.weight_ih, 1))

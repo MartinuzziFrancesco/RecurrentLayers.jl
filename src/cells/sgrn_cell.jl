@@ -166,12 +166,6 @@ function SGRN((input_size, hidden_size)::Pair{<:Int, <:Int};
     return SGRN{return_state, typeof(cell)}(cell)
 end
 
-function functor(sgrn::SGRN{S}) where {S}
-    params = (cell=sgrn.cell,)
-    reconstruct = p -> SGRN{S, typeof(p.cell)}(p.cell)
-    return params, reconstruct
-end
-
 function Base.show(io::IO, sgrn::SGRN)
     print(
         io, "SGRN(", size(sgrn.cell.weight_ih, 2), " => ", size(sgrn.cell.weight_ih, 1))
